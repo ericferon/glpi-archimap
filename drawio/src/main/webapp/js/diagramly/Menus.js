@@ -1331,7 +1331,6 @@
 		{
 			editorUi.actions.get('save').funct = function(exit)
 			{
-					console.log("Menu save : entering "+editorUi.editor.modified);
 				if (graph.isEditing())
 				{
 					graph.stopEditing();
@@ -1386,7 +1385,6 @@
 							mxUtils.alert(mxResources.get('drawingTooLarge'));
 							mxUtils.popup(xml);
 						}
-					console.log("Menu save : after "+editorUi.editor.modified);
 						// delete old links of all glpi classes present in the diagram
 						var xhr = new XMLHttpRequest();
 						xhr.onreadystatechange = function() {
@@ -1467,7 +1465,6 @@
 			
 			editorUi.actions.addAction('exit', function()
 			{
-	console.log('enter exit with modified='+editorUi.editor.modified);
 				var fn = function()
 				{
 					editorUi.editor.modified = false;
