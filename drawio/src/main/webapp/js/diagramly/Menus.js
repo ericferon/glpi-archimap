@@ -1474,7 +1474,7 @@
 					parent.postMessage(msg, '*');
 */// Added EFE 20170718
 					// hide the drawing pane (all divs with class starting with "ge")
-					$('[class^="ge"]').css('display', 'none');
+					$('[class^="ge"]*').css('display', 'none');
 					// display header, footer and  glpi_tabs div back
 					var header = document.getElementById('header');
 					if (header) header.style.display = 'inline';
