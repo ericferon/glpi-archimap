@@ -838,6 +838,9 @@ EditorUi.prototype.movePage = function(oldIndex, newIndex)
 EditorUi.prototype.createTabContainer = function()
 {
 	var div = document.createElement('div');
+// Added EFE 20180518 : add class gePageContainer
+	div.className = 'gePageContainer';
+// end of Added EFE 20180518
 	div.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#dcdcdc';
 	div.style.position = 'absolute';
 	div.style.whiteSpace = 'nowrap';
