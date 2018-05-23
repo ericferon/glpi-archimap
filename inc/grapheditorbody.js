@@ -129,6 +129,8 @@
  * Main
  */
 if (urlParams['dev'])
+{
 	var log = log4javascript.getDefaultLogger();
-App.main();
+}
+	App.main();
 
