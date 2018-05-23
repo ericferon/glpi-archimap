@@ -32,12 +32,22 @@
 		};
 
 		// hide header, footer and  glpi_tabs div, for full page drawing pane
-		var header = document.getElementById('header');
-		if (header) header.style.display = 'none';
-		var footer = document.getElementById('footer');
-		if (footer) footer.style.display = 'none';
-		var glpitabs = document.getElementsByClassName('glpi_tabs');
-		if (glpitabs) glpitabs[0].style.visibility = 'hidden';
+		function hideGlpi() 
+		{
+			var header = document.getElementById('header');
+			if (header) header.style.display = 'none';
+			var footer = document.getElementById('footer');
+			if (footer) footer.style.display = 'none';
+			var glpitabs = document.getElementsByClassName('glpi_tabs');
+			if (glpitabs) glpitabs[0].style.visibility = 'hidden';
+		};
+		hideGlpi();
+		function showDrawio()
+		{
+			// show the drawing pane (all divs with class starting with "ge")
+			$('*[class^="ge"]').css('display', 'initial');
+		};
+//		showDrawio();
 
 		/**
 		 * URL Parameters and protocol description are here:
