@@ -37,7 +37,10 @@
 			}
 			else
 			{
-				document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
+//	Added EFE 20180524
+//				document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
+				document.write('<script src="' + DRAWIO_WEBAPP + '/' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
+//	End of Added EFE 20180524
 					((dataAppKey != null) ? ' data-app-key="' + dataAppKey +'" ' : '') + '></scr' + 'ipt>');
 			}
 		};

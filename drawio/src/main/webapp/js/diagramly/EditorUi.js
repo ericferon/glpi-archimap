@@ -5421,7 +5421,10 @@
 		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline())
 		{
 			this.loadingExtensions = true;
-			mxscript('js/extensions.min.js', delayed);
+// Added EFE 20180524
+//			mxscript('js/extensions.min.js', delayed);
+			mxscript(DRAWIO_WEBAPP + '/' + 'js/extensions.min.js', delayed);
+// End of Added EFE 20180524
 		}
 		else
 		{
@@ -5454,7 +5457,10 @@
 		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline())
 		{
 			this.loadingExtensions = true;
-			mxscript('js/extensions.min.js', delayed);
+// Added EFE 20180524
+//			mxscript('js/extensions.min.js', delayed);
+			mxscript(DRAWIO_WEBAPP + '/' + 'js/extensions.min.js', delayed);
+// End of Added EFE 20180524
 		}
 		else
 		{
@@ -5498,11 +5504,17 @@
 			
 			if (urlParams['dev'] == '1')
 			{
-				mxscript('js/diagramly/Extensions.js', delayed);
+// Added EFE 20180524
+//				mxscript('js/diagramly/Extensions.js', delayed);
+				mxscript(DRAWIO_WEBAPP + '/' + 'js/diagramly/Extensions.js', delayed);
+// End of Added EFE 20180524
 			}
 			else
 			{
-				mxscript('js/extensions.min.js', delayed);
+// Added EFE 20180524
+//				mxscript('js/extensions.min.js', delayed);
+				mxscript(DRAWIO_WEBAPP + '/' + 'js/extensions.min.js', delayed);
+// End of Added EFE 20180524
 			}
 		}
 		else
