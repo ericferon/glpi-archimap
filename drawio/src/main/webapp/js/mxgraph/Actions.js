@@ -217,10 +217,13 @@ Actions.prototype.init = function()
 	this.addAction('connectorslr', function()
 	{
 		var selectedCells = graph.getSelectionCells();
+		console.log('connectorslr');
 		for (var icell in selectedCells)
 		{
 			if (typeof(selectedCells[icell]) == 'object')
 			{
+				console.log('cell');
+				console.log(selectedCells[icell]);
 				var ishape = selectedCells[icell].mxObjectId;
 				var shape = graph.view.states.map[ishape].shape;
 //				if (!shape.constraints)
