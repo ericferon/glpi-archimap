@@ -1081,14 +1081,6 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 					this.addMenuItem(menu, 'image', null, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
 				}
 			}
-// Added EFE 20171204
-			// Add menu for connectors
-			if (graph.getSelectionCount() >= 1
-			&& graph.getModel().isVertex(graph.getSelectionCell()))
-			{
-				this.addMenuItems(menu, ['-', 'connectorslr', 'connectorstb', 'connectorsreset']);
-			}
-// End of Added EFE 20171204
 		}
 	}
 	else
