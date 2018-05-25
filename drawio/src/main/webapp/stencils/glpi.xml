@@ -286,7 +286,7 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<constraint y="0.875" x="1" perimeter="0"/>
 		</connections>
 		<foreground>
-			<image src="networking/" h="80" w="80" x="0" y="0"/>
+			<image src="networking/Firewall_02_128x128.png" h="80" w="80" x="0" y="0"/>
 		</foreground>
 	</shape>
 	<shape name="Data" w="120" h="60" strokewidth="inherit" aspect="variable">

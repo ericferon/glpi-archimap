@@ -3660,8 +3660,6 @@ Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ig
 							stencilStyle += (strokewidth.getAttribute('width')) ? ';strokeWidth='+strokewidth.getAttribute('width') : ''; 
 						if (dashed)
 							stencilStyle += (dashed.getAttribute('dashed')) ? ';dashed='+dashed.getAttribute('dashed') : '';
-						if (image)
-							stencilStyle += (image.getAttribute('src')) ? ';image='+IMAGE_PATH+'/'+image.getAttribute('src') : '';
 						switch (stencil.type)
 						{
 						case mxConstants.STENCIL_EDGE :
@@ -3675,8 +3673,7 @@ Sidebar.prototype.addStencilPalette = function(id, title, stencilFile, style, ig
 							break;
 
 						case mxConstants.STENCIL_IMAGE :
-					console.log(GRAPH_IMAGE_PATH + '/' + ((image.getAttribute('src')) ? image.getAttribute('src') : '') + stencilName + '_128x128.png');
-							content.appendChild(this.createVertexTemplate('image;image=' + GRAPH_IMAGE_PATH + '/' + ((image.getAttribute('src')) ? image.getAttribute('src') : '') + stencilName + '_128x128.png'  + stencilStyle, 80, 80, '', 
+							content.appendChild(this.createVertexTemplate('image;image=' + GRAPH_IMAGE_PATH + '/' + ((image.getAttribute('src')) ? image.getAttribute('src') : stencilName + '_128x128.png')  + stencilStyle, 80, 80, '', 
 								stencilName.replace(/_/g, ' '), true));
 							break;
 						case mxConstants.STENCIL_SWIMLANE :
