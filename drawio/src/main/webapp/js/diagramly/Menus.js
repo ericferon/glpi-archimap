@@ -1369,8 +1369,9 @@
 				if (urlParams['glpi'] == '1')
 				{
 					var diagramid = document.getElementsByName("id")[0];
+					console.log('save '+diagramid);
 					if (diagramid) {
-						// When pressing the "Add" or "Update" button of GLPI, load the hidden field "graph" with the diagram 
+						// When pressing the "Save" button of the drawing pane, load the hidden field "graph" with the diagram 
 						// this field will be saved in GLPI DB with the other fields of the form)
 						var inputgraph = document.getElementsByName("graph")[0];
 						var token = document.getElementsByName("_glpi_csrf_token")[0];
@@ -1433,13 +1434,17 @@
 						xhr.onreadystatechange = function() {
 							if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
 //								data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+								editorUi.editor.modified = false;
+								editorUi.editor.setStatus('');
+							}
+							else {
+								editorUi.editor.setStatus(mxResources.get('errorSavingFile'));
+
 							}
 						}; 
 						xhr.open("POST", "../front/graph.form.php", false);
 						xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 						xhr.send("update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value);
-						editorUi.editor.modified = false;
-						editorUi.editor.setStatus('');
 						if (exit)
 						{
 							editorUi.actions.get('exit').funct();
