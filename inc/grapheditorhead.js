@@ -17,7 +17,7 @@
 		// - storage=local: Enables HTML5 local storage.
 		// - chrome=0: Chromeless mode.
 		var urlParams = {'glpi' : '1',
-						'dev' : '0',
+						'dev' : '1',
 						'test' : '0',
 						'embed' : '0', // suppress menus linked to Google, Dropbox, ...
 						'gapi' : '0',

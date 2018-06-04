@@ -133,7 +133,9 @@
  */
 if (urlParams['dev'])
 {
-	var log = log4javascript.getDefaultLogger();
+	var log = log4javascript.getLogger();
+	var ajaxAppender = new log4javascript.AjaxAppender("../front/log4js.php");
+	log.addAppender(ajaxAppender);
 }
 	App.main();
 
