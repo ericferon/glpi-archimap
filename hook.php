@@ -339,7 +339,7 @@ function plugin_archimap_getAddSearchOptions($itemtype) {
                                                          'joinparams' => array('jointype' => 'itemtype_item')));
 
 
-         $sopt[2412]['table']        = 'glpi_plugin_archimap_states';
+/*         $sopt[2412]['table']        = 'glpi_plugin_archimap_states';
          $sopt[2412]['field']        = 'name';
          $sopt[2412]['name']         = PluginArchimapGraph::getTypeName(2)." - ".PluginArchimapGraphstate::getTypeName(1);
          $sopt[2412]['forcegroupby'] = true;
@@ -358,7 +358,7 @@ function plugin_archimap_getAddSearchOptions($itemtype) {
                                                          'joinparams' => $sopt[2410]['joinparams'])));
          $sopt[2413]['datatype']       = 'dropdown';
          $sopt[2413]['massiveaction']  = false;
-      }
+*/      }
    }
 /*   if ($itemtype == 'Ticket') {
       if (Session::haveRight("plugin_archimap", READ)) {

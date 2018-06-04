@@ -24,5 +24,5 @@
 */
 //include ('../../../inc/includes.php');
 
-error_log($_POST['timestamp'].' : '.$_POST['level'].' : '.$_POST['message'],3,"../log4js.log");
+error_log(date("Y-m-d h:i:sa")." (".$_POST['timestamp'].') : '.$_POST['level'].' : '.$_POST['message']."\n",3,"../log4js.log");
 ?>

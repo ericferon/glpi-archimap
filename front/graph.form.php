@@ -65,6 +65,7 @@ if (isset($_POST["add"])) {
 
    $graph->check($_POST['id'], UPDATE);
    $graph->update($_POST);
+error_log(date("Y-m-d h:i:sa")." : update graph :\n".print_r($_POST,true),3,"../log4js.log");
    Html::back();
 
 } else if (isset($_POST["additem"])) {

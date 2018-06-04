@@ -127,6 +127,17 @@ class PluginArchimapGraph extends CommonDBTM {
       $tab[12]['condition']      = '`is_assign`';
       $tab[12]['datatype']       = 'dropdown';
 
+/*      $tab[13]['table']         ='glpi_plugin_archisw_swcomponents';
+      $tab[13]['field']         ='name';
+      $tab[13]['name']          = PluginArchiswSwcomponent::getTypeName(2)." - ".__('Name');
+      $tab[13]['forcegroupby']  = true;
+      $tab[13]['datatype']      = 'itemlink';
+      $tab[13]['massiveaction'] = false;
+      $tab[13]['itemlink_type'] = 'PluginArchiswSwcomponent';
+      $tab[13]['joinparams']    = array('beforejoin'
+                                                => array('table'      => 'glpi_plugin_archimap_graphs_items',
+                                                         'joinparams' => array('jointype' => 'itemtype_item')));
+*/
       $tab[14]['table']          = $this->getTable();
       $tab[14]['field']          = 'date_mod';
       $tab[14]['massiveaction']  = false;
