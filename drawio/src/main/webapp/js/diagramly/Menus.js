@@ -1369,85 +1369,87 @@
 				if (urlParams['glpi'] == '1')
 				{
 					var diagramid = document.getElementsByName("id")[0];
-					console.log('save '+diagramid);
+					if (urlParams['dev']) log.debug('save diagram ' + diagramid.value + ' on ' + new Date() + ' - before : ' + inputgraph.value.length + ' - after : \n' );//+ data.value.length);
 					if (diagramid) {
 						// When pressing the "Save" button of the drawing pane, load the hidden field "graph" with the diagram 
 						// this field will be saved in GLPI DB with the other fields of the form)
 						var inputgraph = document.getElementsByName("graph")[0];
+					if (urlParams['dev']) log.debug('before : ' + inputgraph.value + '\n - after : ' + data + '\n');
 						var token = document.getElementsByName("_glpi_csrf_token")[0];
 						inputgraph.value = encodeURIComponent(data);
 						if (inputgraph.value.length < MAX_REQUEST_SIZE)
 						{
-							editorUi.editor.setStatus(mxResources.get('saved') + ' ' + new Date());
-							editorUi.editor.modified = false;
+							editorUi.editor.setStatus(mxResources.get('saved') + ' ' + new Date() + ' (size=' + inputgraph.value.length + ')');
+							// delete old links of all glpi classes present in the diagram
+							var xhr = new XMLHttpRequest();
+							xhr.onreadystatechange = function() {
+								if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+//									data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+								}
+							}; 
+							var itemtypes = [];
+							for (cell in editorUi.editor.graph.model.cells)
+							{
+								if (editorUi.editor.graph.model.cells[cell].customproperties 
+								&& editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']
+								&& editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject'])
+								{
+									itemtypes[editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']]++;
+								}
+							}
+							for (var key in itemtypes)
+							{
+								if (itemtypes.hasOwnProperty(key)) 
+								{
+									xhr.open("GET", "../front/unlinkgraph.php?plugin_archimap_graphs_id="+ diagramid.value+"&itemtype="+key, false);
+									xhr.send(null);
+								}
+							}
+
+							//create links to glpi objects present in the diagram
+							var xhr = new XMLHttpRequest();
+							xhr.onreadystatechange = function() {
+								if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+//									data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+								}
+							}; 
+							for (cell in editorUi.editor.graph.model.cells)
+							{
+								if (editorUi.editor.graph.model.cells[cell].customproperties 
+								&& editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']
+								&& editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject'])
+								{
+									xhr.open("GET", "../front/linkgraph.php?plugin_archimap_graphs_id="+ diagramid.value + '&items_id=' + encodeURIComponent(editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']) + '&itemtype=' + encodeURIComponent(editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']), false);
+									xhr.send(null);
+								}
+							}
+//							update graph in DB
+							var xhr = new XMLHttpRequest();
+							xhr.onreadystatechange = function() {
+								if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+//									data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+									editorUi.editor.modified = false;
+									editorUi.editor.setStatus('');
+								}
+								else {
+							if (urlParams['dev']) log.debug(mxResources.get('errorSavingFile')+'\n');
+									editorUi.editor.setStatus(mxResources.get('errorSavingFile'));
+
+								}	
+							}; 
+							xhr.open("POST", "../front/graph.form.php", false);
+							xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+							xhr.send("update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value);
+							if (urlParams['dev']) log.debug("../front/graph.form.php?update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value+'\n');
+							if (exit)
+							{
+								editorUi.actions.get('exit').funct();
+							}
 						}
 						else
 						{
 							mxUtils.alert(mxResources.get('drawingTooLarge'));
 							mxUtils.popup(xml);
-						}
-						// delete old links of all glpi classes present in the diagram
-						var xhr = new XMLHttpRequest();
-						xhr.onreadystatechange = function() {
-							if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-//								data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-							}
-						}; 
-						var itemtypes = [];
-						for (cell in editorUi.editor.graph.model.cells)
-						{
-							if (editorUi.editor.graph.model.cells[cell].customproperties 
-							&& editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']
-							&& editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject'])
-							{
-								itemtypes[editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']]++;
-							}
-						}
-						for (var key in itemtypes)
-						{
-							if (itemtypes.hasOwnProperty(key)) 
-							{
-								xhr.open("GET", "../front/unlinkgraph.php?plugin_archimap_graphs_id="+ diagramid.value+"&itemtype="+key, false);
-								xhr.send(null);
-							}
-						}
-
-						//create links to glpi objects present in the diagram
-						var xhr = new XMLHttpRequest();
-						xhr.onreadystatechange = function() {
-							if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-//								data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-							}
-						}; 
-						for (cell in editorUi.editor.graph.model.cells)
-						{
-							if (editorUi.editor.graph.model.cells[cell].customproperties 
-							&& editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']
-							&& editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject'])
-							{
-								xhr.open("GET", "../front/linkgraph.php?plugin_archimap_graphs_id="+ diagramid.value + '&items_id=' + encodeURIComponent(editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']) + '&itemtype=' + encodeURIComponent(editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']), false);
-								xhr.send(null);
-							}
-						}
-//						update graph in DB
-						var xhr = new XMLHttpRequest();
-						xhr.onreadystatechange = function() {
-							if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-//								data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-								editorUi.editor.modified = false;
-								editorUi.editor.setStatus('');
-							}
-							else {
-								editorUi.editor.setStatus(mxResources.get('errorSavingFile'));
-
-							}
-						}; 
-						xhr.open("POST", "../front/graph.form.php", false);
-						xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-						xhr.send("update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value);
-						if (exit)
-						{
-							editorUi.actions.get('exit').funct();
 						}
 					} 
 				} else
