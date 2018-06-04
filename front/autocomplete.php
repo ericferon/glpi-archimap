@@ -113,5 +113,8 @@ if ($result=$DB->query($query)) {
 */	}
 } 
 //var_dump($datas);
-echo json_encode($datas);
+if ($datas)
+	echo json_encode($datas);
+else
+	echo json_encode('');
 ?>
