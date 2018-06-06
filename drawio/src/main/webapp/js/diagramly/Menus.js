@@ -1369,11 +1369,16 @@
 				if (urlParams['glpi'] == '1')
 				{
 					var diagramid = document.getElementsByName("id")[0];
+<<<<<<< HEAD
 					if (urlParams['dev']) log.debug('save diagram ' + diagramid.value + ' on ' + new Date());
+=======
+					if (urlParams['dev']) log.debug('save diagram ' + diagramid.value + ' on ' + new Date() + ' - before : ' + inputgraph.value.length + ' - after : \n' );//+ data.value.length);
+>>>>>>> f6626ed2ee4b4f84bd36396898bfb7238886433b
 					if (diagramid) {
 						// When pressing the "Save" button of the drawing pane, load the hidden field "graph" with the diagram 
 						// this field will be saved in GLPI DB with the other fields of the form)
 						var inputgraph = document.getElementsByName("graph")[0];
+					if (urlParams['dev']) log.debug('before : ' + inputgraph.value + '\n - after : ' + data + '\n');
 						var token = document.getElementsByName("_glpi_csrf_token")[0];
 						inputgraph.value = encodeURIComponent(data);
 //						if (urlParams['dev']) log.debug('length : ' + inputgraph.value.length + '\n');
@@ -1432,9 +1437,15 @@
 									editorUi.editor.modified = false;
 									editorUi.editor.setStatus('');
 								}
+<<<<<<< HEAD
 								else if (xhr.readyState == 4) {
 									if (urlParams['dev']) log.debug(mxResources.get('errorSavingFile')+' (status = '+xhr.status+' : '+xhr.statusText+')\n');
 									editorUi.editor.setStatus(mxResources.get('errorSavingFile')+' (status = '+xhr.status+' : '+xhr.statusText+')');
+=======
+								else {
+							if (urlParams['dev']) log.debug(mxResources.get('errorSavingFile')+'\n');
+									editorUi.editor.setStatus(mxResources.get('errorSavingFile'));
+>>>>>>> f6626ed2ee4b4f84bd36396898bfb7238886433b
 
 								}	
 							}; 
