@@ -1374,11 +1374,11 @@
 						// When pressing the "Save" button of the drawing pane, load the hidden field "graph" with the diagram 
 						// this field will be saved in GLPI DB with the other fields of the form)
 						var inputgraph = document.getElementsByName("graph")[0];
-					if (urlParams['dev']) log.debug('before : ' + inputgraph.value + '\n - after : ' + data + '\n');
+					if (urlParams['dev']) log.debug('old original : ' + inputgraph.value + '\nnew original : ' + data + '\n');
 						var token = document.getElementsByName("_glpi_csrf_token")[0];
 						inputgraph.value = encodeURIComponent(data);
-//						if (urlParams['dev']) log.debug('length : ' + inputgraph.value.length + '\n');
-//						if (urlParams['dev']) log.debug('- before : ' + inputgraph.value + '\n');
+						if (urlParams['dev']) log.debug('length : ' + inputgraph.value.length + '\n');
+						if (urlParams['dev']) log.debug('to send : ' + inputgraph.value + '\n');
 						if (inputgraph.value.length < MAX_REQUEST_SIZE)
 						{
 							editorUi.editor.setStatus(mxResources.get('saved') + ' ' + new Date() + ' (size=' + inputgraph.value.length + ')');
@@ -1438,10 +1438,10 @@
 									editorUi.editor.setStatus(mxResources.get('errorSavingFile')+' (status = '+xhr.status+' : '+xhr.statusText+')');
 								}	
 							}; 
+							if (urlParams['dev']) log.debug("../front/graph.form.php?update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value+'\n');
 							xhr.open("POST", "../front/graph.form.php", false);
 							xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 							xhr.send("update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value);
-							if (urlParams['dev']) log.debug("../front/graph.form.php?update=Save&id="+ diagramid.value + '&graph=' + inputgraph.value + '&_glpi_csrf_token=' + token.value+'\n');
 							if (exit)
 							{
 								editorUi.actions.get('exit').funct();
