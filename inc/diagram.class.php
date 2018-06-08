@@ -92,7 +92,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		echo "<div class=\"geEditor\" style=\"position:relative;width:100%;overflow;cursor:default;margin-left:auto;margin-right:auto;\">\n";
 		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"../drawio/src/main/webapp/styles/grapheditor.css\">\n";
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorhead.js\"></script>\n";
-		echo "<div><h2 id=\"geStatus\">loading mxgraph ...</h2><p>Please ensure JavaScript is enabled.</p></div>\n";
+		echo "<div><h2 id=\"geStatus\">loading local draw.io ...</h2><p>Please ensure JavaScript is enabled.</p></div>\n";
 		echo "<script type=\"text/javascript\" src=\"../drawio/src/main/webapp/js/log4javascript/log4javascript.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"../drawio/src/main/webapp/js/app.min.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorbody.js\"></script>\n";
