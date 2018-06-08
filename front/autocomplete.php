@@ -113,7 +113,7 @@ if ($result=$DB->query($query)) {
 */	}
 } 
 //var_dump($datas);
-if ($datas)
+if (isset($datas))
 	echo json_encode($datas);
 else
 	echo json_encode('');
