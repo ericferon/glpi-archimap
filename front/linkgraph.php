@@ -41,17 +41,20 @@ if (isset($_GET['plugin_archimap_graphs_id'])) {
 } else {
     die("No 'plugin_archimap_graphs_id' parameter");
 }
-if (isset($_GET['items_id'])) {
-	$items_id = $DB->escape(utf8_decode($_GET['items_id']));
+if (isset($_GET['items'])) {
+$items = json_decode(stripslashes(urldecode($_GET['items'])));
 } else {
-    die("No 'items_id' parameter");
+    die("No 'items' parameter");
 }
-if (isset($_GET['itemtype'])) {
-	$itemtype = $DB->escape(utf8_decode($_GET['itemtype']));
-} else {
-    die("No 'itemtype' parameter");
+$query = "INSERT IGNORE glpi_plugin_archimap_graphs_items (plugin_archimap_graphs_id,items_id,itemtype) values";
+foreach ($items as $itemtype => $items_id) {
+	$first = TRUE;
+	foreach ($items_id as $item_id) {
+		if (!$first)
+			$query .= ", ";
+		$query .= "( ".$plugin_archimap_graphs_id.",".$item_id.",'".$itemtype."')";
+		$first = FALSE;
+	}
 }
-$query = "INSERT glpi_plugin_archimap_graphs_items (plugin_archimap_graphs_id,items_id,itemtype) values( ".$plugin_archimap_graphs_id.",".$items_id.",'".$itemtype."')";
-//logInFile('linkgraph', "insert glpi_plugin_archimap_graphs_items : plugin_archimap_graphs_id = ".$plugin_archimap_graphs_id.",items_id = ".$items_id.",itemtype = ".$itemtype."\n");
 $result=$DB->query($query);
 ?>

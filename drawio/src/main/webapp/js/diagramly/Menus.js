@@ -1415,16 +1415,24 @@
 //									data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
 								}
 							}; 
+							
+							var glpi_ids = {};
 							for (cell in editorUi.editor.graph.model.cells)
 							{
 								if (editorUi.editor.graph.model.cells[cell].customproperties 
 								&& editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']
 								&& editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject'])
 								{
-									xhr.open("GET", "../front/linkgraph.php?plugin_archimap_graphs_id="+ diagramid.value + '&items_id=' + encodeURIComponent(editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']) + '&itemtype=' + encodeURIComponent(editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']), false);
-									xhr.send(null);
+									if (!glpi_ids[editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']])
+									{	// create a member of type array per glpi object type
+										glpi_ids[editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']];
+										glpi_ids[editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']] = [];
+									}
+									glpi_ids[editorUi.editor.graph.model.cells[cell].customproperties['autocompleteobject']].push(editorUi.editor.graph.model.cells[cell].customproperties['glpi_id']);
 								}
 							}
+							xhr.open("GET", "../front/linkgraph.php?plugin_archimap_graphs_id="+ diagramid.value + '&items='+encodeURIComponent(JSON.stringify(glpi_ids)), false);
+							xhr.send(null);
 //							update graph in DB
 							var xhr = new XMLHttpRequest();
 							xhr.onreadystatechange = function() {
