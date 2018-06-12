@@ -47641,59 +47641,72 @@ mxCellEditor.prototype.installListeners = function(elt)
 					select: function(event, ui){
 						// when an item is selected in the list, get other custom properties for this object from backend
 						if (jointtables || jointtables == "")
-						{	$.ajax({
+						{	
+							var glpiCells = {};
+							glpiCells[ui.item.glpi_id] = {};
+							glpiCells[ui.item.glpi_id].key = '1';
+							glpiCells[ui.item.glpi_id].tablename = tablename;
+							glpiCells[ui.item.glpi_id].jointtables = jointtables;
+							glpiCells[ui.item.glpi_id].jointcolumns = jointcolumns;
+							glpiCells[ui.item.glpi_id].jointcriteria = jointcriteria;
+							$.ajax({
 								url: "../front/getcustomproperties.php?callback=?",
-								type:"get",
-								data: 'id=' + ui.item.glpi_id + '&table=' + encodeURIComponent(tablename) + '&jointtables=' + encodeURIComponent(jointtables) + '&jointcolumns=' + encodeURIComponent(jointcolumns) + '&jointcriteria=' + encodeURIComponent(jointcriteria),
+								type: "post",
+								contentType: 'application/json',
+								data: JSON.stringify(glpiCells),
 								dataType: 'text json',
-								success: function(data){
-									for (var key in data)
+								success: function(datas){
+									for (var key in datas)
 									{
-										if (data.hasOwnProperty(key)) 
+										var data = datas[key];
+										for (var i in data)
 										{
-											thisCell.setCustomProperty(key,(data[key]) ? data[key] : "");
-										}
-									}
-									// Add style classes to adapt cell's appearance (according to corresponding style in styles/default.xml)
-									var customproperties = thisCell.customproperties;
-									if (customproperties && customproperties['autocompletecssclass'])
-									{
-										var cssclassname = customproperties['autocompletecssclass'].split("+")
-										var style = thisGraphModel.getStyle(thisCell);
-										// remove old stylenames
-										style = mxUtils.removeAllStylenames(style);
-										var classlist = "";
-										// add new class names
-										for (i = 0; i < cssclassname.length ; i++)
-										{
-											// If the customproperty "autocompletecssclass" exists, add current value of "autocompletecssclass" to the element's class
-											if (customproperties[cssclassname[i]])
-												classlist += (typeof(customproperties[cssclassname[i]]) == 'string') 
-																	? customproperties[cssclassname[i]].replace(/ /g,"_") : customproperties[cssclassname[i]];
-											else
-											// Otherwise, add simply the symbol as string
-												classlist += cssclassname[i].replace(/'/g,"");
-										}
-										thisCell.setCustomProperty('autocompleteaddedclass',classlist);
-										thisGraphModel.setStyle(thisCell, style + ';' + classlist);
-									}
-									// Add hyperlink to cell
-									if (customproperties && customproperties['autocompletelink'])
-									{
-										var link = "";
-										var expression = customproperties['autocompletelink'];
-										// replace customproperties mentioned in expression by their current value
-										for (customproperty in customproperties)
-										{
-											if (customproperty.search(/autocomplete.*/) == -1) // skip 'autocomplete' properties
+											if (data.hasOwnProperty(i)) 
 											{
-												var regexpr = new RegExp(customproperty,"g");
-												expression = expression.replace(regexpr,"'"+customproperties[customproperty]+"'");
+												thisCell.setCustomProperty(i,(data[i]) ? data[i] : "");
 											}
 										}
-										link += eval(expression); // add the result to the element's link
-										thisCell.setCustomProperty('autocompleteaddedlink',link);
-										thisGraph.setLinkForCell(thisCell, link);
+										// Add style classes to adapt cell's appearance (according to corresponding style in styles/default.xml)
+										var customproperties = thisCell.customproperties;
+										if (customproperties && customproperties['autocompletecssclass'])
+										{
+											var cssclassname = customproperties['autocompletecssclass'].split("+")
+											var style = thisGraphModel.getStyle(thisCell);
+											// remove old stylenames
+											style = mxUtils.removeAllStylenames(style);
+											var classlist = "";
+											// add new class names
+											for (i = 0; i < cssclassname.length ; i++)
+											{
+												// If the customproperty "autocompletecssclass" exists, add current value of "autocompletecssclass" to the element's class
+												if (customproperties[cssclassname[i]])
+													classlist += (typeof(customproperties[cssclassname[i]]) == 'string') 
+																	? customproperties[cssclassname[i]].replace(/ /g,"_") : customproperties[cssclassname[i]];
+												else
+												// Otherwise, add simply the symbol as string
+													classlist += cssclassname[i].replace(/'/g,"");
+											}
+											thisCell.setCustomProperty('autocompleteaddedclass',classlist);
+											thisGraphModel.setStyle(thisCell, style + ';' + classlist);
+										}
+										// Add hyperlink to cell
+										if (customproperties && customproperties['autocompletelink'])
+										{
+											var link = "";
+											var expression = customproperties['autocompletelink'];
+											// replace customproperties mentioned in expression by their current value
+											for (customproperty in customproperties)
+											{
+												if (customproperty.search(/autocomplete.*/) == -1) // skip 'autocomplete' properties
+												{
+													var regexpr = new RegExp(customproperty,"g");
+													expression = expression.replace(regexpr,"'"+customproperties[customproperty]+"'");
+												}
+											}
+											link += eval(expression); // add the result to the element's link
+											thisCell.setCustomProperty('autocompleteaddedlink',link);
+											thisGraph.setLinkForCell(thisCell, link);
+										}
 									}
 								},
 								error: function(xhr, textStatus, errorThrown) {
