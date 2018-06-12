@@ -35,43 +35,36 @@ include ('../../../inc/includes.php');
 
 
 $DB = new DB;
-//header("Content-Type: text/html; charset=UTF-8");
-if (isset($_GET['table'])) {
-	$table = $DB->escape(utf8_decode($_GET['table']));
+
+$cells = file_get_contents('php://input');
+if (isset($cells)) {
+	$cells = json_decode($cells);
 } else {
-    die("No 'table' parameter");
+    die("No 'cells' contained in body of POST request 'getcustomproperties'");
 }
-if (isset($_GET['jointtables'])) {
-	$firstword = strtok($_GET['jointtables'], ' ');
-	$jointreservedword = array("LEFT", "INNER", "RIGHT", "JOIN", "NATURAL", "STRAIGHT_JOIN");
-	if ( in_array(strtoupper($firstword), $jointreservedword) ) {
-		$jointtables = $DB->escape(utf8_decode($_GET['jointtables']));
+$data = [];
+foreach($cells as $id => $cell) {
+	$key = $DB->escape($cell->key);
+	$table = $DB->escape($cell->tablename);
+	if (isset($cell->jointtables)) {
+		$firstword = strtok($cell->jointtables, ' ');
+		$jointreservedword = array("LEFT", "INNER", "RIGHT", "JOIN", "NATURAL", "STRAIGHT_JOIN");
+		if ( in_array(strtoupper($firstword), $jointreservedword) ) {
+			$jointtables = $DB->escape($cell->jointtables);
+		} else {
+			$jointtables = ", ".$DB->escape($cell->jointtables);
+		}
 	} else {
-		$jointtables = ", ".$DB->escape(utf8_decode($_GET['jointtables']));
+		$jointtables = "";
 	}
-} else {
-    die("No 'jointtables' parameter");
-}
-if (isset($_GET['jointcolumns'])) {
-	$jointcolumns = ", ".$DB->escape(utf8_decode($_GET['jointcolumns']));
-} else {
-    die("No 'jointcolumns' parameter");
-}
-if (isset($_GET['id'])) {
-    $id = $DB->escape(utf8_decode($_GET['id']));
-} else {
-    die("No 'id' parameter");
-}
-if (isset($_GET['jointcriteria'])) {
-    $jointcriteria = $DB->escape(urldecode($_GET['jointcriteria']));
-} else {
-    $jointcriteria = "";
-}
-$query = "SELECT $table.id as glpi_id $jointcolumns from $table $jointtables \nwhere $table.id = $id $jointcriteria";
+	$jointcolumns = (isset($cell->jointcolumns))? ", ".$DB->escape($cell->jointcolumns) : "";
+	$jointcriteria = (isset($cell->jointcriteria))? $DB->escape($cell->jointcriteria) : "";
+	$query = "SELECT $table.id as glpi_id $jointcolumns from $table $jointtables \nwhere $table.id = $id $jointcriteria";
 //var_dump($query);
-if ($result=$DB->query($query)) {
-	$data=$DB->fetch_assoc($result);
-} 
+	if ($result=$DB->query($query)) {
+		$data[$key]=$DB->fetch_assoc($result);
+	} 
+}
 //var_dump($data);
 echo json_encode($data);
 ?>

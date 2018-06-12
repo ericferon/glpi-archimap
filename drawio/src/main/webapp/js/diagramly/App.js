@@ -2060,6 +2060,7 @@ App.prototype.start = function()
 				}
 				// Update the graph's custom values with the current GLPI ones
 				var thisCells = this.editor.graph.model.cells;
+				var glpiCells = {};
 				for (var key in thisCells)
 				{
 					thisCell = thisCells[key];
@@ -2108,84 +2109,96 @@ App.prototype.start = function()
 									if (stencil.customproperties['autocompletejointcriteria'])
 										jointcriteria = stencil.customproperties['autocompletejointcriteria'];
 								}
-								var xhr = new XMLHttpRequest();
-								xhr.onreadystatechange = function() {
-									if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-										data = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-										// retrieve label displayed as graph's preference
-										var ipreference = thisCell.customproperties['stencil'];
-										for (var i in data)
-										{
-											if (data.hasOwnProperty(i)) 
-											{
-												data[i] = (data[i]) ? data[i] : "";
-												if (thisCell.customproperties[i] == "undefined" || thisCell.customproperties[i] != data[i])
-												{
-													if (thisCell.customproperties['name'])
-														console.log(thisCell.customproperties['name']+' : '+i+' modified :'+thisCell.customproperties[i]+'<-'+data[i]+';');
-													thisCell.customproperties[i] = data[i];
-													thisEditor.modified = true;
-													if (thisCell.customproperties['autocompletecssclass'])
-													{
-														var cssclassname = thisCell.customproperties['autocompletecssclass'].split("+")
-														var style = thisEditor.graph.model.getStyle(thisCell);
-														// remove old stylenames
-														style = mxUtils.removeAllStylenames(style);
-														var classlist = "";
-														for (j = 0; j < cssclassname.length ; j++)
-														{
-															// If the customproperty "autocompletcssclass" exists, add current value of "autocompletcssclass" to the element's class
-															if (thisCell.customproperties[cssclassname[j]])
-																classlist += (typeof(thisCell.customproperties[cssclassname[j]]) == 'string') ? thisCell.customproperties[cssclassname[j]].replace(/ /g,"_") : thisCell.customproperties[cssclassname[j]];
-															else
-															// Otherwise, add simply the symbol as string
-																classlist += cssclassname[j].replace(/'/g,"");
-														}
-														thisEditor.graph.model.setStyle(thisCell, style + ';' + classlist);
-														thisCell.setCustomProperty('autocompleteaddedclass',classlist);
-													}
-													// update displayed value (the label), in case of change
-													if (thisEditor.graph.preferences 
-													&& thisEditor.graph.preferences[ipreference]
-													&& thisEditor.graph.preferences[ipreference].values.indexOf(i) >= 0)
-													{
-														var newLabel = '';
-														// look for a label preference according to the cell's stencil
-														if (thisEditor.graph.preferences[ipreference].description
-														&& thisEditor.graph.preferences[ipreference].description.substring(0,5).toLowerCase() == 'label')
-														{
-															for (ivalue in thisEditor.graph.preferences[ipreference].values)
-															{
-																var customproperty = thisEditor.graph.preferences[ipreference].values[ivalue];
-																// compose the new label from each customproperty, separated by a newline
-																if (thisCell.customproperties[customproperty])
-																{
-																	if (newLabel != '')
-																		newLabel += '\n';
-																	newLabel += thisCell.customproperties[customproperty];
-																}
-															}
-														}
-														if (newLabel)
-														{
-															thisEditor.graph.cellLabelChanged(thisCell, newLabel,false);
-														}
-													}
-												}
-											}
-										}
-									}
-								}; 
-								xhr.open("GET", "../front/getcustomproperties.php?id="+ id + '&table=' + encodeURIComponent(tablename) + '&jointtables=' + encodeURIComponent(jointtables) + '&jointcolumns=' + encodeURIComponent(jointcolumns) + '&jointcriteria=' + encodeURIComponent(jointcriteria), false);
-								xhr.send(null);
+								glpiCells[id] = {};
+								glpiCells[id].key = key;
+								glpiCells[id].tablename = tablename;
+								glpiCells[id].jointtables = jointtables;
+								glpiCells[id].jointcolumns = jointcolumns;
+								glpiCells[id].jointcriteria = jointcriteria;
 							}
-						}
-						if (thisEditor.modified)
-						{
-							thisEditor.setStatus(mxResources.get('custompropertiesmodified'));
 						}
 					}
 				}
+				var xhr = new XMLHttpRequest();
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+						datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+						for (var key in datas)
+						{
+							var data = datas[key];
+							thisCell = thisCells[key];
+							// retrieve label displayed as graph's preference
+							var ipreference = thisCell.customproperties['stencil'];
+							for (var i in data)
+							{
+								if (data.hasOwnProperty(i)) 
+								{
+									data[i] = (data[i]) ? data[i] : "";
+									if (thisCell.customproperties[i] == "undefined" || thisCell.customproperties[i] != data[i])
+									{
+										if (thisCell.customproperties['name'])
+											console.log(thisCell.customproperties['name']+' : '+i+' modified :'+thisCell.customproperties[i]+'<-'+data[i]+';');
+										thisCell.customproperties[i] = data[i];
+										thisEditor.modified = true;
+										if (thisCell.customproperties['autocompletecssclass'])
+										{
+											var cssclassname = thisCell.customproperties['autocompletecssclass'].split("+")
+											var style = thisEditor.graph.model.getStyle(thisCell);
+											// remove old stylenames
+											style = mxUtils.removeAllStylenames(style);
+											var classlist = "";
+											for (j = 0; j < cssclassname.length ; j++)
+											{
+												// If the customproperty "autocompletcssclass" exists, add current value of "autocompletcssclass" to the element's class
+												if (thisCell.customproperties[cssclassname[j]])
+													classlist += (typeof(thisCell.customproperties[cssclassname[j]]) == 'string') ? thisCell.customproperties[cssclassname[j]].replace(/ /g,"_") : thisCell.customproperties[cssclassname[j]];
+												else
+												// Otherwise, add simply the symbol as string
+													classlist += cssclassname[j].replace(/'/g,"");
+											}
+											thisEditor.graph.model.setStyle(thisCell, style + ';' + classlist);
+											thisCell.setCustomProperty('autocompleteaddedclass',classlist);
+										}
+										// update displayed value (the label), in case of change
+										if (thisEditor.graph.preferences 
+										&& thisEditor.graph.preferences[ipreference]
+										&& thisEditor.graph.preferences[ipreference].values.indexOf(i) >= 0)
+										{
+											var newLabel = '';
+											// look for a label preference according to the cell's stencil
+											if (thisEditor.graph.preferences[ipreference].description
+											&& thisEditor.graph.preferences[ipreference].description.substring(0,5).toLowerCase() == 'label')
+											{
+												for (ivalue in thisEditor.graph.preferences[ipreference].values)
+												{
+													var customproperty = thisEditor.graph.preferences[ipreference].values[ivalue];
+													// compose the new label from each customproperty, separated by a newline
+													if (thisCell.customproperties[customproperty])
+													{
+														if (newLabel != '')
+															newLabel += '\n';
+														newLabel += thisCell.customproperties[customproperty];
+													}
+												}
+											}
+											if (newLabel)
+											{
+												thisEditor.graph.cellLabelChanged(thisCell, newLabel,false);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}; 
+				xhr.open("POST", "../front/getcustomproperties.php", true);
+				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+				xhr.send(JSON.stringify(glpiCells));
+		if (thisEditor.modified)
+		{
+			thisEditor.setStatus(mxResources.get('custompropertiesmodified'));
+		}
 // End of Added by EFE 20170714
 	} else {
 	try

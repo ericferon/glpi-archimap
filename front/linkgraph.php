@@ -47,8 +47,8 @@ $items = json_decode(stripslashes(urldecode($_GET['items'])));
     die("No 'items' parameter");
 }
 $query = "INSERT IGNORE glpi_plugin_archimap_graphs_items (plugin_archimap_graphs_id,items_id,itemtype) values";
+$first = TRUE;
 foreach ($items as $itemtype => $items_id) {
-	$first = TRUE;
 	foreach ($items_id as $item_id) {
 		if (!$first)
 			$query .= ", ";
