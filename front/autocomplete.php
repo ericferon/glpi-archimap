@@ -98,7 +98,6 @@ foreach ($columns_arr as $column) {
 $query .= ") ".$jointcriteria." ".$othercriteria." ".$ordercriteria;
 //Toolbox::logInFile("autocomplete", $query."\n");
 //var_dump($query);
-//file_put_contents("adebug.log", $query."\n", FILE_APPEND);
 if ($result=$DB->query($query)) {
 	while ($data=$DB->fetch_assoc($result)) {
 //var_dump($data);
