@@ -1,27 +1,29 @@
 <?php
 /*
+ -------------------------------------------------------------------------
+ Archimap plugin for GLPI
+ Copyright (C) 2009-2018 by Eric Feron.
+ -------------------------------------------------------------------------
+
  LICENSE
+      
+ This file is part of Archimap.
 
- This file is part of GLPI.
-
- GLPI is free software; you can redistribute it and/or modify
+ Archimap is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ at your option any later version.
 
- GLPI is distributed in the hope that it will be useful,
+ Archimap is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with GLPI; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ along with Archimap. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
-// ----------------------------------------------------------------------
-// Original Author of file: Eric Feron
-// ----------------------------------------------------------------------
-*/
+ */
+
 //include ('../../../inc/includes.php');
 
 error_log(date("Y-m-d h:i:sa")." (".$_POST['timestamp'].') : '.$_POST['level'].' : '.$_POST['message']."\n",3,"../log4js.log");
