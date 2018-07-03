@@ -24,7 +24,6 @@
  --------------------------------------------------------------------------
  */
 
-
 include ('../../../inc/includes.php');
 
 $dropdown = new PluginArchimapGraphstate();

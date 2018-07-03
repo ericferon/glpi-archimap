@@ -23,7 +23,6 @@
  along with Archimap. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  */
-
  
 class PluginArchimapMenu extends CommonGLPI {
    static $rightname = 'plugin_archimap';

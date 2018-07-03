@@ -23,7 +23,7 @@
  along with Archimap. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  */
-
+ 
 define('GLPI_ROOT', '../../..');
 include (GLPI_ROOT . "/inc/includes.php");
 
