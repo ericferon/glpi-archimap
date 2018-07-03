@@ -3,7 +3,7 @@
 	<key>archimap</key>
 	<state>stable</state>
 	<!-- stable | unstable | beta | alpha -->
-	<logo>https://raw.githubusercontent.com/ericferon/glpi-archimap/master/graphs.png</logo>
+	<logo>https://raw.githubusercontent.com/ericferon/glpi-archimap/master/graph.png</logo>
 	<description>
 		<short>
 			<en>This plugin enables you to create Visio-like (architecture) diagrams with elements of the inventory (computers, databases, applications, dataflows, locations, suppliers). The plugin implements the <a href="http://www.draw.io">Draw.io</a>'s graphical tool in the GLPI context</en>
@@ -17,7 +17,7 @@
 	<homepage>https://github.com/ericferon/glpi-archimap</homepage>
 	<download>https://github.com/ericferon/glpi-archimap/releases</download>
 	<issues>https://github.com/ericferon/glpi-archimap/issues</issues>
-	<readme>https://github.com/ericferon/glpi-archimap/blob/master/README.md</readme>
+	<readme>https://raw.githubusercontent.com/ericferon/glpi-archimap/master/README.md</readme>
 	<authors>
 		<author>Eric Feron</author>
 	</authors>
@@ -46,7 +46,7 @@
 		</fr>
 	</tags>
 	<screenshots>
-		<screenshot>https://github.com/ericferon/glpi-archimap/blob/master/Archimap-screenshot1.png</screenshot>
-		<screenshot>https://github.com/ericferon/glpi-archimap/blob/master/Archimap-screenshot2.png</screenshot>
+		<screenshot>https://raw.githubusercontent.com/ericferon/glpi-archimap/master/Archimap-screenshot1.png</screenshot>
+		<screenshot>https://raw.githubusercontent.com/ericferon/glpi-archimap/master/Archimap-screenshot2.png</screenshot>
     </screenshots>
 </root>
