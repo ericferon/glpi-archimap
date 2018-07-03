@@ -17,7 +17,7 @@
 	<homepage>https://github.com/ericferon/glpi-archimap</homepage>
 	<download>https://github.com/ericferon/glpi-archimap/releases</download>
 	<issues>https://github.com/ericferon/glpi-archimap/issues</issues>
-	<readme>https://github.com/ericferon/glpi-archimap/blob/master/README.md</readme>
+	<readme>https://raw.githubusercontent.com/ericferon/glpi-archimap/master/README.md</readme>
 	<authors>
 		<author>Eric Feron</author>
 	</authors>
