@@ -78,7 +78,7 @@ function plugin_version_archimap() {
       'version' => '2.0.2',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
-      'homepage'=>'',
+      'homepage'=>'https://github.com/ericferon/glpi-archimap',
       'minGlpiVersion' => '9.2',
    );
 

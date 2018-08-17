@@ -491,7 +491,7 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
       }
 //      echo "<th>".PluginArchimapGraphState::getTypeName(1)."</th>";
       echo "<th>".PluginArchimapGraphType::getTypeName(1)."</th>";
-      echo "<th>".__('Graph Owner')."</th>";
+      echo "<th>".__('Graph Owner', 'archimap')."</th>";
       echo "<th>".__('Graph Maintainer', 'archimap')."</th>";
       echo "</tr>";
       $used = array();
