@@ -119,14 +119,14 @@ class PluginArchimapGraph extends CommonDBTM {
       $tab[11]['table']          = 'glpi_users';
       $tab[11]['field']          = 'name';
       $tab[11]['linkfield']      = 'users_id';
-      $tab[11]['name']           = __('Graph Maintainer');
+      $tab[11]['name']           = __('Graph Maintainer', 'archimap');
       $tab[11]['datatype']       = 'dropdown';
       $tab[11]['right']          = 'interface';
 
       $tab[12]['table']          = 'glpi_groups';
       $tab[12]['field']          = 'name';
       $tab[12]['linkfield']      = 'groups_id';
-      $tab[12]['name']           = __('Graph Owner');
+      $tab[12]['name']           = __('Graph Owner', 'archimap');
       $tab[12]['condition']      = '`is_assign`';
       $tab[12]['datatype']       = 'dropdown';
 
@@ -212,7 +212,7 @@ class PluginArchimapGraph extends CommonDBTM {
 	  
       echo "<tr class='tab_bg_1'>";
       //short description of diagrams
-      echo "<td>".__('Short description')."</td>";
+      echo "<td>".__('Short description', 'archimap')."</td>";
       echo "<td>";
 //      echo "<textarea cols='100' rows='1' name='shortdescription'>".$this->fields["shortdescription"]."</textarea>";
       Html::autocompletionTextField($this,"shortdescription",array('size' => 100));
@@ -221,11 +221,11 @@ class PluginArchimapGraph extends CommonDBTM {
 	  
       echo "<tr class='tab_bg_1'>";
       //data owner
-      echo "<td>".__('Graph Owner')."</td><td>";
+      echo "<td>".__('Graph Owner', 'archimap')."</td><td>";
       Group::dropdown(array('name'      => 'groups_id', 'value'     => $this->fields['groups_id'], 'entity'    => $this->fields['entities_id'], 'condition' => '`is_assign`'));
       echo "</td>";
       //technical maintainer
-      echo "<td>".__('Graph Maintainer')."</td><td>";
+      echo "<td>".__('Graph Maintainer', 'archimap')."</td><td>";
       User::dropdown(array('name' => "users_id", 'value' => $this->fields["users_id"], 'entity' => $this->fields["entities_id"], 'right' => 'interface'));
       echo "</td>";
       echo "</tr>";

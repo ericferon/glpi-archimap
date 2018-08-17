@@ -459,7 +459,7 @@ function plugin_archimap_giveItem($type,$ID,$data,$num) {
 function plugin_archimap_MassiveActions($type) {
 
    if (in_array($type,PluginArchimapGraph::getTypes(true))) {
-      return array('PluginArchimapGraph'.MassiveAction::CLASS_ACTION_SEPARATOR.'plugin_archimap__add_item' =>
+      return array('PluginArchimapGraph'.MassiveAction::CLASS_ACTION_SEPARATOR.'plugin_archimap_add_item' =>
                                                               __('Associate to the diagram', 'archimap'));
    }
    return array();
