@@ -68,8 +68,7 @@ function plugin_init_archimap() {
    if (Session::getLoginUserID()) {
 
       $plugin = new Plugin();
-      if (!$plugin->isActivated('environment')
-         && Session::haveRight("plugin_archimap", READ)) {
+      if (Session::haveRight("plugin_archimap", READ)) {
 
          $PLUGIN_HOOKS['menu_toadd']['archimap'] = array('assets'   => 'PluginArchimapMenu');
       }
