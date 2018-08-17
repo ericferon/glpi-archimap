@@ -46,25 +46,6 @@ function plugin_init_archimap() {
    Plugin::registerClass('PluginArchimapProfile',
                          array('addtabon' => 'Profile'));
                          
-   //Plugin::registerClass('PluginArchimapGraph_Item',
-   //                      array('ticket_types' => true));
-
-      
-   if (class_exists('PluginDatabasesDatabase')
-   and class_exists('PluginArchimapGraph')) {
-//      PluginDatabasesDatabase::registerType('PluginArchimapGraph');
-	  PluginArchimapGraph::registerType('PluginDatabasesDatabase');
-   }
-   if (class_exists('PluginDataflowsDataflow')
-   and class_exists('PluginArchimapGraph')) {
-//      PluginDataflowssDataflow::registerType('PluginArchimapGraph');
-	  PluginArchimapGraph::registerType('PluginDataflowsDataflow');
-   }
-   if (class_exists('PluginArchiswSwcomponent')
-   and class_exists('PluginArchimapGraph')) {
-//      PluginDatabasesDatabase::registerType('PluginArchimapGraph');
-	  PluginArchimapGraph::registerType('PluginArchiswSwcomponent');
-   }
    if (Session::getLoginUserID()) {
 
       $plugin = new Plugin();
@@ -94,19 +75,19 @@ function plugin_version_archimap() {
 
    return array (
       'name' => _n('Diagram', 'Diagrams', 2, 'archimap'),
-      'version' => '2.0.1',
+      'version' => '2.0.2',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=>'',
-      'minGlpiVersion' => '0.90',
+      'minGlpiVersion' => '9.2',
    );
 
 }
 
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_archimap_check_prerequisites() {
-   if (version_compare(GLPI_VERSION,'0.90','lt') || version_compare(GLPI_VERSION,'9.3','ge')) {
-      _e('This plugin requires GLPI >= 0.90', 'archimap');
+   if (version_compare(GLPI_VERSION,'9.2','lt') || version_compare(GLPI_VERSION,'9.3','ge')) {
+      _e('This plugin requires GLPI >= 9.2 and <= 9.2', 'archimap');
       return false;
    }
    return true;

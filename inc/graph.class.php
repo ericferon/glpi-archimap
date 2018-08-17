@@ -34,7 +34,13 @@ class PluginArchimapGraph extends CommonDBTM {
    static $rightname = "plugin_archimap";
    protected $usenotepad         = true;
    
-   static $types = array('Computer','Software', 'SoftwareLicense');
+// Register other types to be linked to diagrams
+   static $types = array('Computer',
+					 'Software',
+					 'PluginDatabasesDatabase',
+                     'PluginDataflowsDataflow',
+                     'PluginArchiswSwcomponent',
+                     'PluginWebapplicationsWebapplication');
 
    static function getTypeName($nb=0) {
 
