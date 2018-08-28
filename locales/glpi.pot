@@ -30,7 +30,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: setup.php:90
-msgid "This plugin requires GLPI >= 9.2 and <= 9.2"
+msgid "This plugin requires GLPI >= 9.2 and < 9.4"
 msgstr ""
 
 #: inc/diagram.class.php:41

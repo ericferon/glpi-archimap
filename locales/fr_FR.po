@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Archimap 2.0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-08-17 16:22+0200\n"
-"PO-Revision-Date: 2018-08-17 16:32+0200\n"
+"PO-Revision-Date: 2018-08-28 14:20+0200\n"
 "Last-Translator: Eric Feron <ericferon@scarlet.be>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -30,8 +30,8 @@ msgstr[0] "Diagramme"
 msgstr[1] "Diagrammes"
 
 #: setup.php:90
-msgid "This plugin requires GLPI >= 9.2 and <= 9.2"
-msgstr "Ce plugin nécessite une version GLPI >= 9.2 et <= 9.2"
+msgid "This plugin requires GLPI >= 9.2 and < 9.4"
+msgstr "Ce plugin nécessite une version GLPI >= 9.2 et < 9.4"
 
 #: inc/diagram.class.php:41
 msgid "Drawing Pane"
