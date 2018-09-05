@@ -196,6 +196,19 @@ var mxSettings =
 	},
 	save: function()
 	{
+// Added EFE 20180829
+		// save settings in graph's preferences (in GLPI repository)
+		if (urlParams['glpi'] == '1' 
+		&& 'app' in window
+		&& 'editor' in window.app
+		&& 'graph' in window.app.editor
+		&& 'preferences' in window.app.editor.graph)
+		{
+			delete mxSettings.settings.isNew;
+			mxSettings.settings.version = mxSettings.currentVersion;
+			window.app.editor.graph.preferences[mxSettings.key] = encodeURI(JSON.stringify(mxSettings.settings));
+		}
+// End of Added EFE 20180829
 		if (isLocalStorage && typeof(JSON) !== 'undefined')
 		{
 			try
@@ -210,11 +223,22 @@ var mxSettings =
 			}
 		}
 	},
+// Added EFE 20180829
+//	load: function()
 	load: function()
 	{
+		if (urlParams['glpi'] == '1' 
+		&& 'app' in window
+		&& 'editor' in window.app
+		&& 'graph' in window.app.editor
+		&& 'preferences' in window.app.editor.graph)
+		{
+			mxSettings.parse(decodeURI(window.app.editor.graph.preferences[mxSettings.key]));
+		}
+// End of Added EFE 20180829
 		if (isLocalStorage && typeof(JSON) !== 'undefined')
 		{
-			mxSettings.parse(localStorage.getItem(mxSettings.key));
+			mxSettings.parse(localStorage.getItem(window.app.editor.graph.preferences[mxSettings.key]));
 		}
 
 		if (mxSettings.settings == null)

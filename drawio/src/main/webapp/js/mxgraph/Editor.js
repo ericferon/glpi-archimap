@@ -428,10 +428,17 @@ Editor.prototype.readGraphState = function(node)
 
 // Added EFE 20140116
 		// Load saved preferences
-		var thisGraphPreferences = this.graph.preferences;
-		var attrlist = node.attributes;
-		var lattr = attrlist.length;
-		[].slice.call(attrlist).forEach(function(attr) {
+	var thisGraphPreferences = this.graph.preferences;
+	var attrlist = node.attributes;
+	var lattr = attrlist.length;
+	[].slice.call(attrlist).forEach(function(attr) {
+		if (attr.name.search('custompreference.drawioconfig') >= 0)
+		{
+				id = mxSettings.key;
+				if (!thisGraphPreferences[id])
+					thisGraphPreferences[id] = new Object();
+				thisGraphPreferences[id] = attr.value;
+		} else
 		if (attr.name.search('custompreference.') >= 0)
 		{
 			var id = attr.name.replace('custompreference.','');
@@ -470,7 +477,8 @@ Editor.prototype.readGraphState = function(node)
 			thisGraphPreferences[id].description = (mxResources.get(id)) || ('Label of '+id);
 			thisGraphPreferences[id].values = attr.value.split(",");
 		}
-		});
+	});
+	mxSettings.load();
 // end of Added EFE 20140116
 
 	// Loads the persistent state settings
@@ -588,9 +596,15 @@ Editor.prototype.getGraphXml = function(ignoreSelection)
 	for (var preference in this.graph.preferences)
 	{
 		if (typeof this.graph.preferences[preference].values != "function"
-		&& typeof this.graph.preferences[preference].values != "undefined")
+		&& typeof this.graph.preferences[preference].values != "undefined"
+		&& preference != mxSettings.key)
 		{
 			node.setAttribute('custompreference.'+this.graph.preferences[preference].type+'.'+this.graph.preferences[preference].id, this.graph.preferences[preference].values);
+		} 
+		else 
+		{
+			if (preference == mxSettings.key)
+				node.setAttribute('custompreference.drawioconfig', this.graph.preferences[preference]);
 		}
 	}
 // end of Added EFE 20140116

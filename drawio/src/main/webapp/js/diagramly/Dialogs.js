@@ -6626,7 +6626,10 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		var cb = document.createElement('input');
 		cb.setAttribute('type', 'checkbox');
 		
-		if (isLocalStorage || mxClient.IS_CHROMEAPP)
+// Added EFE 20180829
+//		if (isLocalStorage || mxClient.IS_CHROMEAPP)
+		if (isLocalStorage || mxClient.IS_CHROMEAPP || urlParams['glpi'] == '1')
+// End of Added EFE 20180829
 		{
 			var span = document.createElement('span');
 			span.style.paddingRight = '20px';
@@ -6675,6 +6678,18 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			}
 			
 			editorUi.sidebar.showEntries(libs.join(';'), cb.checked, true);
+// Added EFE 20180829
+			if (cb.checked)
+			{
+				window.app.editor.modified = true;
+				var file = window.app.getCurrentFile();
+				if (file != null)
+				{
+					file.addUnsavedStatus();
+				}
+//				window.app.editor.setStatus(mxUtils.htmlEntities(mxResources.get(urlParams['modified'])));
+			}
+// End of Added EFE 20180829
 		});
 		applyBtn.className = 'geBtn gePrimaryBtn';
 		
@@ -6781,7 +6796,10 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		
 		var cb = document.createElement('input');
 		
-		if (isLocalStorage)
+// Added EFE 20180829
+//		if (isLocalStorage)
+		if (isLocalStorage || urlParams['glpi'] == '1')
+// End of Added EFE 20180829
 		{
 			cb.setAttribute('type', 'checkbox');
 			cb.checked = true;
@@ -6822,6 +6840,18 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			
 			editorUi.sidebar.showEntries((libs.length > 0) ? libs.join(';') : '', cb.checked);
 	    	editorUi.hideDialog();
+// Added EFE 20180829
+			if (cb.checked)
+			{
+				window.app.editor.modified = true;
+				var file = window.app.getCurrentFile();
+				if (file != null)
+				{
+					file.addUnsavedStatus();
+				}
+//				window.app.editor.setStatus(mxUtils.htmlEntities(mxResources.get(urlParams['modified'])));
+			}
+// End of Added EFE 20180829
 		});
 		applyBtn.className = 'geBtn gePrimaryBtn';
 		

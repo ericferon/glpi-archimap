@@ -2037,6 +2037,7 @@ App.prototype.start = function()
 // Added by EFE 20170714
 	if (urlParams['glpi'] != '0')
 	{
+				window.app = this;
 				// Load the diagram, from the hidden field named "graph"
 				var thisEditor = this.editor;
 				var inputgraph = document.getElementsByName("graph")[0];
@@ -2195,6 +2196,8 @@ App.prototype.start = function()
 				xhr.open("POST", "../front/getcustomproperties.php", true);
 				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 				xhr.send(JSON.stringify(glpiCells));
+		// Refresh sidebar with library entries saved in inputgraph
+		this.sidebar.showEntries(null, false, false);
 		if (thisEditor.modified)
 		{
 			thisEditor.setStatus(mxResources.get('custompropertiesmodified'));

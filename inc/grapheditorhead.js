@@ -55,6 +55,8 @@
 						'createindex' : '0',
 						'saveAndExit' : '0'
 		};
+		// Load saved settings (sidebar libraries, custom libraries, ...), if any
+		var mxLoadSettings = true;
 
 		// hide header, footer and  glpi_tabs div, for full page drawing pane
 		function hideGlpi() 
