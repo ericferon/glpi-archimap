@@ -231,7 +231,8 @@ var mxSettings =
 		&& 'app' in window
 		&& 'editor' in window.app
 		&& 'graph' in window.app.editor
-		&& 'preferences' in window.app.editor.graph)
+		&& 'preferences' in window.app.editor.graph
+		&& window.app.editor.graph.preferences[mxSettings.key])
 		{
 			mxSettings.parse(decodeURI(window.app.editor.graph.preferences[mxSettings.key]));
 		}
