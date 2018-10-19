@@ -94,14 +94,8 @@ if (isset($_POST["add"])) {
 
    $graph->checkGlobal(READ);
 
-   $plugin = new Plugin();
-   if ($plugin->isActivated("environment")) {
-      Html::header(PluginArchimapGraph::getTypeName(2),
-                     '',"assets","pluginenvironmentdisplay","archimap");
-   } else {
-      Html::header(PluginArchimapGraph::getTypeName(2), '', "assets",
+   Html::header(PluginArchimapGraph::getTypeName(2), '', "assets",
                    "pluginarchimapmenu");
-   }
    $graph->display($_GET);
 
    Html::footer();

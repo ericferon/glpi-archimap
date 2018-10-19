@@ -26,13 +26,7 @@
 
 include ('../../../inc/includes.php');
 
-$plugin = new Plugin();
-if ($plugin->isActivated("environment")) {
-   Html::header(PluginArchimapGraph::getTypeName(2)
-                  ,'',"assets","pluginenvironmentdisplay","archimap");
-} else {
-   Html::header(PluginArchimapGraph::getTypeName(2), '', "assets","pluginarchimapmenu");
-}
+Html::header(PluginArchimapGraph::getTypeName(2), '', "assets","pluginarchimapmenu");
 $graph = new PluginArchimapGraph();
 
 if ($graph->canView() || Session::haveRight("config", UPDATE)) {
