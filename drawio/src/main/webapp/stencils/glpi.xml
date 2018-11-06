@@ -289,7 +289,7 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<image src="networking/Firewall_02_128x128.png" h="80" w="80" x="0" y="0"/>
 		</foreground>
 	</shape>
-	<shape name="Data" w="120" h="60" strokewidth="inherit" aspect="variable">
+<!--	<shape name="Data" w="120" h="60" strokewidth="inherit" aspect="variable">
 		<connections>
 			<constraint x="0.25" y="0" perimeter="0"/>
 			<constraint x="0.5" y="0" perimeter="0"/>
@@ -324,6 +324,37 @@ join glpi_plugin_archidata_dataelementcardinalities on glpi_plugin_archidata_dat
 			<customproperty name="autocompleteordercriteria" value="order by glpi_plugin_archidata_dataelements.name"/>
 			<customproperty name="autocompletecssclass" value="'DataElement_Level'+level"/>
 			<customproperty name="autocompleteobject" value="PluginArchidataDataelement"/>
+		</customproperties>
+    </shape> -->
+	<shape name="Network Device" w="120" h="60" strokewidth="inherit" aspect="variable">
+		<connections>
+			<constraint x="0.25" y="0" perimeter="0"/>
+			<constraint x="0.5" y="0" perimeter="0"/>
+			<constraint x="0.75" y="0" perimeter="0"/>
+			<constraint x="0.25" y="1" perimeter="0"/>
+			<constraint x="0.5" y="1" perimeter="0"/>
+			<constraint x="0.75" y="1" perimeter="0"/>
+			<constraint y="0.25" x="0" perimeter="0"/>
+			<constraint y="0.5" x="0" perimeter="0"/>
+			<constraint y="0.75" x="0" perimeter="0"/>
+			<constraint y="0.25" x="1" perimeter="0"/>
+			<constraint y="0.5" x="1" perimeter="0"/>
+			<constraint y="0.75" x="1" perimeter="0"/>
+		</connections>
+		<background>
+			<ellipse h="60" w="120" x="0" y="0"/>
+			<fillcolor color="#88CC88"/>
+		</background>
+		<foreground>
+			<fillstroke/>
+		</foreground>
+		<customproperties>
+			<customproperty name="autocompletetable" value="glpi_networkequipments"/>
+			<customproperty name="autocompletecolumns" value="name"/>
+			<customproperty name="autocompletejointtables" value=""/>
+			<customproperty name="autocompletejointcolumns" value="glpi_networkequipments.name as name"/>
+			<customproperty name="autocompletejointcriteria" value=""/>
+			<customproperty name="autocompleteobject" value="Network Device"/>
 		</customproperties>
 	</shape>
 </shapes>
