@@ -324,38 +324,38 @@ function plugin_archimap_getAddSearchOptions($itemtype) {
    if (in_array($itemtype, PluginArchimapGraph::getTypes(true))) {
       if (Session::haveRight("plugin_archimap", READ)) {
 
-         $sopt[2410]['table']         ='glpi_plugin_archimap_graphs';
-         $sopt[2410]['field']         ='name';
-         $sopt[2410]['name']          = PluginArchimapGraph::getTypeName(2)." - ".__('Name');
-         $sopt[2410]['forcegroupby']  = true;
-         $sopt[2410]['datatype']      = 'itemlink';
-         $sopt[2410]['massiveaction'] = false;
-         $sopt[2410]['itemlink_type'] = 'PluginArchimapGraph';
-         $sopt[2410]['joinparams']    = array('beforejoin'
+         $sopt[2470]['table']         ='glpi_plugin_archimap_graphs';
+         $sopt[2470]['field']         ='name';
+         $sopt[2470]['name']          = PluginArchimapGraph::getTypeName(2)." - ".__('Name');
+         $sopt[2470]['forcegroupby']  = true;
+         $sopt[2470]['datatype']      = 'itemlink';
+         $sopt[2470]['massiveaction'] = false;
+         $sopt[2470]['itemlink_type'] = 'PluginArchimapGraph';
+         $sopt[2470]['joinparams']    = array('beforejoin'
                                                 => array('table'      => 'glpi_plugin_archimap_graphs_items',
                                                          'joinparams' => array('jointype' => 'itemtype_item')));
 
 
-/*         $sopt[2412]['table']        = 'glpi_plugin_archimap_states';
-         $sopt[2412]['field']        = 'name';
-         $sopt[2412]['name']         = PluginArchimapGraph::getTypeName(2)." - ".PluginArchimapGraphstate::getTypeName(1);
-         $sopt[2412]['forcegroupby'] = true;
-         $sopt[2412]['joinparams']   = array('beforejoin' => array(
+         $sopt[2471]['table']        = 'glpi_plugin_archimap_graphstates';
+         $sopt[2471]['field']        = 'name';
+         $sopt[2471]['name']         = PluginArchimapGraph::getTypeName(2)." - ".PluginArchimapGraphstate::getTypeName(1);
+         $sopt[2471]['forcegroupby'] = true;
+         $sopt[2471]['joinparams']   = array('beforejoin' => array(
                                                    array('table'      => 'glpi_plugin_archimap_graphs',
-                                                         'joinparams' => $sopt[2410]['joinparams'])));
-         $sopt[2412]['datatype']       = 'dropdown';
-         $sopt[2412]['massiveaction']  = false;
+                                                         'joinparams' => $sopt[2470]['joinparams'])));
+         $sopt[2471]['datatype']       = 'dropdown';
+         $sopt[2471]['massiveaction']  = false;
 
-         $sopt[2413]['table']        = 'glpi_plugin_archimap_types';
-         $sopt[2413]['field']        = 'name';
-         $sopt[2413]['name']         = PluginArchimapGraph::getTypeName(2)." - ".PluginArchimapGraphtype::getTypeName(1);
-         $sopt[2413]['forcegroupby'] = true;
-         $sopt[2413]['joinparams']   = array('beforejoin' => array(
+         $sopt[2472]['table']        = 'glpi_plugin_archimap_graphtypes';
+         $sopt[2472]['field']        = 'name';
+         $sopt[2472]['name']         = PluginArchimapGraph::getTypeName(2)." - ".PluginArchimapGraphtype::getTypeName(1);
+         $sopt[2472]['forcegroupby'] = true;
+         $sopt[2472]['joinparams']   = array('beforejoin' => array(
                                                    array('table'      => 'glpi_plugin_archimap_graphs',
-                                                         'joinparams' => $sopt[2410]['joinparams'])));
-         $sopt[2413]['datatype']       = 'dropdown';
-         $sopt[2413]['massiveaction']  = false;
-*/      }
+                                                         'joinparams' => $sopt[2470]['joinparams'])));
+         $sopt[2472]['datatype']       = 'dropdown';
+         $sopt[2472]['massiveaction']  = false;
+      }
    }
 /*   if ($itemtype == 'Ticket') {
       if (Session::haveRight("plugin_archimap", READ)) {
