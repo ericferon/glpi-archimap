@@ -9,10 +9,10 @@ branches:
 #  mariadb: '10.2'
 env:
     - GLPI_PLUGIN_NAME="archimap"
-install: true
-script:
+#install: true
+#script:
   after_success:
-  - pwd
+  - echo "SUCCESS!"
 #  - tar --transform 's%^%archimap/%' -zcvf $GLPI_PLUGIN_NAME.tar.gz ajax drawio front inc locales sql *.png *.xml *.php  LICENSE README.md
 deploy:
   provider: releases
