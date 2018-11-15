@@ -11,9 +11,7 @@ env:
     - GLPI_PLUGIN_NAME="archimap"
 #install: true
 script:
-#    after_success:
-        - echo "SUCCESS!"
-        - tar --transform 's%^%archimap/%' -zcvf $GLPI_PLUGIN_NAME.tar.gz ajax drawio front inc locales sql *.png *.xml *.php  LICENSE README.md
+    - tar --transform 's%^%archimap/%' --show-transformed -zcvf $GLPI_PLUGIN_NAME.tar.gz ajax drawio front inc locales sql *.png *.xml *.php  LICENSE README.md
 deploy:
   provider: releases
   api_key:
