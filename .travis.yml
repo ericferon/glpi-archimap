@@ -5,16 +5,15 @@ sudo: false
 branches:
   only:
   - master
-addons:
-  mariadb: '10.2'
+#addons:
+#  mariadb: '10.2'
 env:
     - GLPI_PLUGIN_NAME="archimap"
-install: true
-script:
-  after_success:
-  - cd ..
-  - mv glpi-$GLPI_PLUGIN_NAME $GLPI_PLUGIN_NAME
-  - tar -zcvf $GLPI_PLUGIN_NAME/$GLPI_PLUGIN_NAME.tar.gz $GLPI_PLUGIN_NAME/ajax $GLPI_PLUGIN_NAME/drawio $GLPI_PLUGIN_NAME/front $GLPI_PLUGIN_NAME/inc $GLPI_PLUGIN_NAME/locales $GLPI_PLUGIN_NAME/sql $GLPI_PLUGIN_NAME/*.png $GLPI_PLUGIN_NAME/*.xml $GLPI_PLUGIN_NAME/*.php  $GLPI_PLUGIN_NAME/LICENSE $GLPI_PLUGIN_NAME/README.md
+#install: true
+#script:
+after_success:
+    - echo "SUCCESS!"
+    - tar --transform 's%^%archimap/%' -zcvf $GLPI_PLUGIN_NAME.tar.gz ajax drawio front inc locales sql *.png *.xml *.php  LICENSE README.md
 deploy:
   provider: releases
   api_key:
