@@ -12,11 +12,11 @@ env:
 # get the directory name after the sign "-"
     - echo $TRAVIS_BUILD_DIR | sed -e 's/^.*-//'
 # "git for-each-ref --sort=-taggerdate --count=1 --format '%(refname:short)' refs/tags" displays the last tag's shortname
-    - export TRAVIS_TAG=`git for-each-ref --sort=-taggerdate --count=1 --format '%(refname:short)' refs/tags`
+    - TRAVIS_TAG=`git for-each-ref --sort=-taggerdate --count=1 --format '%(refname:short)' refs/tags`
 # "git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:subject)' refs/tags" displays the last tag's first line
-    - export RELEASE_NAME=`git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:subject)' refs/tags`
+    - RELEASE_NAME=`git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:subject)' refs/tags`
 # "git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:body)' refs/tags" displays the last tag's 3d line and following ones
-    - export RELEASE_BODY=`git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:body)' refs/tags`
+    - RELEASE_BODY=`git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:body)' refs/tags`
 install: true
 script: true
 after_success:
