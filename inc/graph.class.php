@@ -36,11 +36,12 @@ class PluginArchimapGraph extends CommonDBTM {
    
 // Register other types to be linked to diagrams
    static $types = array('Computer',
-					 'Software',
-					 'PluginDatabasesDatabase',
-                     'PluginDataflowsDataflow',
-                     'PluginArchiswSwcomponent',
-                     'PluginWebapplicationsWebapplication');
+                    'NetworkEquipment',
+					'Software',
+					'PluginDatabasesDatabase',
+                    'PluginDataflowsDataflow',
+                    'PluginArchiswSwcomponent',
+                    'PluginWebapplicationsWebapplication');
 
    static function getTypeName($nb=0) {
 
