@@ -1,3 +1,8 @@
+/* Added EFE 20181218 */
+html, body.layout_vsplit {
+    height:100%;
+}
+/* End of Added EFE 20181218 */
 div.mxRubberband {
 	position: absolute;
 	overflow: hidden;

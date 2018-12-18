@@ -85,7 +85,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		Html::autocompletionTextField($item,"graph",array('size' => "20", 'option' => "type='hidden'"));
 //      echo "</td></tr>";
 
-		echo "<script type=\"text/javascript\">$('*[class^=\"ge\"]').css('display', 'initial');</script>\n";
+		echo "<script type=\"text/javascript\">$('*[class^=\"ge\"]').css('display', 'inherit');</script>\n";
 		echo "<div class=\"geEditor\" style=\"position:relative;width:100%;overflow;cursor:default;margin-left:auto;margin-right:auto;\">\n";
 		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"../drawio/src/main/webapp/styles/grapheditor.css\">\n";
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorhead.js\"></script>\n";
