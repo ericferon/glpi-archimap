@@ -2,7 +2,7 @@
 Archimap plugin for GLPI
 
 This plugin enables you to create Visio-like (architecture) diagrams with elements of the inventory (computers, databases, applications, dataflows, locations, suppliers).<br/>
-The plugin implements the <a href="http://www.draw.io">Draw.io</a>'s graphical tool in the GLPI context.<br/>
+The plugin implements the [Draw.io]("http://www.draw.io")'s graphical tool in the GLPI context.<br/>
 Compared to the standard draw.io tool, one tab has been added, containing the GLPI assets.<br/>
 You can add these stencils to the drawing pane as any other stencil (archimate, uml, etc). <br/>
 But these stencils are each linked to an inventory class : when you type a label in the stencil, an autocomplete function is looking into GLPI for inventory assets containing this label and these items can be chosen in a dropdown list.

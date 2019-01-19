@@ -1202,8 +1202,10 @@ var PreferencesDialog = function(editorUi)
 	});
 	cancelBtn.className = 'geBtn';
 	
-	form.table.style.width = 400 + charCount * 5;
-	form.table.style.height = 60 + lineCount * 18;
+    width = charCount * 10 + 400 ;
+	form.table.style.width = width + "px"
+    height = lineCount * 25 + 80;
+	form.table.style.height = height + "px";
 			
 	if (firstField)
 		firstField.focus();

@@ -101,7 +101,9 @@ Actions.prototype.init = function()
 	this.addAction('preferences...', function()
 	{
 		var dlg = new PreferencesDialog(ui);
-		ui.showDialog(dlg.container, 620, 420, true, false);
+        var width = dlg.container.style.width.slice(0, -2); // suppress the "px" suffix
+        var height = dlg.container.style.height.slice(0, -2); // suppress the "px" suffix
+		ui.showDialog(dlg.container, +width, +height+10, true, false, null, false);
 	}).isEnabled = isGraphEnabled;
 // End of Added EFE 20171122
 	this.addAction('preview', function() { mxUtils.show(graph, null, 10, 10); });
