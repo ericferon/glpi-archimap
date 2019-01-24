@@ -209,10 +209,11 @@ class PluginArchimapProfile extends Profile {
    static function initProfile() {
       global $DB;
       $profile = new self();
+      $dbu     = new DbUtils();
 
       //Add new rights in glpi_profilerights table
       foreach ($profile->getAllRights(true) as $data) {
-         if (countElementsInTable("glpi_profilerights",
+         if ($dbu->countElementsInTable("glpi_profilerights",
                                   "`name` = '".$data['field']."'") == 0) {
             ProfileRight::addProfileRights(array($data['field']));
          }
