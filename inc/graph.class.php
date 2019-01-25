@@ -71,7 +71,8 @@ class PluginArchimapGraph extends CommonDBTM {
 
    static function countForItem(CommonDBTM $item) {
 
-      return countElementsInTable('glpi_plugin_archimap_graphs',
+      $dbu = new DbUtils();
+      return $dbu->countElementsInTable('glpi_plugin_archimap_graphs',
                                   "`suppliers_id` = '".$item->getID()."'");
    }
 

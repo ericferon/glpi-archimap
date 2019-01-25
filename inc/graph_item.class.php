@@ -130,7 +130,8 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
       if (empty($types)) {
          return 0;
       }
-      return countElementsInTable('glpi_plugin_archimap_graphs_items',
+      $dbu = new DbUtils();
+      return $dbu->countElementsInTable('glpi_plugin_archimap_graphs_items',
                                   "`itemtype` IN ('$types')
                                    AND `plugin_archimap_graphs_id` = '".$item->getID()."'");
    }
@@ -138,7 +139,8 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
 
    static function countForItem(CommonDBTM $item) {
 
-      return countElementsInTable('glpi_plugin_archimap_graphs_items',
+      $dbu = new DbUtils();
+      return $dbu->countElementsInTable('glpi_plugin_archimap_graphs_items',
                                   "`itemtype`='".$item->getType()."'
                                    AND `items_id` = '".$item->getID()."'");
    }

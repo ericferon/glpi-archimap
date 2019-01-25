@@ -80,7 +80,7 @@ function plugin_version_archimap() {
 
    return array (
       'name' => _n('Diagram', 'Diagrams', 2, 'archimap'),
-      'version' => '2.0.13',
+      'version' => '2.0.14',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=>'https://github.com/ericferon/glpi-archimap',
