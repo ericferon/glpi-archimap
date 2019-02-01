@@ -28,7 +28,7 @@ CREATE  TABLE `glpi_plugin_archimap_graphs` (
   KEY is_helpdesk_visible (is_helpdesk_visible),
   KEY `is_deleted` (`is_deleted`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) )
-ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------------------------------------------
 -- Table `glpi_plugin_archimap_graphs_items`
@@ -43,7 +43,7 @@ CREATE TABLE `glpi_plugin_archimap_graphs_items` (
 	UNIQUE KEY `unicity` (`plugin_archimap_graphs_id`,`items_id`,`itemtype`),
   KEY `FK_device` (`items_id`,`itemtype`),
   KEY `item` (`itemtype`,`items_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+)  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- -----------------------------------------------------
 -- Table `glpi_plugin_archimap_profiles`
@@ -56,7 +56,7 @@ CREATE TABLE `glpi_plugin_archimap_profiles` (
 	`open_ticket` char(1) collate utf8_unicode_ci default NULL,
 	PRIMARY KEY  (`id`),
 	KEY `profiles_id` (`profiles_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+)  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- -----------------------------------------------------
 -- Table `glpi_plugin_archimap_graphtypes`
@@ -68,7 +68,7 @@ CREATE  TABLE `glpi_plugin_archimap_graphtypes` (
   `comment` VARCHAR(45) NULL ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `glpi_plugin_archimap_graphtype_name` (`name` ASC) )
-ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- -----------------------------------------------------
 -- Table `glpi_plugin_archimap_graphstates`
@@ -80,7 +80,7 @@ CREATE  TABLE `glpi_plugin_archimap_graphstates` (
   `comment` VARCHAR(45) NULL ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `glpi_plugin_archimap_graphstate_name` (`name` ASC) )
-ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `glpi_plugin_archimap_graphstates` ( `id` , `name` , `comment` )  VALUES (1,'In Progress','In Progress');
 INSERT INTO `glpi_plugin_archimap_graphstates` ( `id` , `name` , `comment` )  VALUES (2,'Validated','Validated');
@@ -97,13 +97,13 @@ CREATE  TABLE `glpi_plugin_archimap_graphlevels` (
   `comment` VARCHAR(45) NULL ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `glpi_plugin_archimap_graphlevel_name` (`name` ASC) )
-ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO `glpi_plugin_archimap_graphlevels` ( `id` , `name` , `comment` )  VALUES (1,'High','General view');
 INSERT INTO `glpi_plugin_archimap_graphlevels` ( `id` , `name` , `comment` )  VALUES (2,'Medium','Intermediate view');
 INSERT INTO `glpi_plugin_archimap_graphlevels` ( `id` , `name` , `comment` )  VALUES (3,'Low','Detailed view');
 
-INSERT INTO `glpi_displaypreferences` VALUES (NULL,'PluginArchiappArchiapp','2','2','0');
-INSERT INTO `glpi_displaypreferences` VALUES (NULL,'PluginArchiappArchiapp','6','3','0');
-INSERT INTO `glpi_displaypreferences` VALUES (NULL,'PluginArchiappArchiapp','7','4','0');
+INSERT INTO `glpi_displaypreferences` VALUES (NULL,'PluginArchimapGraph','2','2','0');
+INSERT INTO `glpi_displaypreferences` VALUES (NULL,'PluginArchimapGraph','6','3','0');
+INSERT INTO `glpi_displaypreferences` VALUES (NULL,'PluginArchimapGraph','7','4','0');
 	
