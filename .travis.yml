@@ -17,7 +17,7 @@ env:
     - GLPI_PLUGIN_NAME=`echo $TRAVIS_BUILD_DIR | sed -e 's/^.*-//'`
       TRAVIS_TAG=`git for-each-ref --sort=-taggerdate --count=1 --format '%(refname:short)' refs/tags`
       RELEASE_NAME=`git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:subject)' refs/tags`
-      RELEASE_BODY=`git for-each-ref --sort=-taggerdate --count=1 --format '%(contents:body)' refs/tags`
+      RELEASE_BODY=`git for-each-ref --sort=-taggerdate --count=1 --format $'%(contents:body)' refs/tags`
 install: true
 script: true
 after_success:
