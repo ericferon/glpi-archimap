@@ -29,7 +29,7 @@ deploy:
   skip_cleanup: true
   file: $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz
   name: $RELEASE_NAME
-  body: |$RELEASE_BODY
+  body: $RELEASE_BODY
   prerelease: false
   on:
     repo: ericferon/glpi-$GLPI_PLUGIN_NAME
