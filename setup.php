@@ -80,7 +80,7 @@ function plugin_version_archimap() {
 
    return array (
       'name' => _n('Diagram', 'Diagrams', 2, 'archimap'),
-      'version' => '2.0.15',
+      'version' => '2.0.16',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=>'https://github.com/ericferon/glpi-archimap',
@@ -91,8 +91,8 @@ function plugin_version_archimap() {
 
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_archimap_check_prerequisites() {
-   if (version_compare(GLPI_VERSION,'9.2','lt') || version_compare(GLPI_VERSION,'9.4','ge')) {
-      _e('This plugin requires GLPI >= 9.2 and < 9.4', 'archimap');
+   if (version_compare(GLPI_VERSION,'9.2','lt') || version_compare(GLPI_VERSION,'9.5','ge')) {
+      _e('This plugin requires GLPI >= 9.2 and < 9.5', 'archimap');
       return false;
    }
    return true;
