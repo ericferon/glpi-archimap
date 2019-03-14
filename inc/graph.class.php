@@ -86,6 +86,7 @@ class PluginArchimapGraph extends CommonDBTM {
    function getSearchOptions() {
 
       $tab                       = array();
+      if (version_compare(GLPI_VERSION,'9.3','ge')) return $tab;
 
       $tab['common']             = self::getTypeName(2);
 
@@ -163,6 +164,110 @@ class PluginArchimapGraph extends CommonDBTM {
       $tab[81]['field']       = 'entities_id';
       $tab[81]['name']        = __('Entity')."-".__('ID');
       
+      return $tab;
+   }
+
+   // search fields from GLPI 9.3 on
+   function rawSearchOptions() {
+
+      $tab = [];
+      if (version_compare(GLPI_VERSION,'9.2','le')) return $tab;
+
+      $tab[] = [
+         'id'   => 'common',
+         'name' => self::getTypeName(2)
+      ];
+
+      $tab[] = [
+         'id'            => '1',
+         'table'         => $this->getTable(),
+         'field'         => 'name',
+         'name'          => __('Name'),
+         'datatype'      => 'itemlink',
+         'itemlink_type' => $this->getType()
+      ];
+
+      $tab[] = [
+         'id'       => '2',
+         'table'    => $this->getTable(),
+         'field'    => 'shortdescription',
+         'name'     => __('Description'),
+         'datatype' => 'text'
+      ];
+
+      $tab[] = [
+         'id'       => '5',
+         'table'    => 'glpi_plugin_archimap_graphtypes',
+         'field'    => 'name',
+         'name'     => PluginArchimapGraphtype::getTypeName(1),
+         'datatype' => 'dropdown'
+      ];
+
+      $tab[] = [
+         'id'        => '11',
+         'table'     => 'glpi_users',
+         'field'     => 'name',
+         'linkfield' => 'users_id',
+         'name'      => __('Graph Maintainer','archimap'),
+         'datatype'  => 'dropdown',
+         'right'     => 'interface'
+      ];
+
+      $tab[] = [
+         'id'        => '12',
+         'table'     => 'glpi_groups',
+         'field'     => 'name',
+         'linkfield' => 'groups_id',
+         'name'      => __('Graph Owner','archimap'),
+         'condition' => '`is_assign`',
+         'datatype'  => 'dropdown'
+      ];
+
+      $tab[] = [
+         'id'            => '16',
+         'table'         => $this->getTable(),
+         'field'         => 'date_mod',
+         'massiveaction' => false,
+         'name'          => __('Last update'),
+         'datatype'      => 'datetime'
+      ];
+
+      $tab[] = [
+         'id'            => '71',
+         'table'         => 'glpi_plugin_archimap_graphs_items',
+         'field'         => 'items_id',
+         'nosearch'      => true,
+         'massiveaction' => false,
+         'name'          => _n('Associated item', 'Associated items', 2),
+         'forcegroupby'  => true,
+         'joinparams'    => [
+            'jointype' => 'child'
+         ]
+      ];
+
+      $tab[] = [
+         'id'            => '72',
+         'table'         => $this->getTable(),
+         'field'         => 'id',
+         'name'          => __('ID'),
+         'datatype'      => 'number'
+      ];
+
+      $tab[] = [
+         'id'       => '80',
+         'table'    => 'glpi_entities',
+         'field'    => 'completename',
+         'name'     => __('Entity'),
+         'datatype' => 'dropdown'
+      ];
+
+      $tab[] = [
+         'id'    => '81',
+         'table' => 'glpi_entities',
+         'field' => 'entities_id',
+         'name'  => __('Entity') . "-" . __('ID')
+      ];
+
       return $tab;
    }
 
