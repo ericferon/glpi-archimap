@@ -53,7 +53,7 @@ function plugin_archimap_install() {
 
       foreach ($notepad_tables as $t) {
          // Migrate data
-         if (FieldExists($t, 'notepad')) {
+         if ($DB->FieldExists($t, 'notepad')) {
             $query = "SELECT id, notepad
                       FROM `$t`
                       WHERE notepad IS NOT NULL
@@ -153,7 +153,7 @@ function plugin_archimap_uninstall() {
 function plugin_archimap_postinit() {
    global $PLUGIN_HOOKS;
 
-   $PLUGIN_HOOKS['item_purge']['archimap'] = array();
+   $PLUGIN_HOOKS['item_purge']['archimap'] = [];
 
    foreach (PluginArchimapGraph::getTypes(true) as $type) {
 
@@ -211,14 +211,14 @@ function plugin_archimap_AssignToTicketDropdown($data) {
               . "    ON `plugin_archimap_graphs_id` = `glpi_plugin_archimap_graphs`.`id`";
 
       $result = $DB->query($sql);
-      $elements = array();
+      $elements = [];
       while ($res = $DB->fetch_array($result)) {
          $itemtype = $res['itemtype'];
          $item = new $itemtype;
          $item->getFromDB($res['items_id']);
          $elements[$res['name']][$res['id']] = $item->getName();
       }
-      Dropdown::showFromArray('items_id', $elements, array());
+      Dropdown::showFromArray('items_id', $elements, []);
    }
 }
 
@@ -300,7 +300,7 @@ function plugin_archimap_getGraphRelations() {
 					 "glpi_users"=>array("glpi_plugin_archimap_graphs"=>"users_id")
 					 );
    else
-      return array();
+      return [];
 }
 
 // Define Dropdown tables to be manage in GLPI :
@@ -312,14 +312,14 @@ function plugin_archimap_getDropdown() {
 //                'PluginArchimapGraphtype'=>PluginArchimapGraphtype::getTypeName(1) getTypeName(2) does not work
                 );
    else
-      return array();
+      return [];
 }
 
 ////// SEARCH FUNCTIONS ///////() {
 
 function plugin_archimap_getAddSearchOptions($itemtype) {
 
-   $sopt=array();
+   $sopt=[];
 
    if (in_array($itemtype, PluginArchimapGraph::getTypes(true))) {
       if (Session::haveRight("plugin_archimap", READ)) {
@@ -434,13 +434,13 @@ function plugin_archimap_giveItem($type,$ID,$data,$num) {
 
       case 'glpi_plugin_archimap_graphs.name':
          if ($type == 'Ticket') {
-            $graphs_id = array();
+            $graphs_id = [];
             if ($data['raw']["ITEM_$num"] != '') {
                $graphs_id = explode('$$$$', $data['raw']["ITEM_$num"]);
             } else {
                $graphs_id = explode('$$$$', $data['raw']["ITEM_".$num."_2"]);
             }
-            $ret = array();
+            $ret = [];
             $paGraph = new PluginArchimapGraph();
             foreach ($graphs_id as $ap_id) {
                $paGraph->getFromDB($ap_id);
@@ -458,15 +458,18 @@ function plugin_archimap_giveItem($type,$ID,$data,$num) {
 
 function plugin_archimap_MassiveActions($type) {
 
-   if (in_array($type,PluginArchimapGraph::getTypes(true))) {
-      return array('PluginArchimapGraph'.MassiveAction::CLASS_ACTION_SEPARATOR.'plugin_archimap_add_item' =>
-                                                              __('Associate to the diagram', 'archimap'));
-   }
-   return array();
+    $plugin = new Plugin();
+    if ($plugin->isActivated('archimap')) {
+        if (in_array($type,PluginArchimapGraph::getTypes(true))) {
+            return ['PluginArchimapGraph'.MassiveAction::CLASS_ACTION_SEPARATOR.'plugin_archimap_add_item' =>
+                                                              __('Associate to the diagram', 'archimap')];
+        }
+    }
+    return [];
 }
 
 /*
-function plugin_archimap_MassiveActionsDisplay($options=array()) {
+function plugin_archimap_MassiveActionsDisplay($options=[]) {
 
    $graph=new PluginArchimapGraph;
 

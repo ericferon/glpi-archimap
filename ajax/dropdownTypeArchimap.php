@@ -35,7 +35,7 @@ Session::checkCentralAccess();
 
 // Make a select box
 if (isset($_POST["graphtype"])) {
-   $used = array();
+   $used = [];
 
    // Clean used array
    if (isset($_POST['used']) && is_array($_POST['used']) && (count($_POST['used']) > 0)) {

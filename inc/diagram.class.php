@@ -74,7 +74,7 @@ class PluginArchimapDiagram extends CommonDBChild {
       return $input;
    }
 
-   function showForm (CommonGLPI $item, $options=array()) {
+   function showForm (CommonGLPI $item, $options=[]) {
 
       if (!$this->canView()) return false;
 

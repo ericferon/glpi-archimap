@@ -132,8 +132,9 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
       }
       $dbu = new DbUtils();
       return $dbu->countElementsInTable('glpi_plugin_archimap_graphs_items',
-                                  "`itemtype` IN ('$types')
-                                   AND `plugin_archimap_graphs_id` = '".$item->getID()."'");
+                                        ["plugin_archimap_graphs_id" => $item->getID(),
+                                         "itemtype"                      => $item->getTypes()
+                                        ]);
    }
 
 
@@ -141,8 +142,8 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
 
       $dbu = new DbUtils();
       return $dbu->countElementsInTable('glpi_plugin_archimap_graphs_items',
-                                  "`itemtype`='".$item->getType()."'
-                                   AND `items_id` = '".$item->getID()."'");
+                                        ["itemtype" => $item->getType(),
+                                         "items_id" => $item->getID()]);
    }
 
    function getFromDBbyGraphsAndItem($plugin_archimap_graphs_id,$items_id,$itemtype) {
@@ -257,7 +258,7 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
       echo "<div class='spaced'>";
       if ($canedit && $number) {
          Html::openMassiveActionsForm('mass'.__CLASS__.$rand);
-         $massiveactionparams = array();
+         $massiveactionparams = [];
          Html::showMassiveActions($massiveactionparams);
       }
       echo "<table class='tab_cadre_fixe'>";
@@ -406,9 +407,9 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
       $number = $DB->numrows($result);
       $i      = 0;
 
-      $graphs      = array();
+      $graphs      = [];
       $graph       = new PluginArchimapGraph();
-      $used          = array();
+      $used          = [];
       if ($numrows = $DB->numrows($result)) {
          while ($data = $DB->fetch_assoc($result)) {
             $graphs[$data['assocID']] = $data;
@@ -496,7 +497,7 @@ class PluginArchimapGraph_Item extends CommonDBRelation {
       echo "<th>".__('Graph Owner', 'archimap')."</th>";
       echo "<th>".__('Graph Maintainer', 'archimap')."</th>";
       echo "</tr>";
-      $used = array();
+      $used = [];
 
       if ($number) {
 

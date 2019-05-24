@@ -35,13 +35,13 @@ class PluginArchimapGraph extends CommonDBTM {
    protected $usenotepad         = true;
    
 // Register other types to be linked to diagrams
-   static $types = array('Computer',
+   static $types = ['Computer',
                     'NetworkEquipment',
 					'Software',
 					'PluginDatabasesDatabase',
                     'PluginDataflowsDataflow',
                     'PluginArchiswSwcomponent',
-                    'PluginWebapplicationsWebapplication');
+                    'PluginWebapplicationsWebapplication'];
 
    static function getTypeName($nb=0) {
 
@@ -80,12 +80,12 @@ class PluginArchimapGraph extends CommonDBTM {
    function cleanDBonPurge() {
 
 //      $temp = new PluginArchimapGraph_Item();
-//      $temp->deleteByCriteria(array('plugin_archimap_graphs_id' => $this->fields['id']));
+//      $temp->deleteByCriteria(['plugin_archimap_graphs_id' => $this->fields['id']]);
    }
 
    function getSearchOptions() {
 
-      $tab                       = array();
+      $tab                       = [];
       if (version_compare(GLPI_VERSION,'9.3','ge')) return $tab;
 
       $tab['common']             = self::getTypeName(2);
@@ -112,7 +112,7 @@ class PluginArchimapGraph extends CommonDBTM {
       $tab[7]['massiveaction']   = false;
       $tab[7]['name']            = _n('Associated item' , 'Associated items', 2);
       $tab[7]['forcegroupby']    = true;
-      $tab[7]['joinparams']      = array('jointype' => 'child');
+      $tab[7]['joinparams']      = ['jointype' => 'child'];
 
 /*      $tab[5]['table']          = 'glpi_plugin_archimap_graphstates';
       $tab[5]['field']          = 'name';
@@ -142,7 +142,7 @@ class PluginArchimapGraph extends CommonDBTM {
       $tab[13]['itemlink_type'] = 'PluginArchiswSwcomponent';
       $tab[13]['joinparams']    = array('beforejoin'
                                                 => array('table'      => 'glpi_plugin_archimap_graphs_items',
-                                                         'joinparams' => array('jointype' => 'itemtype_item')));
+                                                         'joinparams' => ['jointype' => 'itemtype_item']));
 */
       $tab[14]['table']          = $this->getTable();
       $tab[14]['field']          = 'date_mod';
@@ -272,9 +272,9 @@ class PluginArchimapGraph extends CommonDBTM {
    }
 
    //define header form
-   function defineTabs($options=array()) {
+   function defineTabs($options=[]) {
 
-      $ong = array();
+      $ong = [];
       $this->addDefaultFormTab($ong);
       $this->addStandardTab('PluginArchimapDiagram', $ong, $options);
       $this->addStandardTab('PluginArchimapGraph_Item', $ong, $options);
@@ -299,7 +299,7 @@ class PluginArchimapGraph extends CommonDBTM {
               WHERE `plugin_archimap_graphs_id`='" . $this->fields['id']."'";
    }
 */
-   function showForm ($ID, $options=array()) {
+   function showForm ($ID, $options=[]) {
 
       $this->initForm($ID, $options);
       $this->showFormHeader($options);
@@ -308,32 +308,36 @@ class PluginArchimapGraph extends CommonDBTM {
       //name of diagrams
       echo "<td>".__('Name')."</td>";
       echo "<td>";
-      Html::autocompletionTextField($this,"name");
+      Html::autocompletionTextField($this,"name", array('size' => 50, 'attrs' => ['size' => 50]));
       echo "</td>";
       //type
       echo "<td>".__('Type').": </td>";
       echo "<td>";
-      Dropdown::show('PluginArchimapGraphtype', array('value' => $this->fields['plugin_archimap_graphtypes_id']));
+      Dropdown::show('PluginArchimapGraphtype', ['value' => $this->fields['plugin_archimap_graphtypes_id']]);
       echo "</td>";
 	  echo "</tr>";
 	  
       echo "<tr class='tab_bg_1'>";
       //short description of diagrams
       echo "<td>".__('Short description', 'archimap')."</td>";
-      echo "<td>";
+      echo "<td colspan='3'>";
 //      echo "<textarea cols='100' rows='1' name='shortdescription'>".$this->fields["shortdescription"]."</textarea>";
-      Html::autocompletionTextField($this,"shortdescription",array('size' => 100));
+      Html::autocompletionTextField($this,"shortdescription",array('size' => 130, 'attrs' => ['size' => 130]));
       echo "</td>";
 	  echo "</tr>";
 	  
       echo "<tr class='tab_bg_1'>";
       //data owner
       echo "<td>".__('Graph Owner', 'archimap')."</td><td>";
-      Group::dropdown(array('name'      => 'groups_id', 'value'     => $this->fields['groups_id'], 'entity'    => $this->fields['entities_id'], 'condition' => '`is_assign`'));
+      Group::dropdown(['name'      => 'groups_id', 
+                        'value'     => $this->fields['groups_id'], 
+                        'entity'    => $this->fields['entities_id'], 
+                        'condition' => ['is_assign' => 1]
+                        ]);
       echo "</td>";
       //technical maintainer
       echo "<td>".__('Graph Maintainer', 'archimap')."</td><td>";
-      User::dropdown(array('name' => "users_id", 'value' => $this->fields["users_id"], 'entity' => $this->fields["entities_id"], 'right' => 'interface'));
+      User::dropdown(['name' => "users_id", 'value' => $this->fields["users_id"], 'entity' => $this->fields["entities_id"], 'right' => 'interface']);
       echo "</td>";
       echo "</tr>";
 
@@ -359,13 +363,13 @@ class PluginArchimapGraph extends CommonDBTM {
     *
     * @return nothing (print out an HTML select box)
    **/
-   static function dropdownGraph($options=array()) {
+   static function dropdownGraph($options=[]) {
       global $DB, $CFG_GLPI;
 
 
       $p['name']    = 'plugin_archimap_graphs_id';
       $p['entity']  = '';
-      $p['used']    = array();
+      $p['used']    = [];
       $p['display'] = true;
 
       if (is_array($options) && count($options)) {
@@ -390,22 +394,22 @@ class PluginArchimapGraph extends CommonDBTM {
                 ORDER BY `name`";
       $result = $DB->query($query);
 
-      $values = array(0 => Dropdown::EMPTY_VALUE);
+      $values = [0 => Dropdown::EMPTY_VALUE];
 
       while ($data = $DB->fetch_assoc($result)) {
          $values[$data['id']] = $data['name'];
       }
       $rand = mt_rand();
-      $out  = Dropdown::showFromArray('_graphtype', $values, array('width'   => '30%',
+      $out  = Dropdown::showFromArray('_graphtype', $values, ['width'   => '30%',
                                                                      'rand'    => $rand,
-                                                                     'display' => false));
+                                                                     'display' => false]);
       $field_id = Html::cleanId("dropdown__graphtype$rand");
 
-      $params   = array('graphtype' => '__VALUE__',
+      $params   = ['graphtype' => '__VALUE__',
                         'entity' => $p['entity'],
                         'rand'   => $rand,
                         'myname' => $p['name'],
-                        'used'   => $p['used']);
+                        'used'   => $p['used']];
 
       $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
                                             $CFG_GLPI["root_doc"]."/plugins/archimap/ajax/dropdownTypeGraphs.php",
@@ -560,9 +564,9 @@ class PluginArchimapGraph extends CommonDBTM {
 
       switch ($ma->getAction()) {
          case 'plugin_archimap_add_item':
-            self::dropdownGraph(array());
+            self::dropdownGraph([]);
             echo "&nbsp;".
-                 Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+                 Html::submit(_x('button','Post'), ['name' => 'massiveaction']);
             return true;
             break;
          case "install" :
@@ -572,7 +576,7 @@ class PluginArchimapGraph extends CommonDBTM {
                                                         'checkright'
                                                                         => true,
                                                   ));
-            echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button', 'Post'), ['name' => 'massiveaction']);
             return true;
             break;
          case "uninstall" :
@@ -582,22 +586,22 @@ class PluginArchimapGraph extends CommonDBTM {
                                                         'checkright'
                                                                         => true,
                                                   ));
-            echo Html::submit(_x('button', 'Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button', 'Post'), ['name' => 'massiveaction']);
             return true;
             break;
          case "duplicate" :
-		    $options = array();
+		    $options = [];
 			$options['value'] = 1;
 			$options['min'] = 1;
 			$options['max'] = 20;
 			$options['unit'] = "times";
             Dropdown::showNumber('repeat', $options);
-            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button','Post'), ['name' => 'massiveaction']);
             return true;
             break;
          case "transfer" :
             Dropdown::show('Entity');
-            echo Html::submit(_x('button','Post'), array('name' => 'massiveaction'));
+            echo Html::submit(_x('button','Post'), ['name' => 'massiveaction']);
             return true;
             break;
     }
@@ -664,9 +668,9 @@ class PluginArchimapGraph extends CommonDBTM {
             $input = $ma->getInput();
             foreach ($ids as $key) {
                if ($item->can($key, UPDATE)) {
-                  $values = array('plugin_archimap_graphs_id' => $key,
+                  $values = ['plugin_archimap_graphs_id' => $key,
                                  'items_id'      => $input["item_item"],
-                                 'itemtype'      => $input['typeitem']);
+                                 'itemtype'      => $input['typeitem']];
                   if ($graph_item->add($values)) {
                      $ma->itemDone($item->getType(), $key, MassiveAction::ACTION_OK);
                   } else {
@@ -696,8 +700,8 @@ class PluginArchimapGraph extends CommonDBTM {
             $input = $ma->getInput();
             if ($item->getType() == 'PluginArchimapGraph') {
             foreach ($ids as $key) {
-				  $success = array();
-				  $failure = array();
+				  $success = [];
+				  $failure = [];
                   $item->getFromDB($key);
 				  $values = $item->fields;
 				  $name = $values["name"];

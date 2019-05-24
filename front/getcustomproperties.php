@@ -42,7 +42,8 @@ foreach($cells as $id => $cell) {
 	if (isset($cell->jointtables)) {
 		$firstword = strtok($cell->jointtables, ' ');
 		$jointreservedword = array("LEFT", "INNER", "RIGHT", "JOIN", "NATURAL", "STRAIGHT_JOIN");
-		if ( in_array(strtoupper($firstword), $jointreservedword) ) {
+		if ( in_array(strtoupper($firstword), $jointreservedword)
+            || trim($cell->jointtables) == "") {
 			$jointtables = $DB->escape($cell->jointtables);
 		} else {
 			$jointtables = ", ".$DB->escape($cell->jointtables);

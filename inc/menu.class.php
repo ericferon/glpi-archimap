@@ -34,7 +34,7 @@ class PluginArchimapMenu extends CommonGLPI {
    static function getMenuContent() {
       global $CFG_GLPI;
 
-      $menu                                           = array();
+      $menu                                           = [];
       $menu['title']                                  = self::getMenuName();
       $menu['page']                                   = "/plugins/archimap/front/graph.php";
       $menu['links']['search']                        = PluginArchimapGraph::getSearchURL(false);

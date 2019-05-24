@@ -102,7 +102,7 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 		<customproperties>
 			<customproperty name="autocompletetable" value="glpi_computers"/>
 			<customproperty name="autocompletecolumns" value="name"/>
-			<customproperty name="autocompletejointtables" value="left join glpi_states on glpi_computers.states_id = glpi_states.id left join glpi_items_operatingsystems on glpi_items_operatingsystems.items_id = glpi_computers.id left join glpi_operatingsystems  on glpi_operatingsystems.id = glpi_items_operatingsystems.operatingsystems_id left join glpi_computertypes on glpi_computertypes.id = glpi_computers.computertypes_id"/>
+			<customproperty name="autocompletejointtables" value="left join glpi_computers_sas on glpi_computers_sas.id = glpi_computers.id left join glpi_states on glpi_computers_sas.states_id = glpi_states.id left join glpi_computertypes on  glpi_computers_sas.computertypes_id = glpi_computertypes.id left join glpi_items_operatingsystems on glpi_items_operatingsystems.items_id = glpi_computers.id left join glpi_operatingsystems  on glpi_operatingsystems.id = glpi_items_operatingsystems.operatingsystems_id"/>
 			<customproperty name="autocompletejointcolumns" value="glpi_computers.name as name,glpi_computertypes.name as type,glpi_states.name as state,glpi_operatingsystems.name as operatingsystem"/>
 			<customproperty name="autocompletejointcriteria" value=""/>
 			<customproperty name="autocompletecssclass" value="state"/>
