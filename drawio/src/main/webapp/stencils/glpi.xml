@@ -21,6 +21,12 @@
 		</background>
 		<foreground>
 			<fillstroke/>
+            <rect h="15" w="10" x="100" y="8"/>
+            <stroke/>
+            <rect h="3" w="6" x="97" y="11"/>
+            <stroke/>
+            <rect h="3" w="6" x="97" y="17"/>
+            <stroke/>
 		</foreground>
 		<customproperties>
 			<customproperty name="autocompletetable" value="glpi_plugin_archisw_swcomponents"/>
@@ -33,7 +39,7 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<customproperty name="autocompletejointcolumns" value="glpi_plugin_archisw_swcomponents.name as name,glpi_plugin_archisw_swcomponents.description as description,glpi_plugin_archisw_swcomponenttypes.name as type,glpi_plugin_archisw_swcomponentstates.name as state, glpi_plugin_archisw_swcomponents.level as level, glpi_plugin_archisw_swcomponents.completename as structure_path, glpi_manufacturers.name as manufacturer, glpi_suppliers.name as supplier, glpi_plugin_archisw_swcomponentdbs.name as db, glpi_plugin_archisw_swcomponenttechnics.name as dev_technology"/>
 			<customproperty name="autocompletejointcriteria" value=""/>
 			<customproperty name="autocompleteordercriteria" value="order by glpi_plugin_archisw_swcomponents.name"/>
-			<customproperty name="autocompletecssclass" value="'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"/>
+			<customproperty name="autocompletecssclass" value="';html=1;fillColor=#7EA6E0;strokeColor=#000000;shape=mxgraph.archimate3.application;appType=comp;archiType=square;SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"/>
 			<customproperty name="autocompleteobject" value="PluginArchiswSwcomponent"/>
 		</customproperties>
 	</shape>
@@ -70,10 +76,10 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 		<customproperties>
 			<customproperty name="autocompletetable" value="glpi_plugin_databases_databases"/>
 			<customproperty name="autocompletecolumns" value="name"/>
-			<customproperty name="autocompletejointtables" value="glpi_plugin_databases_databasetypes,glpi_plugin_databases_databasecategories"/>
+			<customproperty name="autocompletejointtables" value="left join glpi_plugin_databases_databasetypes on glpi_plugin_databases_databases.plugin_databases_databasetypes_id = glpi_plugin_databases_databasetypes.id left join glpi_plugin_databases_databasecategories on glpi_plugin_databases_databases.plugin_databases_databasecategories_id = glpi_plugin_databases_databasecategories.id "/>
 			<customproperty name="autocompletejointcolumns" value="glpi_plugin_databases_databases.name as name,glpi_plugin_databases_databases.name as description,glpi_plugin_databases_databasetypes.name as type,glpi_plugin_databases_databasecategories.name as state"/>
-			<customproperty name="autocompletejointcriteria" value=" and glpi_plugin_databases_databases.plugin_databases_databasetypes_id = glpi_plugin_databases_databasetypes.id and glpi_plugin_databases_databases.plugin_databases_databasecategories_id = glpi_plugin_databases_databasecategories.id"/>
-			<customproperty name="autocompletecssclass" value="'Database_'+state"/>
+			<customproperty name="autocompletejointcriteria" value=""/>
+			<customproperty name="autocompletecssclass" value="'html=1;shape=cylinder;Database_'+state"/>
 			<customproperty name="autocompletelabel" value=" '('+type+' : '+state+')'"/>
 			<customproperty name="autocompleteobject" value="PluginDatabasesDatabase"/>
 		</customproperties>
@@ -184,6 +190,14 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<fillstroke/>
 		</background>
 		<foreground>
+            <ellipse w="8" h="8" x="108" y="8"/>
+			<fillstroke/>
+            <path>
+				<move x="108" y="13"/>
+				<line x="112" y="22"/>
+				<line x="116" y="13"/>
+            </path>
+            <fillstroke/>
 		</foreground>
 		<customproperties>
 			<customproperty name="autocompletetable" value="glpi_locations"/>
@@ -192,6 +206,7 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<customproperty name="autocompletejointtables" value=""/>
 			<customproperty name="autocompletejointcolumns" value="glpi_locations.name as name"/>
 			<customproperty name="autocompletejointcriteria" value=""/>
+			<customproperty name="autocompletecssclass" value="'';html=1;fillColor=#FFE49D;strokeColor=#000000;shape=mxgraph.archimate3.location;'"/>
 		</customproperties>
 	</shape>
 	<shape name="Supplier" w="60" h="120" strokewidth="inherit" aspect="variable">
@@ -254,9 +269,10 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<customproperty name="autocompletetable" value="glpi_plugin_dataflows_dataflows"/>
 			<customproperty name="autocompletecolumns" value="name"/>
 			<customproperty name="autocompletelabel" value=" '('+type+' - '+state+')'"/>
-			<customproperty name="autocompletejointtables" value="glpi_plugin_dataflows_transferprotocols,glpi_plugin_dataflows_states"/>
+			<customproperty name="autocompletejointtables" value="left join glpi_plugin_dataflows_transferprotocols on glpi_plugin_dataflows_dataflows.plugin_dataflows_transferprotocols_id = glpi_plugin_dataflows_transferprotocols.id
+left join glpi_plugin_dataflows_states on glpi_plugin_dataflows_dataflows.plugin_dataflows_states_id = glpi_plugin_dataflows_states.id"/>
 			<customproperty name="autocompletejointcolumns" value="glpi_plugin_dataflows_dataflows.name as name ,glpi_plugin_dataflows_dataflows.shortdescription as description,glpi_plugin_dataflows_transferprotocols.name as type,glpi_plugin_dataflows_states.name as state"/>
-			<customproperty name="autocompletejointcriteria" value=" and glpi_plugin_dataflows_dataflows.plugin_dataflows_transferprotocols_id = glpi_plugin_dataflows_transferprotocols.id and glpi_plugin_dataflows_dataflows.plugin_dataflows_states_id = glpi_plugin_dataflows_states.id"/>
+			<customproperty name="autocompletejointcriteria" value=""/>
 			<customproperty name="autocompleteordercriteria" value="order by glpi_plugin_dataflows_dataflows.name"/>
 			<customproperty name="autocompletecssclass" value="'Dataflow_'+state+';Dataflow_'+type"/>
 			<customproperty name="autocompleteobject" value="PluginDataflowsDataflow"/>
@@ -359,8 +375,14 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 		<background>
 			<rect h="60" w="120" x="0" y="0"/>
 			<fillcolor color="#C0DCC0"/>
+			<fillstroke/>
 		</background>
 		<foreground>
+			<path>
+				<move x="0" y="10"/>
+				<line x="120" y="10"/>
+			</path>
+			<text x="50" y="0" str="Data" vertical="0"/>
 			<fillstroke/>
 		</foreground>
 		<customproperties>
@@ -368,13 +390,13 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<customproperty name="autocompletecolumns" value="name, description"/>
 			<customproperty name="autocompleteotherselectioncriteria" value=""/>
 			<customproperty name="autocompletelabel" value="' (level '+level+' - '+type+')'"/>
-			<customproperty name="autocompletejointtables" value="left join glpi_plugin_archidata_dataelementtypes on glpi_plugin_archidata_dataelementtypes.id = glpi_plugin_archidata_dataelements.plugin_archidata_dataelementtypes_id
-join glpi_plugin_archidata_dataelementcardinalities on glpi_plugin_archidata_dataelements.plugin_archidata_dataelementcardinalities_id = glpi_plugin_archidata_dataelementcardinalities.id
+			<customproperty name="autocompletejointtables" value="left join glpi_plugin_archidata_dataelementtypes on glpi_plugin_archidata_dataelementtypes.id = glpi_plugin_archidata_dataelements.plugin_archidata_dataelementtypes_id 
+left join glpi_plugin_archidata_dataelementcardinalities on glpi_plugin_archidata_dataelements.plugin_archidata_dataelementcardinalities_id = glpi_plugin_archidata_dataelementcardinalities.id
 "/>
 			<customproperty name="autocompletejointcolumns" value="glpi_plugin_archidata_dataelements.name as name,glpi_plugin_archidata_dataelements.description as description,glpi_plugin_archidata_dataelementtypes.name as type, glpi_plugin_archidata_dataelements.level as level, glpi_plugin_archidata_dataelements.completename as structure_path, glpi_plugin_archidata_dataelementcardinalities.name as cardinality"/>
 			<customproperty name="autocompletejointcriteria" value=""/>
 			<customproperty name="autocompleteordercriteria" value="order by glpi_plugin_archidata_dataelements.name"/>
-			<customproperty name="autocompletecssclass" value="'DataElement_Level'+level"/>
+			<customproperty name="autocompletecssclass" value="'html=1;whiteSpace=wrap;shape=mxgraph.archimate3.businessObject;overflow=fill;DataElement_Level'+level"/>
 			<customproperty name="autocompleteobject" value="PluginArchidataDataelement"/>
 		</customproperties>
     </shape>
