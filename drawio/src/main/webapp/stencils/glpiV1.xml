@@ -57,7 +57,6 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 				<arc rx="30" ry="10" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="0" y="50"/>
 				<close/>
 			</path>
-			<fillcolor color="#99ffff"/>
 		</background>
 		<foreground>
 			<fillstroke/>
@@ -78,46 +77,6 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<customproperty name="autocompleteobject" value="PluginDatabasesDatabase"/>
 		</customproperties>
 	</shape>
-	<shape name="System SW" w="120" h="60" strokewidth="inherit" aspect="variable">
-		<connections>
-			<constraint x="0.25" y="0" perimeter="0"/>
-			<constraint x="0.5" y="0" perimeter="0"/>
-			<constraint x="0.75" y="0" perimeter="0"/>
-			<constraint x="0.25" y="1" perimeter="0"/>
-			<constraint x="0.5" y="1" perimeter="0"/>
-			<constraint x="0.75" y="1" perimeter="0"/>
-			<constraint y="0.25" x="0" perimeter="0"/>
-			<constraint y="0.5" x="0" perimeter="0"/>
-			<constraint y="0.75" x="0" perimeter="0"/>
-			<constraint y="0.25" x="1" perimeter="0"/>
-			<constraint y="0.5" x="1" perimeter="0"/>
-			<constraint y="0.75" x="1" perimeter="0"/>
-		</connections>
-		<background>
-			<rect h="60" w="120" x="0" y="0"/>
-<!--			<fillcolor color="#66B2FF"/> -->
-			<fillcolor color="#AFFFAF"/>
-		</background>
-		<foreground>
-			<fillstroke/>
-            <ellipse h="15" w="15" x="100" y="8"/>
-            <stroke/>
-            <ellipse h="15" w="15" x="98" y="10"/>
-            <fillstroke/>
-		</foreground>
-		<customproperties>
-			<customproperty name="autocompletetable" value="glpi_softwares"/>
-			<customproperty name="autocompletecolumns" value="name"/>
-			<customproperty name="autocompleteotherselectioncriteria" value=""/>
-			<customproperty name="autocompletelabel" value="' ('+category+')'"/>
-			<customproperty name="autocompletejointtables" value="left join glpi_softwarecategories on glpi_softwarecategories.id = glpi_softwares.softwarecategories_id"/>
-			<customproperty name="autocompletejointcolumns" value="glpi_softwares.name as name, glpi_softwarecategories.name as category"/>
-			<customproperty name="autocompletejointcriteria" value=""/>
-			<customproperty name="autocompleteordercriteria" value="order by glpi_softwares.name"/>
-			<customproperty name="autocompletecssclass" value="';html=1;fillColor=#AFFFAF;strokeColor=#000000;shape=mxgraph.archimate3.application;appType=sysSw;archiType=square'"/>
-			<customproperty name="autocompleteobject" value="Software"/>
-		</customproperties>
-	</shape>
 	<shape name="Computer" w="120" h="60" strokewidth="inherit" aspect="variable">
 		<connections>
 			<constraint x="0.25" y="0" perimeter="0"/>
@@ -135,29 +94,18 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 		</connections>
 		<background>
 			<rect h="60" w="120" x="0" y="0"/>
-            <fillcolor color="#88CC88"/>
-            <fillstroke/>
+			<fillcolor color="#D3D3D3"/>
 		</background>
 		<foreground>
-<!--            <include-shape name="device" h="60" w="120" x="0" y="0"/> -->
-            <roundrect h="15" w="15" x="100" y="8" arcsize="2"/>
-            <stroke/>
-            <path>
-				<move x="102" y="23"/>
-				<line x="100" y="26"/>
-				<line x="115" y="26"/>
-				<line x="113" y="23"/>
-            </path>
-            <stroke/>
 			<fillstroke/>
 		</foreground>
 		<customproperties>
 			<customproperty name="autocompletetable" value="glpi_computers"/>
 			<customproperty name="autocompletecolumns" value="name"/>
-			<customproperty name="autocompletejointtables" value="left join glpi_states on glpi_computers.states_id = glpi_states.id left join glpi_computertypes on  glpi_computers.computertypes_id = glpi_computertypes.id left join glpi_items_operatingsystems on glpi_items_operatingsystems.items_id = glpi_computers.id left join glpi_operatingsystems  on glpi_operatingsystems.id = glpi_items_operatingsystems.operatingsystems_id"/>
+			<customproperty name="autocompletejointtables" value="left join glpi_computers_sas on glpi_computers_sas.id = glpi_computers.id left join glpi_states on glpi_computers_sas.states_id = glpi_states.id left join glpi_computertypes on  glpi_computers_sas.computertypes_id = glpi_computertypes.id left join glpi_items_operatingsystems on glpi_items_operatingsystems.items_id = glpi_computers.id left join glpi_operatingsystems  on glpi_operatingsystems.id = glpi_items_operatingsystems.operatingsystems_id"/>
 			<customproperty name="autocompletejointcolumns" value="glpi_computers.name as name,glpi_computertypes.name as type,glpi_states.name as state,glpi_operatingsystems.name as operatingsystem"/>
 			<customproperty name="autocompletejointcriteria" value=""/>
-			<customproperty name="autocompletecssclass" value="'';html=1;fillColor=#88CC88;strokeColor=#000000;shape=mxgraph.archimate3.tech;techType=device;Computer_'+state"/>
+			<customproperty name="autocompletecssclass" value="state"/>
 			<customproperty name="autocompletelabel" value=" '('+state+')'"/>
 			<customproperty name="autocompleteobject" value="Computer"/>
 			<customproperty name="autocompletelink" value="(type.search('Server')>=0)?('http://sysmon/mrtg/rrd/'+((operatingsystem.search('Windows')>=0)?'mom.php?STARTN=1&amp;STARTQ=d&amp;submit=Go&amp;':'host.php?')+'HOST='+name):''"/>
@@ -181,14 +129,14 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 		<background>
 			<rect h="60" w="120" x="0" y="0"/>
 			<fillcolor color="#FFE49D"/>
-			<fillstroke/>
 		</background>
 		<foreground>
+			<fillstroke/>
 		</foreground>
 		<customproperties>
 			<customproperty name="autocompletetable" value="glpi_locations"/>
 			<customproperty name="autocompletecolumns" value="name"/>
-			<customproperty name="autocompleteotherselectioncriteria" value=""/>
+			<customproperty name="autocompleteotherselectioncriteria" value="and (level=2 or name like 'Hosted%')"/>
 			<customproperty name="autocompletejointtables" value=""/>
 			<customproperty name="autocompletejointcolumns" value="glpi_locations.name as name"/>
 			<customproperty name="autocompletejointcriteria" value=""/>
@@ -341,7 +289,7 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<image src="networking/Firewall_02_128x128.png" h="80" w="80" x="0" y="0"/>
 		</foreground>
 	</shape>
-	<shape name="Data" w="120" h="60" strokewidth="inherit" aspect="variable">
+<!--	<shape name="Data" w="120" h="60" strokewidth="inherit" aspect="variable">
 		<connections>
 			<constraint x="0.25" y="0" perimeter="0"/>
 			<constraint x="0.5" y="0" perimeter="0"/>
@@ -377,7 +325,7 @@ join glpi_plugin_archidata_dataelementcardinalities on glpi_plugin_archidata_dat
 			<customproperty name="autocompletecssclass" value="'DataElement_Level'+level"/>
 			<customproperty name="autocompleteobject" value="PluginArchidataDataelement"/>
 		</customproperties>
-    </shape>
+    </shape> -->
 	<shape name="Network Device" w="120" h="60" strokewidth="inherit" aspect="variable">
 		<connections>
 			<constraint x="0.25" y="0" perimeter="0"/>

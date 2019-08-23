@@ -49,5 +49,6 @@ foreach ($items as $itemtype => $items_id) {
 		$first = FALSE;
 	}
 }
+//Toolbox::logInFile("linkgraph", $query."\n");
 $result=$DB->query($query);
 ?>
