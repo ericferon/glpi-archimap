@@ -209,6 +209,98 @@ join glpi_plugin_archisw_swcomponentstates on glpi_plugin_archisw_swcomponents.p
 			<customproperty name="autocompletecssclass" value="'';html=1;fillColor=#FFE49D;strokeColor=#000000;shape=mxgraph.archimate3.location;'"/>
 		</customproperties>
 	</shape>
+	<shape name="Functional Area" w="120" h="60" strokewidth="inherit" aspect="variable">
+		<connections>
+			<constraint x="0.25" y="0" perimeter="0"/>
+			<constraint x="0.5" y="0" perimeter="0"/>
+			<constraint x="0.75" y="0" perimeter="0"/>
+			<constraint x="0.25" y="1" perimeter="0"/>
+			<constraint x="0.5" y="1" perimeter="0"/>
+			<constraint x="0.75" y="1" perimeter="0"/>
+			<constraint y="0.25" x="0" perimeter="0"/>
+			<constraint y="0.5" x="0" perimeter="0"/>
+			<constraint y="0.75" x="0" perimeter="0"/>
+			<constraint y="0.25" x="1" perimeter="0"/>
+			<constraint y="0.5" x="1" perimeter="0"/>
+			<constraint y="0.75" x="1" perimeter="0"/>
+		</connections>
+		<background>
+			<rect h="60" w="120" x="0" y="0"/>
+			<fillcolor color="#F5DEAA"/>
+			<fillstroke/>
+		</background>
+		<foreground>
+            <rect w="4" h="4" x="112" y="4"/>
+			<fillstroke/>
+            <rect w="4" h="4" x="112" y="8"/>
+			<fillstroke/>
+            <rect w="4" h="4" x="112" y="12"/>
+			<fillstroke/>
+            <rect w="4" h="4" x="108" y="8"/>
+			<fillstroke/>
+            <rect w="4" h="4" x="108" y="12"/>
+			<fillstroke/>
+            <rect w="4" h="4" x="104" y="12"/>
+			<fillstroke/>
+		</foreground>
+		<customproperties>
+			<customproperty name="autocompletetable" value="glpi_plugin_archifun_funcareas"/>
+			<customproperty name="autocompletecolumns" value="name"/>
+			<customproperty name="autocompleteotherselectioncriteria" value=""/>
+			<customproperty name="autocompletejointtables" value=""/>
+			<customproperty name="autocompletejointcolumns" value="glpi_plugin_archifun_funcareas.name as name"/>
+			<customproperty name="autocompletejointcriteria" value=""/>
+			<customproperty name="autocompletecssclass" value="'';html=1;fillColor=#F5DEAA;strokeColor=#000000;shape=mxgraph.archimate3.application;appType=capability;archiType=square;'"/>
+		</customproperties>
+	</shape>
+	<shape name="Entity" w="120" h="60" strokewidth="inherit" aspect="variable">
+		<connections>
+			<constraint x="0.25" y="0" perimeter="0"/>
+			<constraint x="0.5" y="0" perimeter="0"/>
+			<constraint x="0.75" y="0" perimeter="0"/>
+			<constraint x="0.25" y="1" perimeter="0"/>
+			<constraint x="0.5" y="1" perimeter="0"/>
+			<constraint x="0.75" y="1" perimeter="0"/>
+			<constraint y="0.25" x="0" perimeter="0"/>
+			<constraint y="0.5" x="0" perimeter="0"/>
+			<constraint y="0.75" x="0" perimeter="0"/>
+			<constraint y="0.25" x="1" perimeter="0"/>
+			<constraint y="0.5" x="1" perimeter="0"/>
+			<constraint y="0.75" x="1" perimeter="0"/>
+		</connections>
+		<background>
+			<rect h="60" w="120" x="0" y="0"/>
+			<fillcolor color="#FFFF99"/>
+			<fillstroke/>
+		</background>
+		<foreground>
+			<ellipse h="4" w="4" x="106" y="4"/>
+			<fillcolor color="#FFFF99"/>
+			<fillstroke/>
+			<path>
+				<move x="108" y="8"/>
+				<line x="108" y="13"/>
+				<move x="108" y="9"/>
+				<line x="104" y="12"/>
+				<move x="108" y="9"/>
+				<line x="112" y="12"/>
+				<move x="108" y="13"/>
+				<line x="104" y="16"/>
+				<move x="108" y="13"/>
+				<line x="112" y="16"/>
+			</path>
+			<fillstroke/>
+		</foreground>
+		<customproperties>
+			<customproperty name="autocompletetable" value="glpi_entities"/>
+			<customproperty name="autocompletecolumns" value="name"/>
+			<customproperty name="autocompleteotherselectioncriteria" value=""/>
+			<customproperty name="autocompletejointtables" value=""/>
+			<customproperty name="autocompletejointcolumns" value="glpi_entities.name as name"/>
+			<customproperty name="autocompletejointcriteria" value=""/>
+			<customproperty name="autocompletecssclass" value="'';html=1;fillColor=#FFFF99;strokeColor=#000000;shape=mxgraph.archimate3.application;appType=actor;archiType=square;;'"/>
+		</customproperties>
+	</shape>
 	<shape name="Supplier" w="60" h="120" strokewidth="inherit" aspect="variable">
 		<connections>
 			<constraint x="0.25" y="0" perimeter="0"/>
