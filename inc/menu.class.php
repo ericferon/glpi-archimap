@@ -40,10 +40,15 @@ class PluginArchimapMenu extends CommonGLPI {
       $menu['links']['search']                        = PluginArchimapGraph::getSearchURL(false);
       if (PluginArchimapGraph::canCreate()) {
          $menu['links']['add']                        = PluginArchimapGraph::getFormURL(false);
-      }
+		}
+		$menu['icon'] = self::getIcon();
 
       return $menu;
-   }
+	}
+
+	static function getIcon() {
+		return "fas fa-object-group";
+	}
 
    static function removeRightsFromSession() {
       if (isset($_SESSION['glpimenu']['assets']['types']['PluginArchimapMenu'])) {
