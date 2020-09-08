@@ -50,12 +50,12 @@ if (isset($_POST["graphtype"])) {
    }
 
    Dropdown::show('PluginArchimapGraph',
-                  array('name'      => $_POST['myname'],
-                        'used'      => $used,
-                        'width'     => '50%',
-                        'entity'    => $_POST['entity'],
-                        'rand'      => $_POST['rand'],
-                        'condition' => "glpi_plugin_archimap_graphs.plugin_archimap_graphtypes_id='".$_POST["graphtype"]."'"));
+                  ['name'      => $_POST['myname'],
+					'used'      => $used,
+					'width'     => '50%',
+					'entity'    => $_POST['entity'],
+					'rand'      => $_POST['rand'],
+					'condition' => ["glpi_plugin_archimap_graphs.plugin_archimap_graphtypes_id"=>$_POST["graphtype"]]]);
 
 }
 
