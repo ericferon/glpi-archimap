@@ -89,6 +89,7 @@ function plugin_version_archimap() {
             'min' => '9.5',
             'dev' => false
          ]
+      ]
    );
 
 }
