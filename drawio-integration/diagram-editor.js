@@ -120,7 +120,7 @@ DiagramEditor.prototype.editElement = function(elem)
     {
         let tables = {};
         tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
-                    'column' : 'key, value', 
+                    'column' : '`key`, value', 
                     'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
         var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -153,16 +153,19 @@ DiagramEditor.prototype.editElement = function(elem)
             }
             
         };
-        var arrayLength = repolibs['param'].length;
-        var istart = libconfig.length;
-        for (var i = 0 in repolibs['param'])
+        if (repolibs && repolibs['param'])
         {
-//            var data = new XMLSerializer().serializeToString(ExtractTagFromXml(decodeHTML(repolibs['param'][i].value)));
-            var data = ExtractTagFromXml(decodeHTML(repolibs['param'][i].value), 'mxlibrary');
-            libconfig[istart] = 
+            var arrayLength = repolibs['param'].length;
+            var istart = libconfig.length;
+            for (var i = 0 in repolibs['param'])
+            {
+//              var data = new XMLSerializer().serializeToString(ExtractTagFromXml(decodeHTML(repolibs['param'][i].value)));
+                var data = ExtractTagFromXml(decodeHTML(repolibs['param'][i].value), 'mxlibrary');
+                libconfig[istart] = 
                     {"title" : {"main" : repolibs['param'][i].key.replace(/_/g, " ")}, // replace underscore by space in file name
 					"data" : data};
-            istart++;
+                istart++;
+            }
         }
 	};
     var error = function()
@@ -483,9 +486,11 @@ DiagramEditor.prototype.handleMessage = function(msg)
 	}
 	else if (msg.event == 'save')
 	{
+    console.log('DiagramEditor save event', msg.event, msg.exit);
 		if (msg.exit)
 		{
 			msg.event = 'exit';
+    console.log('DiagramEditor save&exit event', msg.event, msg.exit);
 		}
 		else
 		{
@@ -600,6 +605,7 @@ DiagramEditor.prototype.done = function(data, draft, elt)
 //							{
 //								this.ui.actions.get('exit').funct();
 //							}
+                    console.log('really saved !');
 						}
 						else
 						{
