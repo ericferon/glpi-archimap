@@ -487,6 +487,12 @@ DiagramEditor.prototype.handleMessage = function(msg)
 	else if (msg.event == 'save')
 	{
     console.log('DiagramEditor save event', msg.event, msg.exit);
+// Added EFE 20200512
+        if (this.format == 'xml' && (msg.modified || msg.modified === undefined))
+		{
+			this.save(msg.xml, false, this.startElement);
+		}
+// End of Added EFE 20200512
 		if (msg.exit)
 		{
 			msg.event = 'exit';
@@ -494,12 +500,6 @@ DiagramEditor.prototype.handleMessage = function(msg)
 		}
 		else
 		{
-// Added EFE 20200512
-			if (this.format == 'xml' && (msg.modified || msg.modified === undefined))
-			{
-				this.save(msg.xml, false, this.startElement);
-			}
-// End of Added EFE 20200512
 			this.setStatus('allChangesSaved', false);
 		}
 	}
