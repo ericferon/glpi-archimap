@@ -486,7 +486,6 @@ DiagramEditor.prototype.handleMessage = function(msg)
 	}
 	else if (msg.event == 'save')
 	{
-    console.log('DiagramEditor save event', msg.event, msg.exit);
 // Added EFE 20200512
         if (this.format == 'xml' && (msg.modified || msg.modified === undefined))
 		{
@@ -496,7 +495,6 @@ DiagramEditor.prototype.handleMessage = function(msg)
 		if (msg.exit)
 		{
 			msg.event = 'exit';
-    console.log('DiagramEditor save&exit event', msg.event, msg.exit);
 		}
 		else
 		{
