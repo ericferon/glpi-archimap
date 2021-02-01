@@ -962,7 +962,7 @@ App.prototype.getPeerForMode = function(mode)
 							callback(cssclasses);
 						}; 
 					}
-					xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "../ajax/gettables.php", true);
+					xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
 					xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 					xhr.send(JSON.stringify(tables));
 				};

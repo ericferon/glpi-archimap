@@ -2,7 +2,7 @@
 /*
  -------------------------------------------------------------------------
  Archimap plugin for GLPI
- Copyright (C) 2009-2018 by Eric Feron.
+ Copyright (C) 2009-2021 by Eric Feron.
  -------------------------------------------------------------------------
 
  LICENSE
@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
  
-include ('../../../inc/includes.php');
+include ('../../../../inc/includes.php');
 
 $DB = new DB;
 //header("Content-Type: text/html; charset=UTF-8");

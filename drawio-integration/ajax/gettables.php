@@ -2,7 +2,7 @@
 /*
  -------------------------------------------------------------------------
  Archimap plugin for GLPI
- Copyright (C) 2009-2018 by Eric Feron.
+ Copyright (C) 2009-2021 by Eric Feron.
  -------------------------------------------------------------------------
 
  LICENSE
@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
  
-define('GLPI_ROOT', '../../..');
+define('GLPI_ROOT', '../../../..');
 include (GLPI_ROOT . "/inc/includes.php");
 
 $forbidden_tables = ['glpi_users', 'glpi_authldaps', 'glpi_authmails', 'glpi_certificates'];
