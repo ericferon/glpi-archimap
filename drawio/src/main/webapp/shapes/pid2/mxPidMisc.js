@@ -31,6 +31,15 @@ mxShapePidFan.prototype.cst = {
 		RADIAL : 'radial'
 };
 
+mxShapePidFan.prototype.customProperties = [
+	{name: 'fanType', dispName: 'Type', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'common', dispName:'Common'},
+			{val:'axial', dispName:'Axial'},
+			{val:'radial', dispName:'Radial'}
+	]}
+];
+
 /**
  * Function: paintVertexShape
  * 
@@ -52,7 +61,6 @@ mxShapePidFan.prototype.background = function(c, x, y, w, h)
 
 mxShapePidFan.prototype.foreground = function(c, x, y, w, h)
 {
-
 	c.begin();
 	c.moveTo(w * 0.3, h * 0.045);
 	c.lineTo(w * 0.97, h * 0.33);
@@ -61,14 +69,14 @@ mxShapePidFan.prototype.foreground = function(c, x, y, w, h)
 
 	c.moveTo(w * 0.4228, h * 0.3655);
 	c.arcTo(w * 0.15, h * 0.03, 50, 0, 1, w * 0.5, h * 0.5);
-	c.arcTo(w * 0,15, h * 0.03, 50, 0, 1, w * 0.3772, h * 0.4045);
+	c.arcTo(w * 0.15, h * 0.03, 50, 0, 1, w * 0.3772, h * 0.4045);
 	c.arcTo(w * 0.15, h * 0.03, 50, 0, 1, w * 0.3025, h * 0.271);
 	c.arcTo(w * 0.15, h * 0.03, 50, 0, 1, w * 0.4228, h * 0.3655);
 	c.close();
 
 	c.moveTo(w * 0.377, h * 0.5973);
 	c.arcTo(w * 0.15, h * 0.03, -50, 0, 1, w * 0.4966, h * 0.5019);
-	c.arcTo(w * 0,15, h * 0.03, -50, 0, 1, w * 0.423, h * 0.636);
+	c.arcTo(w * 0.15, h * 0.03, -50, 0, 1, w * 0.423, h * 0.636);
 	c.arcTo(w * 0.15, h * 0.03, -50, 0, 1, w * 0.3034, h * 0.7314);
 	c.arcTo(w * 0.15, h * 0.03, -50, 0, 1, w * 0.377, h * 0.5973);
 	c.close();
@@ -129,6 +137,20 @@ mxShapePidColumn.prototype.cst = {
 		NOZZLE : 'nozzle',
 		TRAY : 'tray'
 };
+
+mxShapePidColumn.prototype.customProperties = [
+	{name: 'columnType', dispName: 'Type', type: 'enum', defVal:'field',
+		enumList: [
+			{val:'common', dispName:'Common'},
+			{val:'fixed', dispName:'Fixed'},
+			{val:'fluid', dispName:'Fluid'},
+			{val:'baffle', dispName:'Baffle'},
+			{val:'valve', dispName:'Valve'},
+			{val:'bubble', dispName:'Bubble'},
+			{val:'nozzle', dispName:'Nozzle'},
+			{val:'tray', dispName:'Tray'}
+	]}
+];
 
 /**
  * Function: paintVertexShape

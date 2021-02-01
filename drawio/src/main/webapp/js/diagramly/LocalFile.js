@@ -8,12 +8,14 @@
  * @param {number} x X-coordinate of the point.
  * @param {number} y Y-coordinate of the point.
  */
-LocalFile = function(ui, data, title, temp)
+LocalFile = function(ui, data, title, temp, fileHandle, desc)
 {
 	DrawioFile.call(this, ui, data);
 	
 	this.title = title;
 	this.mode = (temp) ? null : App.MODE_DEVICE;
+	this.fileHandle = fileHandle;
+	this.desc = desc;
 };
 
 //Extends mxEventSource
@@ -27,7 +29,16 @@ mxUtils.extend(LocalFile, DrawioFile);
  */
 LocalFile.prototype.isAutosave = function()
 {
-	return false;
+	return this.fileHandle != null && DrawioFile.prototype.isAutosave.apply(this, arguments);
+};
+
+/**
+ * Specifies if the autosave checkbox should be shown in the document
+ * properties dialog. Default is false.
+ */
+LocalFile.prototype.isAutosaveOptional = function()
+{
+	return this.fileHandle != null;
 };
 
 /**
@@ -60,7 +71,7 @@ LocalFile.prototype.getTitle = function()
  */
 LocalFile.prototype.isRenamable = function()
 {
-	return true;
+	return this.fileHandle == null;
 };
 
 /**
@@ -91,46 +102,74 @@ LocalFile.prototype.saveAs = function(title, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-LocalFile.prototype.saveFile = function(title, revision, success, error)
+LocalFile.prototype.saveAs = function(title, success, error)
 {
+	this.saveFile(title, false, success, error);
+};
+
+/**
+ * Adds all listeners.
+ */
+LocalFile.prototype.getDescriptor = function()
+{
+	return this.desc;
+};
+
+/**
+* Updates the descriptor of this file with the one from the given file.
+*/
+LocalFile.prototype.setDescriptor = function(desc)
+{
+	this.desc = desc;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+LocalFile.prototype.getLatestVersion = function(success, error)
+{
+	if (this.fileHandle == null)
+	{
+		success(null);
+	}
+	else
+	{
+		this.ui.loadFileSystemEntry(this.fileHandle, success, error);
+	}
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+LocalFile.prototype.saveFile = function(title, revision, success, error, useCurrentData)
+{
+	if (title != this.title)
+	{
+		this.fileHandle = null;
+		this.desc = null;
+	}
+	
 	this.title = title;
 
 	// Updates data after changing file name
-	this.updateFileData();
-	var data = this.getData();
-	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
-	
-	var doSave = mxUtils.bind(this, function(data)
+	if (!useCurrentData)
 	{
-		if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
-		{
-			this.ui.doSaveLocalFile(data, title, (binary) ?
-				'image/png' : 'text/xml', binary);
-		}
-		else
-		{
-			if (data.length < MAX_REQUEST_SIZE)
-			{
-				var dot = title.lastIndexOf('.');
-				var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
-
-				// Do not update modified flag
-				new mxXmlRequest(SAVE_URL, 'format=' + format +
-					'&xml=' + encodeURIComponent(data) +
-					'&filename=' + encodeURIComponent(title) +
-					((binary) ? '&binary=1' : '')).
-					simulate(document, '_blank');
-			}
-			else
-			{
-				this.ui.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-				{
-					mxUtils.popup(data);
-				}));
-			}
-		}
-		
-		this.setModified(false);
+		this.updateFileData();
+	}
+	
+	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
+	this.setShadowModified(false);
+	var data = this.getData();
+	
+	var done = mxUtils.bind(this, function()
+	{
+		this.setModified(this.getShadowModified());
 		this.contentChanged();
 		
 		if (success != null)
@@ -139,12 +178,98 @@ LocalFile.prototype.saveFile = function(title, revision, success, error)
 		}
 	});
 	
+	var doSave = mxUtils.bind(this, function(data)
+	{
+		if (this.fileHandle != null)
+		{
+			// Sets shadow modified state during save
+			if (!this.savingFile)
+			{
+				this.savingFileTime = new Date();
+				this.savingFile = true;
+				
+				var errorWrapper = mxUtils.bind(this, function(e)
+				{
+					this.savingFile = false;
+					
+					if (error != null)
+					{
+						// Wraps error object to offer save status option
+						error({error: e});
+					}
+				});
+				
+				this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
+				{
+					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
+					{
+						if (this.desc.lastModified == newDesc.lastModified)
+						{
+							writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
+							{
+								writable.close().then(mxUtils.bind(this, function()
+								{
+									this.fileHandle.getFile().then(mxUtils.bind(this, function(desc)
+									{
+										this.savingFile = false;
+										this.desc = desc;
+										done();
+									}), errorWrapper);
+								}), errorWrapper);
+							}), errorWrapper);
+						}
+						else
+						{
+							this.inConflictState = true;
+							errorWrapper();
+						}
+					}), errorWrapper);
+				}), errorWrapper);
+			}
+		}
+		else
+		{
+			if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
+			{
+				this.ui.doSaveLocalFile(data, title, (binary) ?
+					'image/png' : 'text/xml', binary);
+			}
+			else
+			{
+				if (data.length < MAX_REQUEST_SIZE)
+				{
+					var dot = title.lastIndexOf('.');
+					var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
+	
+					// Do not update modified flag
+					new mxXmlRequest(SAVE_URL, 'format=' + format +
+						'&xml=' + encodeURIComponent(data) +
+						'&filename=' + encodeURIComponent(title) +
+						((binary) ? '&binary=1' : '')).
+						simulate(document, '_blank');
+				}
+				else
+				{
+					this.ui.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+					{
+						mxUtils.popup(data);
+					}));
+				}
+			}
+			
+			done();
+		}
+	});
+	
 	if (binary)
 	{
+		var p = this.ui.getPngFileProperties(this.ui.fileNode);
+
 		this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
 		{
 			doSave(imageData);
-		}), error, (this.ui.getCurrentFile() != this) ? this.getData() : null);
+		}), error, (this.ui.getCurrentFile() != this) ?
+			data : null, p.scale, p.border);
 	}
 	else
 	{
@@ -176,13 +301,5 @@ LocalFile.prototype.rename = function(title, success, error)
 LocalFile.prototype.open = function()
 {
 	this.ui.setFileData(this.getData());
-	
-	// Only used to update the status when the file changes
-	this.changeListener = mxUtils.bind(this, function(sender, eventObject)
-	{
-		this.setModified(true);
-		this.addUnsavedStatus();
-	});
-	
-	this.ui.editor.graph.model.addListener(mxEvent.CHANGE, this.changeListener);
+	this.installListeners();
 };

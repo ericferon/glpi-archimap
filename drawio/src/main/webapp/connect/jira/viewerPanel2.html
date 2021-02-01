@@ -30,6 +30,18 @@ function getUrlParam(param)
 	return null;
 };
 
+function getBaseUrl()
+{
+	var baseUrl = getUrlParam('xdm_e', true) + getUrlParam('cp', true);
+	//Ensure baseUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+	//Since we add cp to xdm_e, we had to ensure that there is a slash after the domain. Since if xdm_e is ok, cp can corrupt is such as cp = '.fakedomain.com' such that baseUrl is atlassian.net.fakedomain.com
+	if (/^https:\/\/([^\.])+\.jira\.com\//.test(baseUrl + '/') || /^https:\/\/([^\.])+\.atlassian\.net\//.test(baseUrl + '/')) 
+	{
+		return baseUrl;
+	}
+	throw 'Invalid baseUrl!';
+};
+
 // Sets global environment variables
 RESOURCE_BASE = '/resources/dia';
 STENCIL_PATH = '/stencils';
@@ -57,8 +69,7 @@ if (lang != null)
 	mxStencilRegistry.dynamicLoading = true;
 
 	// Specifies connection mode for touch devices (at least one should be true)
-	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
-	var connectUrl = baseUrl + '/atlassian-connect';
+	var connectUrl = getBaseUrl() + '/atlassian-connect';
 	var head = document.getElementsByTagName("head")[0];
 	
 	var script = document.createElement("script");
@@ -103,7 +114,7 @@ if (lang != null)
 		scriptLoaded = true;
 		mainBarrier();
 	};
-	script.src = connectUrl + '/all.js';
+	script.src = 'https://connect-cdn.atl-paas.net/all.js';
 	
 	function main()
 	{
@@ -231,7 +242,7 @@ if (lang != null)
 							
 							// Loads attachment content
 							request({
-								url: '/secure/attachment/' + value.id + '/' + encodeURIComponent(value.filename),
+								url: '/secure/attachment/' + value.id + '/',
 								success: function(xml)
 								{
 							 		window.clearTimeout(timeoutThread);
@@ -274,7 +285,7 @@ if (lang != null)
 										};
 										
 										var viewer = new GraphViewer(container, doc.documentElement, {highlight: '#3572b0',
-											'toolbar-position': 'top', toolbar: 'edit pages layers lightbox remove', 'max-height':
+											'toolbar-position': 'top', toolbar: 'pages layers lightbox remove', 'max-height':
 											Math.max(280, document.documentElement.offsetWidth / 1.5), border: 8,
 											/* disables automatic zoom with no buttons */'auto-fit': false,
 											nav: true, title: value.filename + ' [' + value.id + ']', 'toolbar-buttons': btnDefs});

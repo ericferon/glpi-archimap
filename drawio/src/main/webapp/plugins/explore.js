@@ -353,12 +353,13 @@ Draw.loadPlugin(function(ui)
 	});
 	
 	// Click handler for chromeless mode
-	if (ui.editor.chromeless)
+	if (ui.editor.isChromelessView())
 	{
 		ui.editor.graph.click = function(me)
 		{
 			if (ui.editor.graph.model.isVertex(me.getCell()) &&
-				ui.editor.graph.model.getEdgeCount(me.getCell()) > 0)
+				ui.editor.graph.model.getEdgeCount(me.getCell()) > 0 &&
+				this.getLinkForCell(me.getCell()) == null)
 			{
 				exploreFromHere(me.getCell());
 			}

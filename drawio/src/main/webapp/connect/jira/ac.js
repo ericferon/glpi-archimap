@@ -188,7 +188,7 @@ AC.loadDiagram = function (issueId, diagramName, success, error)
 	{
 		AP.require('request', function(request) {
 			request({
-				url: '/secure/attachment/' + diagramId + '/' + diagramName,
+				url: '/secure/attachment/' + diagramId + '/',
 				success: success,
 				error : error
 			});

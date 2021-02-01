@@ -17,7 +17,7 @@ mxShapeSysMLComposite.prototype.isHtmlAllowed = function()
 {
 	return false;
 };
-	
+
 mxShapeSysMLComposite.prototype.paintForeground = function(c, x, y, w, h)
 {
 	if (this.style != null)
@@ -132,6 +132,34 @@ mxShapeSysMLPackage.prototype.cst = {
 		LABEL_X : 'labelX'
 };
 
+mxShapeSysMLPackage.prototype.customProperties = [
+	{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
+];
+
+mxShapeSysMLPackage.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 /**
 * Function: paintVertexShape
 * 
@@ -211,6 +239,10 @@ mxShapeSysMLPackage2.prototype.cst = {
 		PACKAGE2 : 'mxgraph.sysml.package2',
 		LABEL_X : 'labelX'
 };
+
+mxShapeSysMLPackage2.prototype.customProperties = [
+	{name: 'labelX', dispName: 'Header Width', type: 'float', min:0, defVal:90} 
+];
 
 /**
 * Function: paintVertexShape
@@ -378,6 +410,28 @@ mxShapeSysMLPortOne.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLPortOne.prototype.cst.PORT1, mxShapeSysMLPortOne);
 
+mxShapeSysMLPortOne.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Port2
 //**********************************************************************************************************************************************************
@@ -414,6 +468,28 @@ mxShapeSysMLPortTwo.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLPortTwo.prototype.cst.PORT2, mxShapeSysMLPortTwo);
+
+mxShapeSysMLPortTwo.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.95, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.05, 0.25), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Port3
@@ -564,6 +640,20 @@ mxShapeSysMLItemFlow.prototype.cst = {
 		FLOW_DIR : 'flowDir',
 		FLOW_TYPE : 'flowType'
 };
+
+mxShapeSysMLItemFlow.prototype.customProperties = [
+	{name: 'flowDir', dispName: 'Flow Direction', type: 'enum',
+		enumList:[
+			{val:'n', dispName:'North'},
+			{val:'s', dispName:'South'},
+			{val:'e', dispName:'East'},
+			{val:'w', dispName:'West'}
+		]},
+		{name: 'flowType', dispName: 'Flow Type', type: 'enum',
+			enumList:[
+				{val:'in', dispName:'In'},
+				{val:'out', dispName:'Out'}
+]}];
 
 /**
 * Function: paintVertexShape
@@ -1063,6 +1153,31 @@ mxShapeSysMLCallBehaviorAction.prototype.drawSymb = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLCallBehaviorAction.prototype.cst.CALL_BEH_ACT, mxShapeSysMLCallBehaviorAction);
 
+mxShapeSysMLCallBehaviorAction.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -2.9, -2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 2.9, -2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Accept Event Action
 //**********************************************************************************************************************************************************
@@ -1106,6 +1221,28 @@ mxShapeSysMLAcceptEventAction.prototype.paintVertexShape = function(c, x, y, w, 
 
 mxCellRenderer.registerShape(mxShapeSysMLAcceptEventAction.prototype.cst.ACC_EVENT, mxShapeSysMLAcceptEventAction);
 
+mxShapeSysMLAcceptEventAction.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null,  h * 0.3, 0));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Time Event
 //**********************************************************************************************************************************************************
@@ -1147,6 +1284,21 @@ mxShapeSysMLTimeEvent.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLTimeEvent.prototype.cst.TIME_EVENT, mxShapeSysMLTimeEvent);
+
+mxShapeSysMLTimeEvent.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.5), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Send Signal Action
@@ -1191,6 +1343,28 @@ mxShapeSysMLSendSignalAction.prototype.paintVertexShape = function(c, x, y, w, h
 
 mxCellRenderer.registerShape(mxShapeSysMLSendSignalAction.prototype.cst.SEND_SIG_ACT, mxShapeSysMLSendSignalAction);
 
+mxShapeSysMLSendSignalAction.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -h * 0.3, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -h * 0.3, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Activity Final
 //**********************************************************************************************************************************************************
@@ -1233,6 +1407,22 @@ mxShapeSysMLActivityFinal.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLActivityFinal.prototype.cst.ACT_FINAL, mxShapeSysMLActivityFinal);
+
+mxShapeSysMLActivityFinal.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Activity Parameter Node
@@ -1307,6 +1497,17 @@ mxShapeSysMLActivityParameterNode.prototype.paintVertexShape = function(c, x, y,
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLActivityParameterNode.prototype.cst.ACT_PARAM_NODE, mxShapeSysMLActivityParameterNode);
+
+mxShapeSysMLActivityParameterNode.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.35), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.65), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Control Operator
@@ -1419,6 +1620,22 @@ mxShapeSysMLFlowFinal.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLFlowFinal.prototype.cst.FLOW_FINAL, mxShapeSysMLFlowFinal);
 
+mxShapeSysMLFlowFinal.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Is Control
 //**********************************************************************************************************************************************************
@@ -1461,6 +1678,16 @@ mxShapeSysMLIsControl.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLIsControl.prototype.cst.IS_CONTROL, mxShapeSysMLIsControl);
+
+mxShapeSysMLIsControl.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Is Stream
@@ -1512,6 +1739,16 @@ mxShapeSysMLIsStream.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLIsStream.prototype.cst.IS_STREAM, mxShapeSysMLIsStream);
+
+mxShapeSysMLIsStream.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Is Activity Stream
@@ -1573,6 +1810,18 @@ mxShapeSysMLIsActStream.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLIsActStream.prototype.cst.IS_ACT_STREAM, mxShapeSysMLIsActStream);
 
+mxShapeSysMLIsActStream.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Parameter Set
 //**********************************************************************************************************************************************************
@@ -1627,8 +1876,28 @@ mxShapeSysMLParameterSet.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLParameterSet.prototype.cst.PARAM_SET, mxShapeSysMLParameterSet);
 
+mxShapeSysMLParameterSet.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
-//Is Activity Stream
+//Is Parameter Activity Set
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -1703,6 +1972,26 @@ mxShapeSysMLParameterActivitySet.prototype.paintVertexShape = function(c, x, y, 
 
 mxCellRenderer.registerShape(mxShapeSysMLParameterActivitySet.prototype.cst.PARAM_ACT_SET, mxShapeSysMLParameterActivitySet);
 
+mxShapeSysMLParameterActivitySet.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Probability
 //**********************************************************************************************************************************************************
@@ -1756,6 +2045,29 @@ mxShapeSysMLProbability.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLProbability.prototype.cst.PROBABILITY, mxShapeSysMLProbability);
+
+mxShapeSysMLProbability.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false, null, -5, 0));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Is Activity Stream
@@ -1833,6 +2145,29 @@ mxShapeSysMLActivityProbability.prototype.paintVertexShape = function(c, x, y, w
 
 mxCellRenderer.registerShape(mxShapeSysMLActivityProbability.prototype.cst.ACT_PROB, mxShapeSysMLActivityProbability);
 
+mxShapeSysMLActivityProbability.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, 0, -14));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, 0, 14));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false, null, -5, 0));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Object Flow Right
 //**********************************************************************************************************************************************************
@@ -1874,8 +2209,20 @@ mxShapeSysMLObjectFlowRight.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLObjectFlowRight.prototype.cst.OBJ_FLOW_R, mxShapeSysMLObjectFlowRight);
 
+mxShapeSysMLObjectFlowRight.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, -5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false, null, -5, 0));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
-//Object Flow Right
+//Object Flow Left
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -1914,6 +2261,18 @@ mxShapeSysMLObjectFlowLeft.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLObjectFlowLeft.prototype.cst.OBJ_FLOW_L, mxShapeSysMLObjectFlowLeft);
+
+mxShapeSysMLObjectFlowLeft.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 5, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false, null, 5, 0));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Activity Partition
@@ -2019,6 +2378,48 @@ mxShapeSysMLContinuation.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLContinuation.prototype.cst.CONT, mxShapeSysMLContinuation);
+
+mxShapeSysMLContinuation.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	
+	if (w > h)
+	{
+		var r = h * 0.5;
+
+		if (w > 2 * h)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+		}
+	}
+	else
+	{
+		var r = w * 0.5;
+		
+		if (h > 2 * w)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+			constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+		}
+	}
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r * 0.29, r * 0.29));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - r * 0.29, r * 0.29));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, r * 0.29, h - r * 0.29));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - r * 0.29, h - r * 0.29));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Coregion
@@ -2237,6 +2638,45 @@ mxShapeSysMLCompositeState.prototype.background = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLCompositeState.prototype.cst.COMP_STATE, mxShapeSysMLCompositeState);
 
+mxShapeSysMLCompositeState.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 22.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 2.9, 22.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - 20) * 0.25 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - 20) * 0.5 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - 20) * 0.75 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, (h - 20) * 0.25 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, (h - 20) * 0.5 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, (h - 20) * 0.75 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 15, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 70, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 125, 0));
+
+	if (w * 0.75 > 125)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false, null, 0, 20));
+		
+		if (w * 0.5 > 125)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 0, 20));
+
+			if (w * 0.25 > 125)
+			{
+				constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false, null, 0, 20));
+			}
+		}
+	}
+	
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Region
 //**********************************************************************************************************************************************************
@@ -2300,6 +2740,45 @@ mxShapeSysMLRegion.prototype.foreground = function(c, x, y, w, h, tabH, tabW)
 
 mxCellRenderer.registerShape(mxShapeSysMLRegion.prototype.cst.REGION, mxShapeSysMLRegion);
 
+mxShapeSysMLRegion.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 22.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 2.9, 22.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - 20) * 0.25 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - 20) * 0.5 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - 20) * 0.75 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, (h - 20) * 0.25 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, (h - 20) * 0.5 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, (h - 20) * 0.75 + 20));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 15, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 40, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 65, 0));
+
+	if (w * 0.75 > 65)
+	{
+		constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false, null, 0, 20));
+		
+		if (w * 0.5 > 65)
+		{
+			constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false, null, 0, 20));
+
+			if (w * 0.25 > 65)
+			{
+				constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false, null, 0, 20));
+			}
+		}
+	}
+	
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Simple State
 //**********************************************************************************************************************************************************
@@ -2353,6 +2832,30 @@ mxShapeSysMLSimpleState.prototype.foreground = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLSimpleState.prototype.cst.SIMPLE_STATE, mxShapeSysMLSimpleState);
+
+mxShapeSysMLSimpleState.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //State Machine
@@ -2411,6 +2914,30 @@ mxShapeSysMLStateMachine.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLStateMachine.prototype.cst.STATE_MACHINE, mxShapeSysMLStateMachine);
 
+mxShapeSysMLStateMachine.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 12.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 12.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, -10, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, -10, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 // X
 //**********************************************************************************************************************************************************
@@ -2453,6 +2980,18 @@ mxShapeSysMLX.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLX.prototype.cst.X, mxShapeSysMLX);
+
+mxShapeSysMLX.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Submachine State
@@ -2511,6 +3050,30 @@ mxShapeSysMLSubmachineState.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeSysMLSubmachineState.prototype.cst.SUBMACHINE_STATE, mxShapeSysMLSubmachineState);
 
+mxShapeSysMLSubmachineState.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 12.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w - 12.9, h - 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false, null, -10, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false, null, -10, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Use Case with Extension Points
 //**********************************************************************************************************************************************************
@@ -2563,3 +3126,19 @@ mxShapeSysMLUseCaseExtensionPoints.prototype.foreground = function(c, x, y, w, h
 };
 
 mxCellRenderer.registerShape(mxShapeSysMLUseCaseExtensionPoints.prototype.cst.USE_CASE_EXT_PT, mxShapeSysMLUseCaseExtensionPoints);
+
+mxShapeSysMLUseCaseExtensionPoints.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.145), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.855), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0.145), false));
+	
+	return (constr);
+};

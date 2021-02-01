@@ -35,32 +35,23 @@ function getUrlParam(param)
 	return null;
 };
 
+function getBaseUrl()
+{
+	var baseUrl = getUrlParam('xdm_e', true) + getUrlParam('cp', true);
+	//Ensure baseUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+	//Since we add cp to xdm_e, we had to ensure that there is a slash after the domain. Since if xdm_e is ok, cp can corrupt is such as cp = '.fakedomain.com' such that baseUrl is atlassian.net.fakedomain.com
+	if (/^https:\/\/([^\.])+\.jira\.com\//.test(baseUrl + '/') || /^https:\/\/([^\.])+\.atlassian\.net\//.test(baseUrl + '/')) 
+	{
+		return baseUrl;
+	}
+	throw 'Invalid baseUrl!';
+};
+
 // Sets global environment variables
 RESOURCE_BASE = '/resources/dia';
 STENCIL_PATH = '/stencils';
 SHAPES_PATH = '/shapes';
 
-// Overrides browser language with Confluence user language
-var lang = getUrlParam('loc');
-var lightbox = getUrlParam('lightbox') == '1';
-
-if (lightbox)
-{
-	document.body.style.backgroundImage = 'url(/images/drawlogo-text-bottom.svg)';
-	document.body.style.backgroundPosition = 'center 30%';
-	document.body.style.backgroundSize = '128px';
-}
-
-// Language is in the Connect URL
-if (lang != null)
-{
-	var dash = lang.indexOf('-');
-	
-	if (dash >= 0)
-	{
-		mxLanguage = lang.substring(0, dash);
-	}
-}
 </script>
 <script type="text/javascript" src="/js/viewer.min.js"></script>
 <script type="text/javascript">
@@ -71,7 +62,7 @@ if (lang != null)
 
 	// Loads the Atlassian API
 	var script = document.createElement('script');
-	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
+	var baseUrl = getBaseUrl();
 
 	// Loads the attachment and renders the diagram
 	var diagramWidth = parseFloat(getUrlParam('width'));
@@ -85,26 +76,20 @@ if (lang != null)
 	var ceoId = getUrlParam('ceoId');
 	var owningPageId = getUrlParam('owningPageId');
 	var revision = null;
-	
 	var tbStyle = getUrlParam('tbstyle') || 'top';
 	var links = getUrlParam('links') || 'auto';
-	var enableLightbox = getUrlParam('lbox') != '0';
-	var simpleViewer = false; // unused
-	var tbHeight = (tbStyle == 'top' && !simpleViewer) ? GraphViewer.prototype.toolbarHeight : 0;
+	var tbHeight = tbStyle == 'top' ? GraphViewer.prototype.toolbarHeight : 0;
 	var zoom = parseFloat(getUrlParam('zoom') || 1);
-	var border = (simpleViewer) ? 0 : 8;
+	var border = 0;
 	
-	if (!lightbox)
-	{
-		document.body.style.backgroundImage = 'url(/images/aui-wait.gif)';
-		document.body.style.backgroundPosition = 'left top';
-		document.body.style.backgroundSize = 'auto auto';
-	}
+	document.body.style.backgroundImage = 'url(/images/aui-wait.gif)';
+	document.body.style.backgroundPosition = 'left top';
+	document.body.style.backgroundSize = 'auto auto';
 	
 	function main()
 	{
 		// Sets initial placeholder size to allow for scrollbars in fit to page width
-		AP.resize('100%', (lightbox) ? '100%' : (diagramHeight * zoom + tbHeight + 2 * border));
+		AP.resize('100%', (diagramHeight * zoom + tbHeight + 2 * border));
 		
 		function showError(msg)
 		{
@@ -135,247 +120,19 @@ if (lang != null)
 					
 					if (id != null && id.length > 0 && name != null && name.length > 0) 
 					{
-						// Option currently not available in the UI
-						if (simpleViewer)
+						document.body.style.backgroundImage = 'none';
+						var img = document.createElement('img');
+						img.style.cssText = 'max-width:100%;';
+						img.setAttribute('src', baseUrl + '/download/attachments/' + id + '/'
+								+ encodeURIComponent(name) + ".png?api=v2"
+								+ (revision != null ? "&version=" + revision : ""));
+						
+						if (zoom != 1)
 						{
-							document.body.style.backgroundImage = 'none';
-							var img = document.createElement('img');
-							img.style.cssText = 'max-width:100%;';
-							img.setAttribute('src', baseUrl + '/download/attachments/' + id + '/'
-									+ encodeURIComponent(name) + ".png?api=v2"
-									+ (revision != null ? "&version=" + revision : ""));
-							
-							if (zoom != 1)
-							{
-								img.style.width = Math.round(diagramWidth * zoom) + 'px';
-							}
-							
-							document.body.appendChild(img);
+							img.style.width = Math.round(diagramWidth * zoom) + 'px';
 						}
-						else
-						{
-							var serverName = document.referrer;
-							var timeout = 25000;
-							var index1 = serverName.indexOf('//');
-							
-							if (index1 > 0)
-							{
-								var index2 = serverName.indexOf('/', index1 + 2);
-								
-								if (index2 > index1)
-								{
-									serverName = serverName.substring(index1 + 2, index2);
-								}
-							}
-							
-							var acceptResponse = true;
-							
-							var timeoutThread = window.setTimeout(function()
-							{
-								acceptResponse = false;
-								
-								if (lightbox)
-								{
-									var message = messages.error('The connection has timed out', 'The server at ' +
-										serverName + ' is taking too long to respond.');
-									
-									messages.onClose(message, function()
-									{
-										dialog.close();
-									});
-								}
-								else
-								{
-									showError('The connection has timed out: The server at ' +
-										serverName + ' is taking too long to respond.');
-								}
-							}, timeout);
-							
-							request(
-							{
-								url: '/download/attachments/' + id + '/' + encodeURIComponent(name) +
-									((revision != null && revision.length > 0) ? '?version=' + revision : ''),
-								success: function(xml) 
-								{
-							 		window.clearTimeout(timeoutThread);
-									
-							 		if (acceptResponse)
-							 		{
-										document.body.style.backgroundImage = 'none';
-										
-										if (lightbox)
-										{
-											var config = {highlight: '#3572b0', nav: true, lightbox: false};
-											
-											if (links != 'auto')
-											{
-												config.target = links;
-											}
-											
-											var viewer = new GraphViewer(null, null, config);
-											viewer.currentPage = parseInt(page || 0);
-											viewer.lightboxChrome = false;
-											viewer.xml = xml;
-			
-											// Enables layers via flag to avoid toolbar
-											viewer.layersEnabled = true;
-											
-											var ui = viewer.showLocalLightbox();
-											
-											// Destroy lightbox with ui instance
-											var destroy = ui.destroy;
-											ui.destroy = function()
-											{
-												dialog.close();
-												destroy.apply(this, arguments);
-											};
-										}
-										else
-										{
-											// LATER: Fix horizontal alignment ignored with 100% width of iframe
-											// LATER: Fix page scrolling on touch device if trigger event on diagram
-											// LATER: Hide toolbar after second container click for iOS
-											// LATER: Disable responsive resize while lightbox shows
-											var container = document.createElement('div');
-											container.style.cssText = 'position:absolute;box-sizing:border-box;' +
-												'max-width:100%;margin-bottom:' + tbHeight +'px;border:1px solid transparent;';
-											document.body.appendChild(container);
-											var doc = mxUtils.parseXml(xml);
-											
-											var config = {highlight: '#3572b0', 'toolbar-position': tbStyle,
-												nav: true, border: 2, zoom: zoom};
-											
-											if (tbStyle == 'top')
-											{
-												config.title = name;
-											}
-	
-											if (links != 'auto')
-											{
-												config.target = links;
-											}
-											
-											if (!enableLightbox)
-											{
-												config.lightbox = false;
-											}
-											
-											if (tbStyle != 'hidden')
-											{
-												config.toolbar = 'pages zoom layers';
-												config.border = border;
-												
-												if (enableLightbox)
-												{
-													config.toolbar += ' lightbox';
-												}
-											}
-											else
-											{
-												// Workaround for invalid width if no toolbar is present
-												var updateContainerWidth = GraphViewer.prototype.updateContainerWidth;
-												
-												GraphViewer.prototype.updateContainerWidth = function(container, width)
-												{
-													width += 3;
-													updateContainerWidth.apply(this, arguments);
-												};
-											}
-											
-											var viewer = new GraphViewer(container, doc.documentElement, config);
-			
-											// Handles resize of iframe after zoom
-											var graphDoResizeContainer = viewer.graph.doResizeContainer;
-											
-											function updateHeight(height)
-											{
-												AP.resize('100%', (tbHeight == 0) ? Math.ceil(height) : container.offsetHeight + tbHeight);
-											};
-											
-											viewer.graph.doResizeContainer = function(width, height)
-											{
-												graphDoResizeContainer.apply(this, arguments);
-												updateHeight(height);
-											};
-			
-											// Updates the size of the iframe in responsive cases
-											viewer.updateContainerHeight = function(container, height)
-											{
-												updateHeight(height);
-											};
-											
-											updateHeight();
-											
-											viewer.showLightbox = function()
-											{
-								                dialog.create(
-								                {
-								                    header: name,
-								                	key: 'lightbox',
-								                    size: 'fullscreen',
-								                    customData: {id: id, name: name, revision: revision, page: viewer.currentPage, links: links},
-								                    chrome: true
-								                });
-											};
-
-										}
-										if (retryParams.saveIt)
-										{
-								 			//Since attachment wasn't found in this page, it is better to save it to this page
-								 			//First load AC dynamically. Since AC is not needed in the viewer except for this case
-							 				var head = document.getElementsByTagName('head')[0];
-											var script = document.createElement('script');
-											script.setAttribute('data-options', 'resize:false;margin:false');
-											
-											// Main
-											script.onload = function()
-											{
-												//save diagram
-												AC.saveDiagram(retryParams.pageId, name, btoa(unescape(encodeURIComponent(xml))),
-												function()
-												{
-													//nothing!
-												}, 
-												function()
-												{
-													//nothing!
-												}, false, 'text/plain', 'Diagram imported by Draw.io');
-
-												
-												//TODO save preview png
-												//This requires an editor to do the png export, may be a canvas can be used with supported browsers
-											};
-											script.src = 'ac.js';
-											head.appendChild(script);
-										}
-							 		}
-								},
-								error: function (err)
-								{
-							 		window.clearTimeout(timeoutThread);
-									
-							 		if (err.status == 404)
-							 		{
-							 			//Copied pages are reset to revision 1, in addition, copy&paste pages saves diagrams imported from another page
-							 			//So, try revision 1 first
-							 			if (revision > 1)
-							 			{
-								 			showDiagram(id, backupId, name, null, page, links, {revision: revision});
-							 			}
-							 			else if (backupId != null)
-						 				{
-								 			//Since attachment wasn't found in this page, it is better to save it to this page
-								 			showDiagram(backupId, null, name, revision || retryParams.revision, page, links, {saveIt: true, pageId: id});
-						 				}
-							 		}
-							 		else if (acceptResponse)
-							 		{
-										document.body.style.backgroundImage = 'none';
-										showError('Error: ' + err.status);
-							 		}
-								}
-							});
-						}
+						
+						document.body.appendChild(img);
 					}
 					else
 					{
@@ -383,17 +140,8 @@ if (lang != null)
 					}
 				};
 	
-				if (lightbox)
-				{
-					// Gets the paramters from the customData object in lightbox mode
-					// LATER: Add XML to custom data (does not seem to work)
-					showDiagram(dialog.customData.id, dialog.customData.id, dialog.customData.name, dialog.customData.revision, dialog.customData.page, dialog.customData.links);
-				}
-				else
-				{
-					var myPageId = (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId;
-					showDiagram(candidateId, (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId, diagramName, revision, null, links);
-				}
+				var myPageId = (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId;
+				showDiagram(candidateId, (owningPageId != null && owningPageId.length > 0) ? owningPageId : ceoId, diagramName, revision, null, links);
 		    });
 		});
 	};
@@ -457,7 +205,7 @@ if (lang != null)
 		mainBarrier();
 	};
 
-	script.src = baseUrl + '/atlassian-connect/all.js';
+	script.src = 'https://connect-cdn.atl-paas.net/all.js';
 	script.setAttribute('data-options', 'sizeToParent:true;');
 	document.getElementsByTagName('head')[0].appendChild(script);
 })();

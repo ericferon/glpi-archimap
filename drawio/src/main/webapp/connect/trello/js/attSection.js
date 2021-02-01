@@ -23,8 +23,8 @@ t.render(function()
 				title: 'draw.io: ' + name,
 				args: {url: mxTrelloCommon.editorURL +
 					((location.hostname != 'www.draw.io') ?
-						'?dev=1&drawdev=1&embed=1&libraries=1&tr=1&gapi=1&od=1&gh=1&db=1&p=tr' :
-						'?embed=1&libraries=1&tr=1&gapi=1&od=1&gh=1&db=1&p=tr') +
+						'?dev=1&test=1&embed=1&libraries=1&tr=1&gapi=1&od=1&gh=1&db=1&gl=1&p=tr' :
+						'?embed=1&libraries=1&tr=1&gapi=1&od=1&gh=1&db=1&gl=1&p=tr') +
 					'#T' + id}
 	        });
 	    }  
@@ -47,12 +47,14 @@ t.render(function()
 				source = source.parentNode;
 			}
 			
-			t.modal(
-			{
-				url: prevURL,
+			// Redirect via editor.html to avoid Trello injecting crap
+			// after the hash in the URL
+			t.modal({
+				url: './editor.html',
 				fullscreen: true,
-				title: 'draw.io: ' + name
-			});
+				title: 'draw.io: ' + name,
+				args: {url: prevURL}
+	        });
 		}
 	};
 
@@ -108,7 +110,7 @@ t.render(function()
 						
 						var container = document.createElement('div');
 						container.style.cssText = 'position:absolute;top:0px;left:0px;width:110px;' +
-							'height:80px;border:1px solid transparent;box-sizing:border-box;cursor:pointer;' +
+							'height:80px;border:1px solid transparent;cursor:pointer;' +
 							'background-position:center;background-repeat:no-repeat;background-image:url(/images/spin.gif);';
 						div.appendChild(container);
 						
@@ -149,7 +151,7 @@ t.render(function()
 	
 					var nameSpan = document.createElement('span');
 					nameSpan.className = "attachment-thumbnail-name";
-					nameSpan.innerHTML = attName;
+					mxUtils.write(nameSpan, attName);
 					detailsP.appendChild(nameSpan);
 	
 					var detailOpt = document.createElement('span');

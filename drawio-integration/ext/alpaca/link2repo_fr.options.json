@@ -1,0 +1,78 @@
+{
+	"fields": {
+		"stencil": {
+			"size": 20,
+			"label": "Stencil id",
+			"placeholder": "identifiant unique",
+			"helper" : "Une fois sauvée, cette valeur ne devrait plus être du tout modifiée !"
+		},
+		"autocompletetype": {
+			"label": "Type d'accès :",
+			"type": "select",
+			"optionLabels" : ["Local, via SQL",
+							"Distant, via http"
+							],
+			"focus" : true
+		},
+		"autocompletetable": {
+			"size": 20,
+			"label": "Table principale",
+			"placeholder": "1 nom de table",
+			"helper" : "p.ex : glpi_plugin_archisw_swcomponents"
+		},
+		"autocompletecolumns": {
+			"size": 20,
+			"label": "Colonne(s) de la table principale",
+			"placeholder": "Liste séparée par des virgules",
+			"helper" : "p.ex : name, description, glpi_manufacturers.name"
+		},
+		"autocompletejointtables": {
+			"size": 40,
+			"label": "Critère de jointure",
+			"placeholder": "Tel qu'exprimé en SQL",
+			"helper" : "p.ex : left join glpi_plugin_archisw_swcomponenttypes on glpi_plugin_archisw_swcomponenttypes.id = glpi_plugin_archisw_swcomponents.plugin_archisw_swcomponenttypes_id"
+		},
+		"autocompletejointcolumns": {
+			"size": 40,
+			"label": "Colonne(s) de jointure",
+			"placeholder": "Liste séparée par des virgules",
+			"helper" : "p.ex : glpi_plugin_archisw_swcomponents.name as name,glpi_plugin_archisw_swcomponents.description as description,glpi_plugin_archisw_swcomponenttypes.name as type,glpi_plugin_archisw_swcomponentstates.name as state"
+		},
+		"autocompleteotherselectioncriteria": {
+			"size": 20,
+			"label": "Critère de sélection",
+			"placeholder": "Tel qu'exprimé en SQL, sans 'WHERE'",
+			"helper" : "p.ex : level > 1"
+		},
+		"autocompleteordercriteria": {
+			"size": 20,
+			"label": "Sort criteria",
+			"placeholder": "Tel qu'exprimé en SQL, sans 'ORDER BY'",
+			"helper" : "p.ex : glpi_plugin_archisw_swcomponents.name"
+		},
+		"autocompletelabel": {
+			"size": 20,
+			"label": "Affichage comme",
+			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
+			"helper" : "comment la liste des suggestions de noms sera composée (après le nom lui-même) p.ex : '/'+manufacturer+' (level '+level+' - '+type+' : '+state+')'"
+		},
+		"autocompletecssclass": {
+			"size": 20,
+			"label": "Classe CSS",
+			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
+			"helper" : "comment la classe CSS, à ajouter à la forme, sera composée ; p.ex : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
+		},
+		"autocompleteobject": {
+			"size": 20,
+			"label": "Classe",
+			"placeholder": "Nom de classe",
+			"helper" : "p.ex : PluginArchiswSwcomponent"
+		},
+		"autocompletelink": {
+			"size": 20,
+			"label": "Lien",
+			"placeholder": "URL exprimée sous forme d'un mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
+			"helper" : "comment l'URL associée à la forme sera composée ; p.ex 'http://sysmon/mrtg/rrd/mom.php?'+'HOST='+name"
+		}
+	}
+}

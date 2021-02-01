@@ -1,19 +1,36 @@
 .geEditor {
-	font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;
-	font-size:10pt;
+	font-family:Helvetica,Arial,sans-serif;
+	font-size:14px;
 	border:none;
 	margin:0px;
 }
 .geEditor input[type=text]::-ms-clear {
 	display: none;
 }
-.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
+.geEditor input, select, textarea, button {
+       font-size: inherit;
+}
+.geEditor input {
+       border-width: 2px;
+}
+.geEditor select {
+       border-width: 1px;
+}
+.geEditor div.mxTooltip {
+	background: whiteSmoke;
+	border-color: lightGray;
+	font-size: 11px;
+	color: black;
+	padding:6px;
+}
+.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel {
 	cursor:pointer !important;
 }
+.geSidebarContainer .geTitle {
+	cursor:default !important;
+}
 .geBackgroundPage {
-  	-webkit-box-shadow:0px 0px 3px 0px #d9d9d9;
-	-moz-box-shadow:0px 0px 3px 0px #d9d9d9;
-  	box-shadow:0px 0px 3px 0px #d9d9d9;
+  	box-shadow:0px 0px 2px 1px #d1d1d1;
 }
 .geSidebarContainer a, .geMenubarContainer a, .geToolbar a {
 	color:#000000;
@@ -25,14 +42,21 @@
 	cursor:default;
 }
 .geFormatContainer {
-	background-color:whiteSmoke;
-	overflow-x: hidden !important;
-	overflow-y: auto !important;
+	overflow-x:hidden !important;
+	overflow-y:auto !important;
 	font-size:12px;
+	border-left:1px solid #dadce0;
+}
+.geSidebarFooter {
+	border-top:1px solid #dadce0;
+}
+.geFormatSection {
+	border-bottom:1px solid #dadce0;
+	border-color:#dadce0;
 }
 .geDiagramContainer {
 	background-color:#ffffff;
-	border: 1px solid #e5e5e5;
+	font-size:0px;
 	outline:none;
 }
 .geMenubar, .geToolbar {
@@ -57,6 +81,7 @@
 	box-shadow: 1px 1px 2px 0px #ddd;
 	opacity:0.8;
 	filter:alpha(opacity=80);
+	font-size:9pt;
 }
 .geStatusAlert {
 	white-space:nowrap;
@@ -68,28 +93,34 @@
 	color:#a94442 !important;
 	border-radius:3px;
 }
-.geStatusAlert:hover {
-	background-color:#f1d8d8;
-	border-color:#d6b2b8;
+.geStatusAlertOrange {
+	white-space:nowrap;
+	margin-top:-5px;
+	font-size:12px;
+	padding:4px 6px 4px 6px;
+	background-color:rgb(242, 147, 30);
+	border:rgb(240, 135, 5);
+	color:#000000 !important;
+	border-radius:3px;
+	opacity:0.8;
+}
+.geStatusAlertOrange:hover {
+	opacity:1;
 }
 .geStatusMessage {
 	white-space:nowrap;
 	margin-top:-5px;
 	padding:4px 6px 4px 6px;
 	font-size:12px;
-	background-image: -webkit-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
-    background-image: -o-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
-    background-image: -webkit-gradient(linear,left top,left bottom,from(#dff0d8),to(#c8e5bc));
-    background-image: linear-gradient(to bottom,#dff0d8 0,#c8e5bc 100%);
+	background: -webkit-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
+    background: -o-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
+    background: -webkit-gradient(linear,left top,left bottom,from(#dff0d8),to(#c8e5bc));
+    background: linear-gradient(to bottom,#dff0d8 0,#c8e5bc 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdff0d8', endColorstr='#ffc8e5bc', GradientType=0);
     background-repeat: repeat-x;
     border:1px solid #b2dba1;
 	border-radius:3px;
 	color:#3c763d !important;
-}
-.geStatusMessage:hover {
-	background:#c8e5bc;
-	border-color:#b2dba1;
 }
 .geAlert {
 	position:absolute;
@@ -110,8 +141,9 @@
 	border: 1px solid #d8d8d8;
 	color: #333;
 	cursor: default;
-	font-size: 11px;
-	font-weight: bold;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing:0.25px;
 	height: 29px;
 	line-height: 27px;
 	margin: 0 0 0 8px;
@@ -129,8 +161,14 @@
 	background-image: linear-gradient(#f8f8f8 0px,#f1f1f1 100%);
 	color: #111;
 }
+.geBtn:active, .geStatus:active {
+	opacity: .7;
+}
 .geBtn:disabled {
 	opacity: .5;
+}
+.geToolbarContainer > .geToolbar > div > a:active {
+	opacity:0.5;
 }
 .geBtnUp {
 	background-image: url(data:image/gif;base64,R0lGODlhCgAGAJECAGZmZtXV1f///wAAACH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo0QzM3ODJERjg4NUQxMUU0OTFEQ0E2MzRGQzcwNUY3NCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo0QzM3ODJFMDg4NUQxMUU0OTFEQ0E2MzRGQzcwNUY3NCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjRDMzc4MkREODg1RDExRTQ5MURDQTYzNEZDNzA1Rjc0IiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjRDMzc4MkRFODg1RDExRTQ5MURDQTYzNEZDNzA1Rjc0Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAgAsAAAAAAoABgAAAg6UjwiQBhGYglCKhXFLBQA7);
@@ -199,38 +237,61 @@
 	font-weight:700;
 	text-decoration:none;
 }
-.geMenubarContainer {
-	background-color:#ffffff;
+.geActivePage {
+	font-weight:bold;
+	color:#188038 !important;
+}
+.geMenubarContainer, .geToolbarContainer, .geHsplit, .geVsplit {
+	background-color:#fbfbfb;
 }
 .geMenubar {
 	padding:0px 2px 0px 2px;
 	vertical-align:middle;
 }
 .geMenubarContainer .geItem, .geToolbar .geItem {
-	padding:6px 8px 6px 8px;
+	padding:6px 6px 6px 9px;
 	cursor:default;
 }
 .geMenubarContainer .geItem:hover {
-	background:#eeeeee;
+	background: #eee;
+	border-radius:2px;	
+}
+.geMenubarContainer .geItem:active {
+	background: #F8C382;
+}
+.geToolbarContainer .geButton:hover {
+	opacity:1;
+	_filter:none !important;
+	background: #eee;
+	border-radius:2px;
+}
+.geToolbarContainer .geButton:active, .geToolbarContainer .geLabel:active {
+	background: #F8C382;
+}
+.geToolbarContainer .geLabel:hover {
+	background: #eee;
+	border-radius:2px;
+}
+.geToolbarButton {
+	opacity: 0.6;
+}
+.geToolbarButton:active {
+	opacity: 0.2;
 }
 .mxDisabled:hover {
 	background:inherit !important;
 }
 .geMenubar a.geStatus {
-	color:#b3b3b3;
-	padding-left:6px;
+	color:#888888;
+	padding-left:12px;
 	display:inline-block;
 	cursor:default !important;
 }
 .geMenubar a.geStatus:hover {
 	background:transparent;
 }
-.geMenubarMenu {
-	border:1px solid #d5d5d5 !important;
-}
 .geToolbarContainer {
-	background:whiteSmoke;
-	border-bottom:1px solid #e0e0e0;
+	border-bottom:1px solid #dadce0;
 }
 .geSidebarContainer .geToolbarContainer {
 	background:transparent;
@@ -242,19 +303,20 @@
 }
 .geToolbar {
 	padding:1px 0px 0px 6px;
-	border-top:1px solid #e0e0e0;
+	border-top:1px solid #dadce0;
 	-webkit-box-shadow: inset 0 1px 0 0 #fff;
 	-moz-box-shadow: inset 0 1px 0 0 #fff;
 	box-shadow: inset 0 1px 0 0 #fff;
+	padding-top:5px;
 }
 .geToolbarContainer .geSeparator {
 	float:left;
 	width:1px;
-	height:34px;
+	height:20px;
 	background:#e5e5e5;
 	margin-left:6px;
 	margin-right:6px;
-	margin-top:-2px;
+	margin-top:4px;
 }
 .geToolbarContainer .geButton {
 	float:left;
@@ -265,16 +327,7 @@
 	border:1px solid transparent;
 	cursor:pointer;
 	opacity:0.6;
-	filter:alpha(opacity=60);
-}
-.geToolbarContainer .geButton:hover {
-	border:1px solid gray;
-	border-radius:2px;
-	opacity:1;
-	filter:none !important;
-}
-.geToolbarContainer .geButton:active {
-	border:1px solid black;
+	_filter:alpha(opacity=60);
 }
 div.mxWindow .geButton {
 	margin: -1px 2px 2px 2px;
@@ -286,66 +339,62 @@ div.mxWindow .geButton {
 	cursor:pointer;
 	padding:3px 5px 3px 5px;
 	border:1px solid transparent;
-	opacity:0.6;
-	filter:alpha(opacity=60);
-}
-.geToolbarContainer .geLabel:hover {
-	border:1px solid gray;
-	border-radius:2px;
-	opacity:0.9;
-	filter:alpha(opacity=90) !important;
-}
-.geToolbarContainer .geLabel:active {
-	border:1px solid black;
-	opacity:1;
-	filter:none !important;
 }
 .geToolbarContainer .mxDisabled:hover {
 	border:1px solid transparent !important;
 	opacity:0.2 !important;
 	filter:alpha(opacity=20) !important;
 }
-.geToolbarMenu {
-	border:3px solid #e0e0e0 !important;
-	-webkit-box-shadow:none !important;
-	-moz-box-shadow:none !important;
-	box-shadow:none !important;
-	filter:none !important;
-}
 .geDiagramBackdrop {
-	background-color: #ebebeb;
+	background-color: #f8f9fa;
 }
 .geSidebarContainer {
-	background:#ffffff;
+	background:#fbfbfb;
 	overflow:hidden;
 	position:absolute;
-	border-top:1px solid #e5e5e5;
 	overflow:auto;
 }
+.geTabContainer {
+	border-top:1px solid #e5e5e5;
+	background-color:#f1f3f4;
+}
 .geSidebar {
-	background:whiteSmoke;
 	border-bottom:1px solid #e5e5e5;
-	padding:5px;
-	_padding:1px;
-	padding-bottom:12px;
+	padding:6px;
+	padding-left:10px;
+	_padding:2px;
+	_padding-left:6px;
+	padding-bottom:6px;
 	overflow:hidden;
 }
 .geSidebarContainer .geTitle {
 	display:block;
-	font-size:9pt;
+	font-size:13px;
 	border-bottom:1px solid #e5e5e5;
-	font-weight:normal;
-	padding:6px 0px 6px 14px;
+	font-weight:500;
+	padding:8px 0px 8px 14px;
 	margin:0px;
 	cursor:default;
-	background:#eeeeee;
 	white-space:nowrap;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	line-height:1.4em;
 }
 .geSidebarContainer .geTitle:hover {
-	background:#e5e5e5;
+	background: #eee;
+	border-radius:2px;
+}
+.geSidebarContainer .geTitle:active {
+	background-color:#F8C382;
+}
+.geSidebarContainer .geDropTarget {
+	border-radius:10px;
+	border:2px dotted #b0b0b0;
+	text-align:center;
+	padding:6px;
+	margin:6px;
+	color:#a0a0a0;
+	fontSize:13px;
 }
 .geTitle img {
 	opacity:0.5;
@@ -367,12 +416,10 @@ div.mxWindow .geButton {
 	display:inline-block;
 	background-repeat:no-repeat;
 	background-position:50% 50%;
-	border:1px solid transparent;
-	border-radius:2px;
-	cursor: move;
+	border-radius: 8px;
 }
 .geSidebar .geItem:hover {
-	border:1px solid gray !important;
+	background-color:#e0e0e0;
 }
 .geItem {
 	vertical-align: top;
@@ -380,13 +427,10 @@ div.mxWindow .geButton {
 }
 .geSidebarTooltip {
 	position:absolute;
-	background:white;
+	background:#fbfbfb;
 	overflow:hidden;
-	border:1px solid gray;
-	border-radius:8px;
-	-webkit-box-shadow:0px 0px 2px 2px #d5d5d5;
-	-moz-box-shadow:0px 0px 2px 2px #d5d5d5;
-	box-shadow:0px 0px 2px 2px #d5d5d5;
+	box-shadow:0 2px 6px 2px rgba(60,64,67,.15);
+	border-radius:6px;
 	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color='#d5d5d5', Positive='true');
 }
 .geFooterContainer {
@@ -416,7 +460,6 @@ div.mxWindow .geButton {
 }
 .geHsplit {
 	cursor:col-resize;
-	background-color:#e5e5e5;
 	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAHBAMAAADdS/HjAAAAGFBMVEUzMzP///9tbW1QUFCKiopBQUF8fHxfX1/IXlmXAAAAHUlEQVQImWMQEGAQFWUQFmYQF2cQEmIQE2MQEQEACy4BF67hpEwAAAAASUVORK5CYII=);
 	_background-image:url('thumb_vertical.png');
 	background-repeat:no-repeat;
@@ -425,14 +468,21 @@ div.mxWindow .geButton {
 .geVsplit {
 	font-size:1pt;
 	cursor:row-resize;
-	background-color:#e5e5e5;
 	background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAEBAMAAACw6DhOAAAAGFBMVEUzMzP///9tbW1QUFCKiopBQUF8fHxfX1/IXlmXAAAAFElEQVQImWNgNVdzYBAUFBRggLMAEzYBy29kEPgAAAAASUVORK5CYII=);
 	_background-image:url('thumb_horz.png');
 	background-repeat:no-repeat;
 	background-position:center center;
 }
+.geHsplit {
+	border-left:1px solid #e5e5e5;
+	border-right:1px solid #e5e5e5;
+}
+.geVSplit {
+	border-top:1px solid #e5e5e5;
+	border-bottom:1px solid #e5e5e5;
+}
 .geHsplit:hover, .geVsplit:hover {
-	background-color:#d5d5d5;
+	background-color:#e0e0e0;
 }
 .geDialog {
 	position:absolute;
@@ -445,6 +495,12 @@ div.mxWindow .geButton {
 	-moz-box-shadow:0px 0px 2px 2px #d5d5d5;
 	box-shadow:0px 0px 2px 2px #d5d5d5;
 	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color='#d5d5d5', Positive='true');
+	z-index: 2;
+}
+.geTransDialog {
+	position:absolute;
+	overflow:hidden;
+	padding:30px;
 	z-index: 2;
 }
 .geDialogClose {
@@ -496,24 +552,32 @@ div.mxWindow .geButton {
 .geBigButton {
 	color:#ffffff;
 	border: none;
-	padding:10px;
-	font-size:14pt;
+	padding:4px 10px;
+	font-size:14px;
 	white-space: nowrap;
-	border-radius:6px;
-	text-shadow: rgb(41, 89, 137) 0px 1px 0px;
-	background-color:#428bca;
-	background-image:linear-gradient(rgb(70, 135, 206) 0px, rgb(48, 104, 162) 100%);
-	-webkit-box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 1px 1px 0px;
-	-moz-box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 1px 1px 0px;
-	box-shadow: rgba(255, 255, 255, 0.0980392) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.2) 0px 1px 1px 0px;
+	border-radius:3px;
+	background-color:#0052cc;
+	currsor:pointer;
+	transition: background-color 0.1s ease-out;
+	overflow:hidden;
+	text-overflow: ellipsis;
 }
 .geBigButton:hover {
-	background-color:#2d6ca2;
-	background-image: linear-gradient(rgb(90, 148, 211) 0px, rgb(54, 115, 181) 100%);
+	background-color:#0065ff;
 }
 .geBigButton:active {
-	background-color: rgb(54, 115, 181);
-	background-image: none;
+	background-color:#0747a6;
+}
+html body .geBigStandardButton {
+	color: #344563;
+	background-color: rgba(9, 30, 66, 0.08);
+}
+html body .geBigStandardButton:hover {
+	background-color: rgba(9, 30, 66, 0.13);
+}
+html body .geBigStandardButton:active {
+	background-color: #F8C382;
+	color: #600000;
 }
 @media print {
 	div.geNoPrint { display: none !important; }
@@ -649,6 +713,18 @@ div.mxWindow .geButton {
 .geSprite-horizontalelbow { background-position: 0 -5903px; }
 .geSprite-horizontalisometric { background-position: 0 -5949px; }
 .geSprite-verticalisometric { background-position: 0 -5995px; }
+.geSvgSprite {
+	background-position: center center;
+}
+.geFlipSprite {
+	transform:scaleX(-1);
+}
+.geSprite-box {
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='10' transform='translate(0.5,0.5)'><rect stroke='black' fill='none' x='2' y='2' width='6' height='6'/><path stroke='black' d='M8 5 L 18 5'/></svg>");
+}
+.geSprite-halfCircle {
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='10' transform='translate(0.5,0.5)'><path stroke='black' fill='none' d='M 2 2 Q 6 2 6 5 Q 6 8 2 8 M 6 5 L 18 5'/></svg>");
+}
 html div.mxRubberband {
 	border-color:#0000DD;
 	background:#99ccff;
@@ -657,14 +733,11 @@ td.mxPopupMenuIcon div {
 	width:16px;
 	height:16px;
 }
-html div.mxPopupMenu {
-	-webkit-box-shadow:2px 2px 3px #d5d5d5;
-	-moz-box-shadow:2px 2px 3px #d5d5d5;
-	box-shadow:2px 2px 3px #d5d5d5;
-	_filter:progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color='#d0d0d0', Positive='true');
+.geEditor div.mxPopupMenu {
+	box-shadow:0 2px 6px 2px rgba(60,64,67,.15);
 	background:white;
-	position:absolute;
-	border:3px solid #e7e7e7;
+	border-radius:4px;
+	border:none;
 	padding:3px;
 }
 html table.mxPopupMenu {
@@ -713,4 +786,735 @@ html td.mxWindowTitle {
  	font-size:12px;
  	color:rgb(112, 112, 112);
  	padding:4px;
+}
+table.geProperties tr td {
+	height:21px;
+}
+.gePropHeader, .gePropRow {
+	border: 1px solid #e9e9e9;	
+}
+.gePropRowDark {
+	border: 1px solid #4472C4;
+}
+.gePropHeader>.gePropHeaderCell {
+    border-top: 0;
+    border-bottom: 0;
+    text-align: left;
+	width: 50%;
+}
+.gePropHeader>.gePropHeaderCell:first-child {
+    border-left: none;
+}
+.gePropHeader>.gePropHeaderCell:last-child {
+    border-right: none;
+}
+.gePropHeader {
+    background: #e5e5e5;
+    color: black;
+}
+.gePropRowCell {
+    border-left: 1px solid #f3f3f3;
+    width: 50%;
+}
+.gePropRow>.gePropRowCell {
+    background: #fff;
+}
+.gePropRowAlt>.gePropRowCell {
+    background: #fcfcfc;
+}
+.gePropRowDark>.gePropRowCell {
+    background: #fff;
+    color: #305496;
+    font-weight: bold;
+}
+.gePropRowDarkAlt>.gePropRowCell {
+    background: #D9E1F2;
+    color: #305496;
+    font-weight: bold;
+}
+.gePropEditor input:invalid {
+  border: 1px solid red;
+}
+/* Templates dialog css */
+.geTemplateDlg {
+	width: 987px;
+	height: 712px;
+}
+.geTemplateDlg ::-webkit-scrollbar {
+    width:12px;
+    height:12px;
+}
+.geTemplateDlg ::-webkit-scrollbar-track {
+	background:whiteSmoke;
+	-webkit-box-shadow:inset 0 0 4px rgba(0,0,0,0.1);
+}
+.geTemplateDlg ::-webkit-scrollbar-thumb {
+	background:#c5c5c5;
+    border-radius:10px;
+	border:whiteSmoke solid 3px;
+}
+.geTemplateDlg ::-webkit-scrollbar-thumb:hover {
+	background:#b5b5b5;
+}
+
+.geTempDlgHeader {
+	box-sizing: border-box;
+	height: 62px;
+	width: 100%;
+	border: 1px solid #CCCCCC;
+	border-radius: 5px 5px 0 0;
+	background-color: #F5F5F5;
+}
+.geTempDlgHeaderLogo {
+	height: 34px;
+	margin: 14px 14px 14px 20px;
+}
+.geTempDlgSearchBox {
+    color:#888888;
+    background:url("/images/icon-search.svg") no-repeat;
+	background-color: #FFFFFF;
+	background-position: 15px;
+	height: 40px;
+	width: 40%;
+	max-width: 400px;
+	border: 1px solid #CCCCCC;
+	border-radius: 3px;
+    float:right;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:15px;
+    line-height:36px;
+    margin: 11px 36px 0 0;
+    outline:medium none;
+    padding:0 0 0 36px;
+    text-shadow:1px 1px 0 white;
+}
+.geTemplatesList {
+	box-sizing: border-box;
+	float: left;
+	height: calc(100% - 118px);
+	width: 20%;
+	border: 1px solid #CCCCCC;
+	background-color: #FFFFFF;
+	display: inline-block;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+.geTempDlgContent {
+	box-sizing: border-box;
+	float: right;
+	height: calc(100% - 118px);
+	width: 80%;
+	border: 1px solid #CCCCCC;
+	background-color: #FFFFFF;
+	display: inline-block;
+	overflow-x: hidden;
+	overflow-y: auto;
+	position: relative;
+}
+.geTempDlgFooter {
+	box-sizing: border-box;
+	height: 52px;
+	width: 100%;
+	border: 1px solid #CCCCCC;
+	border-radius: 0 0 5px 5px;
+	background-color: #F5F5F5;
+	text-align: right;
+	font-family: Helvetica;
+	font-size: 14px;
+	line-height: 17px;
+	padding-top: 11px;
+}
+.geTempDlgCreateBtn {
+	display: inline-block;
+	width: 67px;
+    border-radius: 3px;
+    background-color: #3D72AD;
+    padding: 6px;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+}
+.geTempDlgCancelBtn {
+	display: inline-block;
+	width: 67px;
+    padding: 6px;
+    text-align: center;
+    color: #3D72AD;
+    cursor: pointer;
+}
+.geTempDlgCancelBtn:active, .geTempDlgCreateBtn:active, .geTempDlgShowAllBtn:active {
+	transform: translateY(2px);
+}
+.geTempDlgCreateBtnDisabled {
+    background-color: #9fbddd;
+}
+.geTempDlgCreateBtnDisabled:active {
+    transform: translateY(0px);
+}
+
+.geTempDlgCreateBtnBusy {
+	background-image: url(/images/aui-wait.gif);
+    background-repeat: no-repeat;
+    background-position: 62px 7px;
+}
+
+
+.geTempDlgNewDiagramlbl {
+	height: 17px;
+	color: #333333;
+	font-family: Helvetica;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 17px;
+	padding: 25px 0 0 20px;
+	cursor: pointer;
+}
+.geTempDlgHLine {
+	height: 1px;
+	width: calc(100% - 22px);
+	background-color: #CCCCCC;
+	margin: 20px 0 0 11px;
+}
+.geTemplatesLbl {
+	height: 17px;
+	color: #6D6D6D;
+	font-family: Helvetica;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 17px;
+	text-transform: uppercase;
+	margin: 20px 0 3px 20px;
+}
+.geTemplateCatLink {
+	height: 17px;
+	color: #3D72AD;
+	font-family: Helvetica;
+	font-size: 14px;
+	line-height: 17px;
+	margin: 12px 0 0 20px;
+	cursor: pointer;
+}
+.geTempDlgNewDiagramCat {
+	height: 280px;
+	width: 100%;
+	background-color: #555555;
+}
+.geTempDlgNewDiagramCatLbl {
+	height: 17px;
+	color: #FFFFFF;
+	font-family: Helvetica;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 17px;
+	padding: 25px 0 0 20px;
+	text-transform: uppercase;
+}
+.geTempDlgNewDiagramCatList {
+	width: 100%;
+	height: 190px;
+	padding-left: 9px;
+	box-sizing: border-box;
+	overflow-y: auto;
+	overflow-x: hidden; 
+}
+.geTempDlgNewDiagramCatFooter {
+	width: 100%;
+}
+.geTempDlgShowAllBtn {
+	width: 78px;
+	border: 1px solid #777777;
+	border-radius: 3px;
+	cursor: pointer;
+	text-align: center;
+	color: #DDDDDD;
+	font-family: Helvetica;
+	font-size: 14px;
+	line-height: 17px;
+	padding: 4px;
+	float: right;
+	margin-right: 30px;
+}
+.geTempDlgNewDiagramCatItem {
+	height: 155px;
+	width: 134px;
+	padding: 18px 6px 0 9px;
+	display: inline-block;
+}
+
+.geTempDlgNewDiagramCatItemImg {
+	box-sizing: border-box;
+	height: 134px;
+	width: 134px;
+	border: 1px solid #CCCCCC;
+	border-radius: 3px;
+	background-color: #FFFFFF;
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
+	cursor: pointer;
+}
+
+.geTempDlgNewDiagramCatItemActive > .geTempDlgNewDiagramCatItemImg {
+	border: 4px solid #3D72AD;
+}
+
+.geTempDlgNewDiagramCatItemLbl {
+	height: 17px;
+	width: 100%;
+	color: #FFFFFF;
+	font-family: Helvetica;
+	font-size: 14px;
+	line-height: 17px;
+	text-align: center;
+	padding-top: 4px;
+	cursor: pointer;
+}
+
+.geTempDlgDiagramsList {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: calc(100% - 280px);
+	padding-left: 9px;
+	box-sizing: border-box;
+	background-color: #E5E5E5;
+}
+
+.geTempDlgDiagramsListHeader {
+	width: 100%;
+    height: 45px;
+	padding: 18px 20px 0 11px;
+	box-sizing: border-box;
+}
+.geTempDlgDiagramsListTitle {
+	box-sizing: border-box;
+	height: 17px;
+	color: #666666;
+	font-family: Helvetica;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 17px;
+	text-transform: uppercase;
+	padding-top: 5px;
+	display: inline-block;
+}
+.geTempDlgDiagramsListBtns {
+	float: right;
+	margin-top: -9px;
+}		
+.geTempDlgRadioBtn {
+	box-sizing: border-box;
+	border: 1px solid #CCCCCC;
+	border-radius: 3px;
+	background-color: #555555;
+	display: inline-block;
+	color: #FFFFFF;
+	font-family: Helvetica;
+	font-size: 14px;
+	line-height: 17px;
+	text-align: center;
+	padding: 4px;
+	cursor: pointer;
+}
+.geTempDlgRadioBtnActive {
+	background-color: #FFFFFF;
+	color: #333333;
+}
+.geTempDlgRadioBtnLarge {
+	height: 27px;
+	width: 120px;
+}
+/* TODO is there a better way for these buttons */
+.geTempDlgRadioBtnSmall {
+	position: relative;
+	top: 9px;
+	height: 27px;
+	width: 27px;
+}
+.geTempDlgRadioBtnSmall img {
+	position: absolute;
+	top: 6px;
+	left: 6px;
+	height: 13px;
+	width: 13px;
+}
+.geTempDlgSpacer {
+    display: inline-block;
+	width: 10px;
+}
+
+.geTempDlgDiagramsListGrid {
+	width: 100%;
+	white-space: nowrap;
+	font-size: 13px;
+	padding: 0px 20px 20px 10px;
+    box-sizing: border-box;
+    border-spacing: 0;
+}
+
+.geTempDlgDiagramsListGrid tr {
+	height: 40px;
+}
+
+.geTempDlgDiagramsListGrid th {
+	background-color: #E5E5E5;
+	color: #8E8E8E;
+	font-weight: bold;
+	text-align: left;
+	padding: 5px;
+	border-bottom: 1px solid #CCCCCC;
+	font-size: 14px;
+}
+
+.geTempDlgDiagramsListGrid td {
+	background-color: #FFFFFF;
+	color: #888888;
+	padding: 5px;
+	border-bottom: 1px solid #CCCCCC;
+	overflow: hidden;
+}
+
+.geTempDlgDiagramsListGridActive td {
+	border-bottom: 2px solid #3D72AD;
+	border-top: 2px solid #3D72AD;
+}
+
+.geTempDlgDiagramsListGridActive td:first-child  {
+	border-left: 2px solid #3D72AD;
+}
+
+.geTempDlgDiagramsListGridActive td:last-child  {
+	border-right: 2px solid #3D72AD;
+}
+
+.geTempDlgDiagramTitle {
+	font-weight: bold;
+	color: #666666 !important;
+}
+
+.geTempDlgDiagramsTiles {
+	position: relative;
+	min-height: 100px;
+}
+
+.geTempDlgDiagramTile {
+	height: 152px;
+	width: 130px;
+	padding: 20px 7px 0 10px;
+	display: inline-block;
+	position: relative;
+}
+
+.geTempDlgDiagramTileImg {
+	box-sizing: border-box;
+	height: 130px;
+	width: 130px;
+	border: 1px solid #CCCCCC;
+	border-radius: 3px;
+	background-color: #FFFFFF;
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
+}
+
+.geTempDlgDiagramTileImgLoading {
+	background-image: url(/images/aui-wait.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.geTempDlgDiagramTileImgError {
+	background-image: url(/images/broken.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #be3730;
+}
+
+.geTempDlgDiagramTileImg img{
+	max-width: 117px;
+    max-height: 117px;
+    cursor: pointer;
+}
+
+.geTempDlgDiagramTileActive > .geTempDlgDiagramTileImg{
+	border: 4px solid #3D72AD;
+}
+
+.geTempDlgDiagramTileLbl {
+	height: 17px;
+	width: 100%;
+	color: #333333;
+	font-family: Helvetica;
+	font-size: 14px;
+	line-height: 17px;
+	text-align: center;
+	padding-top: 5px;
+	cursor: pointer;
+}
+
+.geTempDlgDiagramPreviewBtn {
+	position: absolute;
+	top: 28px;
+	right: 15px;
+	cursor: pointer;
+}
+
+.geTempDlgDiagramListPreviewBtn {
+	cursor: pointer;
+	padding-left: 5px;
+	padding-right: 15px;
+}
+
+.geTempDlgDiagramPreviewBox {
+	position: absolute;
+    top: 3%;
+    left: 10%;
+    width: 80%;
+    height: 94%;
+    background: white;
+    border: 4px solid #3D72AD;
+    border-radius: 6px;
+    box-sizing: border-box;
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
+    z-index: 2;
+}
+
+.geTempDlgDialogMask {
+	position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.geTempDlgDiagramPreviewBox img {
+	max-width: 95%;
+    max-height: 95%;
+    vertical-align: middle;
+}
+
+.geTempDlgPreviewCloseBtn {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+	cursor: pointer;
+}
+
+.geTempDlgLinkToDiagramHint {
+	color: #555;
+}
+
+.geTempDlgLinkToDiagramBtn {
+	color: #555;
+    margin: 0 10px 0 10px;
+    height: 27px;
+    font-size: 14px;
+}
+/* Comments CSS */
+.geCommentsWin {
+	user-select: none;
+	border: 1px solid whiteSmoke;
+	height: 100%;
+	margin-bottom: 10px;
+	overflow: auto;	
+}
+
+.geCommentsToolbar {
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: hidden;
+	border-width: 1px 0px 0px 0px;
+	border-color: #c3c3c3;
+	border-style: solid;
+	display: block;
+	white-space: nowrap;
+}
+
+.geCommentsList {
+	position: absolute;
+	overflow: auto;
+	left: 0px;
+	right: 0px;
+	top: 0px;	
+}
+
+.geCommentContainer {
+	position: relative;
+	padding: 12px;
+	margin: 5px;
+	min-height: 50px;
+	display: block;
+	background-color: white;
+	border-width: 0px 0px 1px 0px;
+	border-color: #c3c3c3;
+	border-style: solid;
+	border-radius: 10px;
+	white-space: nowrap;
+	box-shadow: 2px 2px 6px rgba(60,64,67,.15);
+	color: #3C4043;
+}
+
+.geCommentHeader {
+	width: 100%;
+	height: 32px;
+}
+
+.geCommentUserImg {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	float: left;
+	background-color: whitesmoke;
+}
+
+.geCommentHeaderTxt {
+	overflow: hidden;
+	height: 32px;
+	padding-left: 5px;
+}
+
+.geCommentUsername {
+	overflow: hidden;
+	height: 18px;
+	font-size: 15px;
+	font-weight: bold;
+	text-overflow: ellipsis;
+}
+
+.geCommentDate {
+	color: #707070;
+	overflow: hidden;
+	height: 14px;
+	font-size: 11px;
+	text-overflow: ellipsis;
+}
+
+.geCommentDate::first-letter {
+    text-transform: uppercase;
+}
+
+.geCommentTxt {
+	font-size: 14px;
+    padding-top: 5px;
+    white-space: normal;
+    min-height: 12px;
+}
+
+.geCommentEditTxtArea {
+    margin-top: 5px;
+    font-size: 14px !important;
+    min-height: 12px;
+    max-width: 100%;
+    min-width: 100%;
+	width: 100%;
+    box-sizing: border-box;
+}
+
+.geCommentEditBtns {
+	width: 100%;
+    box-sizing: border-box;
+    padding-top: 5px;
+    height: 20px;
+}
+
+.geCommentEditBtn {
+	padding: 3px 8px 3px 8px !important;
+    float: right !important;
+    margin-left: 5px;
+}
+
+.geCommentActions {
+	color: #707070;
+	font-size: 12px;
+}
+
+.geCommentActionsList {
+	list-style-type: disc;
+	margin: 0px;
+	padding: 10px 0 0 0;
+}
+
+.geCommentAction {
+	display: inline-block;
+    padding: 0;
+}
+
+.geCommentAction:before {
+	content: "\2022";
+	padding: 5px;
+} 
+
+.geCommentAction:first-child:before {
+	content: "";
+	padding: 0;
+} 
+
+.geCommentActionLnk {
+	cursor: pointer;
+	color: #707070;
+	text-decoration: none;
+}
+
+.geCommentActionLnk:hover {
+	text-decoration: underline;
+}
+
+.geCheckedBtn {
+	background-color: #ccc;
+    border-top: 1px solid black !important;
+    border-left: 1px solid black !important;
+}
+
+.geCommentBusyImg {
+	position: absolute;
+	top: 5px;
+	right: 5px;
+}
+
+.geAspectDlgListItem 
+{
+	width : 120px;
+	height : 120px;
+	display : inline-block;
+	border: 3px solid #F0F0F0;
+	border-radius: 5px;
+	padding: 5px;
+	margin : 2px 2px 20px 2px;
+}
+
+.geAspectDlgListItem:hover
+{
+	border: 3px solid #c5c5c5;
+}
+
+.geAspectDlgListItemSelected 
+{
+	border: 3px solid #3b73af;
+}
+
+.geAspectDlgListItemSelected:hover
+{
+	border: 3px solid #405a86;
+}
+
+.geAspectDlgListItemText
+{
+	text-overflow: ellipsis;
+	max-width: 100%;
+	min-height : 2em;
+	overflow : hidden;
+	text-align : center;
+	margin-top : 10px;
+}
+
+.geAspectDlgList
+{
+	min-height: 184px;
+	white-space: nowrap;
+	overflow-x : auto;
+	overflow-y : hidden;
 }

@@ -1096,6 +1096,16 @@ mxLeanProductionKanban.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.production_kanban', mxLeanProductionKanban);
 
+mxLeanProductionKanban.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 4, h));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, 25));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Withdrawal Kanban
 //**********************************************************************************************************************************************************
@@ -1175,6 +1185,16 @@ mxLeanWithdrawalKanban.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.withdrawal_kanban', mxLeanWithdrawalKanban);
 
+mxLeanWithdrawalKanban.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 4, h));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, 25));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Signal Kanban
 //**********************************************************************************************************************************************************
@@ -1230,6 +1250,16 @@ mxLeanSignalKanban.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.signal_kanban', mxLeanSignalKanban);
+
+mxLeanSignalKanban.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 4, h));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, 15));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Sequenced Pull Ball
@@ -1666,12 +1696,6 @@ mxLeanOrders.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.moveTo(w * 0.0556, 0);
 	c.lineTo(w * 0.9556, 0);
 	c.stroke();
-	
-//	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
-//	c.setFontSize(Math.min(h * 0.5, w * 0.2));
-//	c.setFontColor(strokeColor);
-//	c.setFontStyle(mxConstants.FONT_BOLD);
-//	c.text(w * 0.5, h * 0.78, 0, 0, 'IN', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 };
 
 mxCellRenderer.registerShape('mxgraph.lean_mapping.orders', mxLeanOrders);
@@ -1831,14 +1855,14 @@ mxLeanControlCenter.prototype.constraints = [
 //**********************************************************************************************************************************************************
 //Electronical Info
 //**********************************************************************************************************************************************************
-function LeanElectronicInfoShape()
+function mxLeanElectronicInfoShape()
 {
 	mxArrow.call(this);
 };
 
-mxUtils.extend(LeanElectronicInfoShape, mxArrow);
+mxUtils.extend(mxLeanElectronicInfoShape, mxArrow);
 
-LeanElectronicInfoShape.prototype.paintEdgeShape = function(c, pts)
+mxLeanElectronicInfoShape.prototype.paintEdgeShape = function(c, pts)
 {
 	// Base vector (between end points)
 	var p0 = pts[0];
@@ -1887,19 +1911,19 @@ LeanElectronicInfoShape.prototype.paintEdgeShape = function(c, pts)
 };
 
 // Registers the electronic info shape
-mxCellRenderer.registerShape('mxgraph.lean_mapping.electronic_info_flow_edge', LeanElectronicInfoShape);
+mxCellRenderer.registerShape('mxgraph.lean_mapping.electronic_info_flow_edge', mxLeanElectronicInfoShape);
 
 //**********************************************************************************************************************************************************
 //Manual Info
 //**********************************************************************************************************************************************************
-function LeanManualInfoShape()
+function mxLeanManualInfoShape()
 {
 	mxArrow.call(this);
 };
 
-mxUtils.extend(LeanManualInfoShape, mxArrow);
+mxUtils.extend(mxLeanManualInfoShape, mxArrow);
 
-LeanManualInfoShape.prototype.paintEdgeShape = function(c, pts)
+mxLeanManualInfoShape.prototype.paintEdgeShape = function(c, pts)
 {
 	// Base vector (between end points)
 	var p0 = pts[0];
@@ -1933,7 +1957,7 @@ LeanManualInfoShape.prototype.paintEdgeShape = function(c, pts)
 };
 
 //Registers the electronic info shape
-mxCellRenderer.registerShape('mxgraph.lean_mapping.manual_info_flow_edge', LeanManualInfoShape);
+mxCellRenderer.registerShape('mxgraph.lean_mapping.manual_info_flow_edge', mxLeanManualInfoShape);
 
 //**********************************************************************************************************************************************************
 //Timeline
@@ -2202,4 +2226,4 @@ Graph.handleFactory[mxShapeLeanTimeline.prototype.cst.SHAPE_TIMELINE] = function
 	handles.push(handle6);
 
 	return handles;
-}
+};

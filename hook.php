@@ -37,15 +37,15 @@ function plugin_archimap_install() {
    }
    if (!$DB->TableExists("glpi_plugin_archimap_graphs")) {
 
-		$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/empty-1.0.0.sql");
+		$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/empty-3.0.0.sql");
 	}
-/*	else {
-		if ($DB->TableExists("glpi_plugin_archimap_graphs") && !FieldExists("glpi_plugin_archimap_graphs","plugin_archimap_indicators_id")) {
+	else {
+		if ($DB->TableExists("glpi_plugin_archimap_graphs") && !$DB->TableExists("glpi_plugin_archimap_configs")) {
 			$update=true;
-			$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/update-1.0.1.sql");
+			$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/update-3.0.0.sql");
 		}
 	}
-*/
+
    
    if ($DB->TableExists("glpi_plugin_archimap_profiles")) {
    
@@ -119,7 +119,8 @@ function plugin_archimap_uninstall() {
 					"glpi_plugin_archimap_graphs_items",
 					"glpi_plugin_archimap_profiles",
 					"glpi_plugin_archimap_states",
-					"glpi_plugin_archimap_types");
+					"glpi_plugin_archimap_types",
+					"glpi_plugin_archimap_configs");
 
    foreach($tables as $table)
       $DB->query("DROP TABLE IF EXISTS `$table`;");
@@ -418,7 +419,7 @@ function plugin_archimap_giveItem($type,$ID,$data,$num) {
                   if ($result_linked = $DB->query($query))
                      if ($DB->numrows($result_linked)) {
                         $item = new $itemtype();
-                        while ($data = $DB->fetch_assoc($result_linked)) {
+                        while ($data = $DB->fetchAssoc($result_linked)) {
                            if ($item->getFromDB($data['id'])) {
                               $out .= $item::getTypeName(1)." - ".$item->getLink()."<br>";
                            }

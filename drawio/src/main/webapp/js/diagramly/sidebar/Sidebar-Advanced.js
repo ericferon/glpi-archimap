@@ -5,6 +5,8 @@
 	
 	Sidebar.prototype.createAdvancedShapes = function()
 	{
+		this.setCurrentSearchEntryLibrary('general', 'advanced');
+		
 		var fns = sidebarCreateAdvancedShapes.apply(this, arguments);
 		
 		// Avoids having to bind all functions to "this"
@@ -74,7 +76,7 @@
 		 	}),
 		 	this.addEntry('horizontal flow layout', function()
 			{
-				var cell = sb.graph.cloneCells([flow])[0];
+				var cell = sb.graph.cloneCell(flow);
 				cell.geometry = new mxGeometry(0, 0, 460, 150);
 				cell.style = 'swimlane;html=1;startSize=20;horizontal=0;childLayout=flowLayout;flowOrientation=west;resizable=0;interRankCellSpacing=50;containerType=tree;';
 				cell.value = 'Horizontal Flow Layout';
@@ -82,6 +84,7 @@
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Horizontal Flow Layout', true);
 			})
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

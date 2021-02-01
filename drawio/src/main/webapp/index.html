@@ -1,14 +1,18 @@
-<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5" ><![endif]-->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Flowchart Maker &amp; Online Diagram Software</title>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="Description" content="draw.io is free online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams">
+    <!-- Native File System API V2 token for *.draw.io expires 30 Sep 2020 -->
+    <meta http-equiv="origin-trial" content="AuU3GiQBCw/ECJOOY3aK+ypCG+4mO+R1ywGZHwB/tCGOVhjhGZu+UhZ4/qxWi8i3jic5s2ZPffaY4dd0VQktHwYAAABleyJvcmlnaW4iOiJodHRwczovL2RyYXcuaW86NDQzIiwiZmVhdHVyZSI6Ik5hdGl2ZUZpbGVTeXN0ZW0yIiwiZXhwaXJ5IjoxNjAxNDIzOTk5LCJpc1N1YmRvbWFpbiI6dHJ1ZX0=">
+    <!-- Native File System API V2 token for *.diagrams.net expires 30 Sep 2020 -->
+    <meta http-equiv="origin-trial" content="Aijy4tUQ1cAZ5Db/Sf5MzfHolrKmp4WHAwEnB24RP8WPNq8l4umazuReevn2XsNUtiAPfKRw7ECtF7hVAwjYfgcAAABqeyJvcmlnaW4iOiJodHRwczovL2RpYWdyYW1zLm5ldDo0NDMiLCJmZWF0dXJlIjoiTmF0aXZlRmlsZVN5c3RlbTIiLCJleHBpcnkiOjE2MDE0MjM5OTksImlzU3ViZG9tYWluIjp0cnVlfQ==">
+    <meta name="Description" content="diagrams.net is free online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams">
     <meta name="Keywords" content="diagram, online, flow chart, flowchart maker, uml, erd">
-    <meta itemprop="name" content="draw.io - free flowchart maker and diagrams online">
-	<meta itemprop="description" content="draw.io is a free online diagramming application  and flowchart maker . You can use it to create UML, entity relationship,
+    <meta itemprop="name" content="diagrams.net - free flowchart maker and diagrams online">
+	<meta itemprop="description" content="diagrams.net is a free online diagramming application  and flowchart maker . You can use it to create UML, entity relationship,
 		org charts, BPMN and BPM, database schema and networks. Also possible are telecommunication network, workflow, flowcharts, maps overlays and GIS, electronic 
 		circuit and social network diagrams.">
 	<meta itemprop="image" content="https://lh4.googleusercontent.com/-cLKEldMbT_E/Tx8qXDuw6eI/AAAAAAAAAAs/Ke0pnlk8Gpg/w500-h344-k/BPMN%2Bdiagram%2Brc2f.png">
@@ -16,17 +20,16 @@
 	<meta name="msapplication-config" content="images/browserconfig.xml">
     <meta name="mobile-web-app-capable" content="yes">
 	<meta name="theme-color" content="#d89000">
-    <script type="text/javascript">
+	<script type="text/javascript">
 		/**
 		 * URL Parameters and protocol description are here:
 		 *
-		 * https://support.draw.io/pages/viewpage.action?pageId=12878136
+		 * https://desk.draw.io/support/solutions/articles/16000042546-what-url-parameters-are-supported
 		 *
 		 * Parameters for developers:
 		 *
 		 * - dev=1: For developers only
 		 * - test=1: For developers only
-		 * - drawdev=1: For developers only
 		 * - export=URL for export: For developers only
 		 * - ignoremime=1: For developers only (see DriveClient.js). Use Cmd-S to override mime.
 		 * - createindex=1: For developers only (see etc/build/README)
@@ -54,7 +57,7 @@
 			
 			return result;
 		})();
-
+		
 		// Forces CDN caches by passing URL parameters via URL hash
 		if (window.location.hash != null && window.location.hash.substring(0, 2) == '#P')
 		{
@@ -73,6 +76,9 @@
 			}
 		}
 		
+		// Global variable for desktop
+		var mxIsElectron = window && window.process && window.process.type;
+
 		// Redirects page if required
 		if (urlParams['dev'] != '1')
 		{
@@ -80,13 +86,12 @@
 			{
 				var proto = window.location.protocol;
 				
-				// Electron protocol is file:
-				if (proto != 'file:')
+				if (!mxIsElectron)
 				{
 					var host = window.location.host;
 		
-					// Redirects apex and rt to www
-					if (host === 'draw.io' || host === 'rt.draw.io')
+					// Redirects apex, drive and rt to www
+					if (host === 'draw.io' || host === 'rt.draw.io' || host === 'drive.draw.io')
 					{
 						host = 'www.draw.io';
 					}
@@ -105,146 +110,65 @@
 		}
 		
 		/**
-		 * Adds meta tags with application name (depends on offline URL parameter)
+		 * Adds meta tag to the page.
 		 */
-		(function()
+		function mxmeta(name, content, httpEquiv)
 		{
-			function addMeta(name, content)
+			try
 			{
-				try
+				var s = document.createElement('meta');
+				
+				if (name != null) 
 				{
-					var s = document.createElement('meta');
 					s.setAttribute('name', name);
-					s.setAttribute('content', content);
-					
-				  	var t = document.getElementsByTagName('meta')[0];
-				  	t.parentNode.insertBefore(s, t);
 				}
-				catch (e)
-				{
-					// ignore
-				}
-			};
-			
-			var name = 'draw.io';
 
-			if (urlParams['offline'] === '1')
-			{
-				name += ' app';
+				s.setAttribute('content', content);
+				
+				if (httpEquiv != null) 
+				{
+					s.setAttribute('http-equiv', httpEquiv);
+				}
+
+			  	var t = document.getElementsByTagName('meta')[0];
+			  	t.parentNode.insertBefore(s, t);
 			}
-			
-			addMeta('apple-mobile-web-app-title', name);
-			addMeta('application-name', name);
-		})();
-	</script>
-    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
-	<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
-    <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
-    <link rel="canonical" href="https://www.draw.io">
-	<link rel="manifest" href="images/manifest.json">
-	<link rel="shortcut icon" href="favicon.ico">
-	<style type="text/css">
-		body { overflow:hidden; }
-		div.picker { z-index: 10007; }
-		.geSidebarContainer .geTitle { color:#505050; }
-		.geSidebarContainer .geTitle input {
-			font-size:8pt;
-			color:#606060;
-		}
-		.geBlock {
-			z-index:-3;
-			margin:100px;
-			margin-top:40px;
-			margin-bottom:30px;
-			padding:20px;
-		}
-		.geBlock h1, .geBlock h2 {
-			margin-top:0px;
-			padding-top:0px;
-		}
-		.geEditor ::-webkit-scrollbar {
-		    width:12px;
-		    height:12px;
-		}
-		.geEditor ::-webkit-scrollbar-track {
-			background:whiteSmoke;
-			-webkit-box-shadow:inset 0 0 4px rgba(0,0,0,0.1);
-		}
-		.geEditor ::-webkit-scrollbar-thumb {
-			background:#c5c5c5;
-		    border-radius:10px;
-			border:whiteSmoke solid 3px;
-		}
-		.geEditor ::-webkit-scrollbar-thumb:hover {
-			background:#b5b5b5;
-		}
-		.geTemplate {
-			border:1px solid transparent;
-			display:inline-block;
-			_display:inline;
-			vertical-align:top;
-			border-radius:3px;
-			overflow:hidden;
-			font-size:14pt;
-			cursor:pointer;
-			margin:5px;
-		}
-		.geFooterContainer div.geSocialFooter a {
-			display:inline;
-			padding:0px;
-		}
-		.geFooterContainer div.geSocialFooter a img {
-			margin-top:10px;
-			opacity:0.5;
-		}
-		.geFooterContainer div.geSocialFooter a img:hover {
-			opacity:1;
-		}
-		.geFooterContainer>div#geFooter>img {
-			opacity:0.5;
-			border:1px solid transparent;
-			cusor:pointer;
-			margin-top:3px;
-			margin-right:6px;
-			position:absolute;
-			right:4px;
-			top:12px;
-			padding:1px;
-			cursor:pointer;
-		}
-		.geFooterContainer>div#geFooter>img:hover {
-			opacity: 1;
-		}
-	</style>
-	<!-- Workaround for binary XHR in IE 9/10, see App.loadUrl -->
-	<!--[if (IE 9)|(IE 10)]><!-->
-		<script type="text/vbscript">
-			Function mxUtilsBinaryToArray(Binary)
-				Dim i
-				ReDim byteArray(LenB(Binary))
-				For i = 1 To LenB(Binary)
-					byteArray(i-1) = AscB(MidB(Binary, i, 1))
-				Next
-				mxUtilsBinaryToArray = byteArray
-			End Function
-		</script>
-	<!--<![endif]-->
-	<script type="text/javascript">
+			catch (e)
+			{
+				// ignore
+			}
+		};
+		
 		/**
 		 * Synchronously adds scripts to the page.
 		 */
 		function mxscript(src, onLoad, id, dataAppKey, noWrite)
 		{
-			if (onLoad != null || noWrite)
+			var defer = onLoad == null && !noWrite;
+			
+//	Added EFE 20200501
+			var type = src.substring(src.lastIndexOf('.')+1, src.length) || src;
+//			if ((urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function") ||
+//				onLoad != null || noWrite)
+			if (((urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function") ||
+				onLoad != null || noWrite) && type != "css")
+//	End of Added EFE 20200501
 			{
 				var s = document.createElement('script');
 				s.setAttribute('type', 'text/javascript');
-				s.setAttribute('src', src);
-				var r = false;
-				
+				s.setAttribute('defer', 'true');
+//	Added EFE 20200501
+				if (src.substring(0,4) == 'http')
+				{
+					s.setAttribute('src', src);
+				}
+				else
+				{
+					s.setAttribute('src', src);
+				}
+//				s.setAttribute('src', src);
+//	End of Added EFE 20200501
+
 				if (id != null)
 				{
 					s.setAttribute('id', id);
@@ -257,6 +181,8 @@
 				
 				if (onLoad != null)
 				{
+					var r = false;
+				
 					s.onload = s.onreadystatechange = function()
 					{
 						if (!r && (!this.readyState || this.readyState == 'complete'))
@@ -268,12 +194,39 @@
 				}
 			  	
 			  	var t = document.getElementsByTagName('script')[0];
-			  	t.parentNode.insertBefore(s, t);
+			  	
+			  	if (t != null)
+			  	{
+			  		t.parentNode.insertBefore(s, t);
+			  	}
 			}
 			else
 			{
-				document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
-					((dataAppKey != null) ? ' data-app-key="' + dataAppKey +'" ' : '') + '></scr' + 'ipt>');
+//	Added EFE 20200501
+				if (type == 'css')
+				{
+					var link = document.createElement( "link" );
+					link.type = "text/css";
+					link.rel = "stylesheet";
+					link.href = src;
+					document.getElementsByTagName( "head" )[0].appendChild( link );
+				}
+				else
+				{
+					if (src.substring(0,4) == 'http')
+					{
+						document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
+						((dataAppKey != null) ? ' data-app-key="' + dataAppKey +'" ' : '') + '></scr' + 'ipt>');
+					}
+					else
+					{
+						document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
+						((dataAppKey != null) ? ' data-app-key="' + dataAppKey +'" ' : '') + '></scr' + 'ipt>');
+					}
+				}
+//				document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id +'" ' : '') +
+//					((dataAppKey != null) ? ' data-app-key="' + dataAppKey +'" ' : '') + '></scr' + 'ipt>');
+//	End of Added EFE 20200501
 			}
 		};
 
@@ -282,9 +235,29 @@
 		 */
 		function mxinclude(src)
 		{
-			var g = document.createElement('script'); g.type = 'text/javascript'; g.async = true; g.src = src;
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(g, s);
+			var g = document.createElement('script');
+			g.type = 'text/javascript';
+			g.async = true;
+			g.src = src;
+			
+		    var s = document.getElementsByTagName('script')[0];
+		    s.parentNode.insertBefore(g, s);
 		};
+		
+		/**
+		 * Adds meta tags with application name (depends on offline URL parameter)
+		 */
+		(function()
+		{
+			var name = 'diagrams.net';
+			mxmeta('apple-mobile-web-app-title', name);
+			mxmeta('application-name', name);
+
+			if (mxIsElectron)
+			{
+				mxmeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src-elem \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
+			}
+		})();
 		
 		// Checks for local storage
 		var isLocalStorage = false;
@@ -306,9 +279,13 @@
 			// Used to request grapheditor/mxgraph sources in dev mode
 			var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/mxgraph2';
 			
+			// Used to request draw.io sources in dev mode
+			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
+			
 			if (document.location.protocol == 'file:')
 			{
-				mxDevUrl = '../../mxgraph2';
+				mxDevUrl = '../../../../../mxgraph2';
+				drawDevUrl = './';
 				
 				// Forces includes for dev environment in node.js
 				mxForceIncludes = true;
@@ -317,14 +294,7 @@
 			var geBasePath = mxDevUrl + '/javascript/examples/grapheditor/www/js';
 			var mxBasePath = mxDevUrl + '/javascript/src';
 			
-			// Used to request draw.io sources in dev mode
-			var drawDevUrl = '';
-
-			if (urlParams['drawdev'] == '1')
-			{
-				drawDevUrl = document.location.protocol + '//drawhost.jgraph.com/';
-			}
-			
+			mxscript(drawDevUrl + 'js/PreConfig.js');
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');
 			mxscript(geBasePath + '/Init.js');
 			mxscript(mxDevUrl + '/javascript/src/js/mxClient.js');
@@ -333,16 +303,44 @@
 			// required in some browsers to make sure mxClient.js (and the files that it
 			// loads asynchronously) are available when the code loaded in Devel.js runs.
 			mxscript(drawDevUrl + 'js/diagramly/Devel.js');
+			mxscript(drawDevUrl + 'js/PostConfig.js');
 		}
 		else
 		{
-			mxscript('js/app.min.js');
+			(function()
+			{
+				var hostName = window.location.hostname;
+				
+				// Supported domains are *.draw.io and the packaged version in Quip
+				var supportedDomain = (hostName.substring(hostName.length - 8, hostName.length) === '.draw.io') ||
+					(hostName.substring(hostName.length - 13, hostName.length) === '.diagrams.net');
+					(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
+				
+				if (!supportedDomain)
+				{
+					mxscript('js/PreConfig.js');
+				}
+				
+				mxscript('js/app.min.js', function()
+				{
+					if (!supportedDomain)
+					{
+						mxscript('js/PostConfig.js');
+					}
+				});
+			})();
 		}
 
 		// Electron
-		if (window && window.process && window.process.type)
+		if (mxIsElectron)
 		{
+			mxscript('js/PreConfig.js');
+			mxscript('js/diagramly/DesktopLibrary.js');
 			mxscript('js/diagramly/ElectronApp.js');
+			mxscript('js/extensions.min.js');
+			mxscript('js/stencils.min.js');
+			mxscript('js/shapes.min.js');
+			mxscript('js/PostConfig.js');
 		}
 		
 		// Adds basic error handling
@@ -356,13 +354,95 @@
 			}
 		};
 	</script>
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
+	<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
+	<link rel="stylesheet" type="text/css" href="js/croppie/croppie.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
+    <link rel="preconnect" href="https://storage.googleapis.com">
+    <link rel="canonical" href="https://app.diagrams.net">
+	<link rel="manifest" href="images/manifest.json">
+	<link rel="shortcut icon" href="favicon.ico">
+	<style type="text/css">
+		body { overflow:hidden; }
+		div.picker { z-index: 10007; }
+		.geSidebarContainer .geTitle input {
+			font-size:8pt;
+			color:#606060;
+		}
+		.geBlock {
+			z-index:-3;
+			margin:100px;
+			margin-top:40px;
+			margin-bottom:30px;
+			padding:20px;
+		}
+		.geBlock h1, .geBlock h2 {
+			margin-top:0px;
+			padding-top:0px;
+		}
+		.geEditor ::-webkit-scrollbar {
+		    width:14px;
+		    height:14px;
+		}
+		.geEditor ::-webkit-scrollbar-track {
+			background-clip:padding-box;
+			border:solid transparent;
+			border-width:1px;
+		}
+		.geEditor ::-webkit-scrollbar-corner {
+			background-color:transparent;
+		}
+		.geEditor ::-webkit-scrollbar-thumb {
+			background-color:rgba(0,0,0,.1);
+			background-clip:padding-box;
+			border:solid transparent;
+			border-radius:10px;
+		}
+		.geEditor ::-webkit-scrollbar-thumb:hover{
+			background-color:rgba(0,0,0,.4);
+		}
+		.geTemplate {
+			border:1px solid transparent;
+			display:inline-block;
+			_display:inline;
+			vertical-align:top;
+			border-radius:3px;
+			overflow:hidden;
+			font-size:14pt;
+			cursor:pointer;
+			margin:5px;
+		}
+	</style>
+	<!-- Workaround for binary XHR in IE 9/10, see App.loadUrl -->
+	<!--[if (IE 9)|(IE 10)]><!-->
+		<script type="text/vbscript">
+			Function mxUtilsBinaryToArray(Binary)
+				Dim i
+				ReDim byteArray(LenB(Binary))
+				For i = 1 To LenB(Binary)
+					byteArray(i-1) = AscB(MidB(Binary, i, 1))
+				Next
+				mxUtilsBinaryToArray = byteArray
+			End Function
+		</script>
+	<!--<![endif]-->
+<!-- Added EFE, to load jquery before jquery-ui 
+    <script type="text/javascript" src="../../../../drawio-integration/ext/jquery/jquery.min.js"></script>;
+    <script type="text/javascript" src="../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js"></script>;
+    <script type="text/javascript" src="../../../../drawio-integration/ext/alpaca/handlebars.min.js"></script>;
+    <script type="text/javascript" src="../../../../drawio-integration/ext/alpaca/bootstrap.min.js"></script>;
+    <script type="text/javascript" src="../../../../drawio-integration/ext/alpaca/alpaca.min.css"></script>;
+    <script type="text/javascript" src="../../../../drawio-integration/ext/alpaca/alpaca.min.js"></script>; -->
 </head>
 <body class="geEditor">
 <div id="geInfo">
 	<div class="geBlock" style="text-align:center;min-width:50%;">
 		<h1>Flowchart Maker and Online Diagram Software</h1>
 		<p>
-			draw.io (formerly Diagramly) is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool, 
+			diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool, 
 			to design database schema, to build BPMN online, as a circuit diagram maker, and more. draw.io can import .vsdx, Gliffy&trade; and Lucidchart&trade; files .
 		</p>
 		<h2 id="geStatus">Loading...</h2>
@@ -371,59 +451,35 @@
 		</p>
 	</div>
 </div>
-<div id="geFooter" style="visibility:hidden;overflow:hidden;margin-right:170px;height:100%;">
-	<div class="geSocialFooter" style="position:absolute;right:32px;white-space:nowrap;">
-    	<a href="https://www.youtube.com/channel/UCiTtRN9b8P4CoSfpkfgEJHA" title="draw.io on Youtube" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_youtube.png" alt="draw.io on Youtube"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://www.facebook.com/pages/drawio/161015263923018" title="draw.io on Facebook" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_facebook.png" alt="draw.io on Facebook"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://www.twitter.com/drawio" title="draw.io on Twitter" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_twitter.png" alt="draw.io on Twitter"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://github.com/jgraph/drawio" title="draw.io on GitHub" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_github.png" alt="draw.io on GitHub"/>
-    	</a>
-	</div>
-	<table align="center" height="100%">
-		<tr>
-			<td id="geFooterItem2" align="center" style="width:280px;transition: all 1s ease;">
-				<a title="Quick Start Video" href="https://www.youtube.com/watch?v=Z0D96ZikMkc" target="_blank">
-					<img border="0" align="absmiddle" style="margin-top:-4px;padding-right:10px;"
-						width="26" height="20" src="images/youtube.png"/>Quick Start Video</a>
-			</td>
-			<td id="geFooterItem1" align="center" style="width:260px;">
-				<a id="geFooterLink1" title="#1 Rated Confluence Add-on" target="_blank"
-					href="https://about.draw.io/integrations/confluence-integration/">
-					<img border="0" width="24" height="24" align="absmiddle" style="padding-right:10px;"
-						src="images/logo-confluence.png"/>#1 Rated Confluence App
-				</a>
-			</td>
-		</tr>
-	</table>
-</div>
 <script type="text/javascript">
 /**
  * Main
  */
-App.main();
-
-/**
- * Analytics
- */
-if (urlParams['analytics'] != '0' && urlParams['dev'] != '1' && urlParams['chrome'] != '0')
+if (navigator.userAgent != null && navigator.userAgent.toLowerCase().
+	indexOf(' electron/') >= 0 && typeof process !== 'undefined' && process.versions.electron < 5)
 {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	// Redirects old Electron app to latest version
+	var div = document.getElementById('geInfo');
 	
-		ga('create', 'UA-78007-10', 'auto');
-		ga('send', 'pageview');
+	if (div != null)
+	{
+		div.innerHTML = '<center><h2>You are using an out of date version of this app.<br>Please download the latest version ' +
+			'<a href="https://github.com/jgraph/drawio-desktop/releases/latest" target="_blank">here</a>.</h2></center>';
+	}
+}
+else
+{
+	if (urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function")
+	{
+		window.addEventListener('load', function()
+		{
+			App.main();
+		});
+	}
+	else
+	{
+		App.main();
+	}
 }
 </script>
 </body>

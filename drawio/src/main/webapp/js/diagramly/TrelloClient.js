@@ -123,7 +123,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 				// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
 				// and make sure that only a proxy technique can work!
 				// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
-				if (/\.vsdx$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
+				if (/\.v(dx|sdx?)$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
 					(!this.ui.useCanvasForExport && binary))
 				{
 					this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,
@@ -139,7 +139,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 						error({code: App.ERROR_TIMEOUT})
 					}), this.ui.timeout);
 					
-					this.ui.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(meta.url), mxUtils.bind(this, function(data)
+					this.ui.editor.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(meta.url), mxUtils.bind(this, function(data)
 					{
 						window.clearTimeout(timeoutThread);
 				    	
@@ -177,17 +177,17 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 					{
 						window.clearTimeout(timeoutThread);
 					    	
-					    	if (acceptResponse)
-					    	{
-					    		if (req.status == 401)
-					    		{
-					    			this.authenticate(callback, error, true);
-					    		}
-					    		else
-					    		{
-					    			error();
-					    		}
-					    	}
+				    	if (acceptResponse)
+				    	{
+				    		if (req.status == 401)
+				    		{
+				    			this.authenticate(callback, error, true);
+				    		}
+				    		else
+				    		{
+				    			error();
+				    		}
+				    	}
 					}), binary || (meta.mimeType != null &&
 						meta.mimeType.substring(0, 6) == 'image/'));
 				}
@@ -198,7 +198,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 	    	
 		    	if (acceptResponse)
 		    	{
-				if (err.status == 401)
+		    		if (err != null && err.status == 401)
 		    		{
 		    			this.authenticate(callback, error, true);
 		    		}
@@ -266,26 +266,30 @@ TrelloClient.prototype.insertFile = function(filename, data, success, error, asL
  */
 TrelloClient.prototype.saveFile = function(file, success, error)
 {
-	// delete file first, then write it again
+	// write the file first (with the same name), then delete the old file
+	// so that nothing is lost if something goes wrong with deleting
 	var ids = file.meta.compoundId.split(this.SEPARATOR);
 
 	var fn = mxUtils.bind(this, function(data)
 	{
-		Trello.del('cards/' + ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function()
+		this.writeFile(file.meta.name, data, ids[0], function(meta)
 		{
-			this.writeFile(file.meta.name, data, ids[0], success, error);
-		}), mxUtils.bind(this, function(err)
-		{
-			if (err.status == 401)
+			Trello.del('cards/' + ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function()
+			{
+				success(meta);
+			}), mxUtils.bind(this, function(err)
+			{
+				if (err != null && err.status == 401)
 	    		{
-				// KNOWN: Does not wait for popup to close for callback
+					// KNOWN: Does not wait for popup to close for callback
 	    			this.authenticate(callback, error, true);
 	    		}
 	    		else
 	    		{
 	    			error();
 	    		}
-		}));
+			}));
+		}, error);
 	});
 	
 	var callback = mxUtils.bind(this, function()
@@ -344,25 +348,25 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 		  {
 		    if (request.readyState === 4)
 		    {
-			    	window.clearTimeout(timeoutThread);
-			    	
-			    	if (acceptResponse)
+		    	window.clearTimeout(timeoutThread);
+		    	
+		    	if (acceptResponse)
+	    		{
+		    		if (request.status == 200)
+	    			{
+		    			var fileMeta = request.response;
+		    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
+		    			success(fileMeta);
+	    			}
+		    		else if (request.status == 401)
 		    		{
-			    		if (request.status == 200)
-		    			{
-			    			var fileMeta = request.response;
-			    			fileMeta.compoundId = cardId + this.SEPARATOR + fileMeta.id
-			    			success(fileMeta);
-		    			}
-			    		else if (request.status == 401)
-			    		{
-			    			this.authenticate(fn, error, true);
-			    		}
-		    			else
-	    				{
-			    			error();
-	    				}
+		    			this.authenticate(fn, error, true);
 		    		}
+	    			else
+    				{
+		    			error();
+    				}
+	    		}
 		    }
 		  });
 		  
@@ -456,9 +460,12 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 	{
 		linkCounter++;
 		var div = document.createElement('div');
-		div.style = "width:100%;text-overflow:ellipsis;overflow:hidden;vertical-align:middle;background:" + (linkCounter % 2 == 0? "#eee" : "#fff");
+		div.style = 'width:100%;text-overflow:ellipsis;overflow:hidden;vertical-align:middle;' +
+			'padding:2px 0 2px 0;background:' + (linkCounter % 2 == 0?
+			((uiTheme == 'dark') ? '#000' : '#eee') :
+			((uiTheme == 'dark') ? '' : '#fff'));
 		var link = document.createElement('a');
-		link.setAttribute('href', 'javascript:void(0);');
+		link.style.cursor = 'pointer';
 		
 		if (preview != null)
 		{
@@ -531,14 +538,14 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 			}),
 			mxUtils.bind(this, function(req)
 			{
-		    		if (req.status == 401)
-		    		{
-		    			this.authenticate(callback, error, true);
-		    		}
-		    		else if (error != null)
-		    		{
-		    			error(req);
-		    		}	
+	    		if (req.status == 401)
+	    		{
+	    			this.authenticate(callback, error, true);
+	    		}
+	    		else if (error != null)
+	    		{
+	    			error(req);
+	    		}	
 			}));
 		});
 		
@@ -568,7 +575,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 		
 		nextPageDiv = document.createElement('a');
 		nextPageDiv.style.display = 'block';
-		nextPageDiv.setAttribute('href', 'javascript:void(0);');
+		nextPageDiv.style.cursor = 'pointer';
 		mxUtils.write(nextPageDiv, mxResources.get('more') + '...');
 		
 		var nextPage = mxUtils.bind(this, function()
@@ -654,14 +661,14 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 			}),
 			mxUtils.bind(this, function(req)
 			{
-		    		if (req.status == 401)
-		    		{
-		    			this.authenticate(callback, error, true);
-		    		}
-		    		else if (error != null)
-		    		{
-		    			error({message: req.responseText});
-		    		}	
+	    		if (req.status == 401)
+	    		{
+	    			this.authenticate(callback, error, true);
+	    		}
+	    		else if (error != null)
+	    		{
+	    			error({message: req.responseText});
+	    		}	
 			}));
 		});
 		

@@ -77,6 +77,8 @@ mxShapeAws3dArrowSE.prototype.cst = {
 		ARROW_SE : 'mxgraph.aws3d.arrowSE'
 };
 
+
+
 /**
 * Function: paintVertexShape
 * 
@@ -587,7 +589,6 @@ mxShapeAws3dAMI.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(w * 0.4, h);
 	c.close();
 	c.fillAndStroke();
-	
 	
 	c.restore();
 	c.setFillColor('#000000');
@@ -1232,7 +1233,6 @@ mxShapeAws3dCloudFront.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.close();
 	c.fill();
 	
-
 	c.restore();
 	c.setLineJoin('round');
 	c.begin();
@@ -1555,7 +1555,7 @@ mxUtils.extend(mxShapeAws3dDataServer, mxShape);
 
 mxShapeAws3dDataServer.prototype.cst = {
 		DATA_SERVER : 'mxgraph.aws3d.dataServer',
-		SHADINC_COLORS : 'shadingCols'
+		SHADING_COLORS : 'shadingCols'
 };
 
 /**
@@ -1881,7 +1881,7 @@ mxUtils.extend(mxShapeAws3dInstance, mxShape);
 
 mxShapeAws3dInstance.prototype.cst = {
 		INSTANCE : 'mxgraph.aws3d.instance',
-		SHADIG_COLORS : 'shadingCols'
+		SHADING_COLORS : 'shadingCols'
 };
 
 /**
@@ -2933,7 +2933,7 @@ mxUtils.extend(mxShapeAws3dRdsMaster, mxShape);
 
 mxShapeAws3dRdsMaster.prototype.cst = {
 		RDS_MASTER : 'mxgraph.aws3d.rdsMaster',
-		SHADIG_COLORS : 'shadingCols'
+		SHADING_COLORS : 'shadingCols'
 };
 
 /**
@@ -5059,7 +5059,6 @@ mxShapeAws3dAMI2.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.close();
 	c.fillAndStroke();
 	
-	
 	c.restore();
 	c.setFillColor('#000000');
 	var shading = mxUtils.getValue(this.state.style, mxShapeAws3dAMI2.prototype.cst.SHADING_COLORS, '0.1,0.3').toString().split(',');
@@ -5990,7 +5989,6 @@ mxShapeAws3dWorker.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.close();
 	c.fillAndStroke();
 	
-	
 	c.restore();
 	c.setFillColor('#000000');
 	var shading = mxUtils.getValue(this.state.style, mxShapeAws3dWorker.prototype.cst.SHADING_COLORS, '0.1,0.3').toString().split(',');
@@ -6920,7 +6918,6 @@ mxShapeAws3dDecider.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(w * 0.5027, h);
 	c.close();
 	c.fillAndStroke();
-	
 	
 	c.restore();
 	c.setFillColor('#000000');
@@ -8192,7 +8189,6 @@ mxShapeAws3dLambda.prototype.paintVertexShape = function(c, x, y, w, h)
 mxShapeAws3dLambda.prototype.background = function(c, x, y, w, h, strokeWidth)
 {
 	c.setStrokeWidth(strokeWidth);
-	c.save();
 	c.save();
 	c.save();
 	c.setStrokeWidth(2 * strokeWidth);

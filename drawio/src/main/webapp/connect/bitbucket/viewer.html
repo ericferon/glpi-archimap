@@ -72,9 +72,9 @@ if (lang != null)
 
 	function main()
 	{
-		AP.require(['request'], function(request)
+		//keeping the block of AP.require to minimize the number of changes!
 		{
-			request(
+			AP.request(
 			{
 				url: srcRawUrl,
 				responseType: 'text/plain',
@@ -139,7 +139,7 @@ if (lang != null)
 			    }
 			});
 			
-		});
+		};
 	};
 	
 	mxResources.loadDefaultBundle = false;

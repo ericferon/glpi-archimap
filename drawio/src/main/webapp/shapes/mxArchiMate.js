@@ -64,6 +64,30 @@ mxArchiMateLocation.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMateLocation.prototype.cst.LOCATION, mxArchiMateLocation);
 
+mxArchiMateLocation.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Business
 //**********************************************************************************************************************************************************
@@ -93,6 +117,16 @@ mxArchiMateBusiness.prototype.cst = {
 		EVENT : 'event',
 		SERVICE : 'service'
 };
+
+mxArchiMateBusiness.prototype.customProperties = [
+	{name: 'busType', dispName: 'Business Type', type: 'enum', 
+		enumList: [{val: 'process', dispName: 'Process'}, 
+				   {val: 'function', dispName: 'Function'}, 
+				   {val: 'interaction', dispName: 'Interaction'}, 
+				   {val: 'event', dispName: 'Event'}, 
+				   {val: 'service', dispName: 'Service'}]
+	}
+];
 
 /**
 * Function: paintVertexShape
@@ -192,6 +226,30 @@ mxArchiMateBusiness.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMateBusiness.prototype.cst.BUSINESS, mxArchiMateBusiness);
 
+mxArchiMateBusiness.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -2.9, -2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 2.9, -2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Business Object
 //**********************************************************************************************************************************************************
@@ -248,6 +306,30 @@ mxArchiMateBusinessObject.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMateBusinessObject.prototype.cst.BUSINESS_OBJECT, mxArchiMateBusinessObject);
 
+mxArchiMateBusinessObject.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -2.9, 2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -2.9, -2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 2.9, -2.9));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Representation
 //**********************************************************************************************************************************************************
@@ -296,6 +378,30 @@ mxArchiMateRepresentation.prototype.background = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxArchiMateRepresentation.prototype.cst.REPRESENTATION, mxArchiMateRepresentation);
+
+mxArchiMateRepresentation.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.85), false, null));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0.745), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.85), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0.955), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.85), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Product
@@ -392,6 +498,26 @@ mxArchiMateApplication.prototype.cst = {
 		ROLE : 'role',
 		COLLABORATION : 'collab'
 };
+
+mxArchiMateApplication.prototype.customProperties = [
+	{name: 'appType', dispName: 'App Type', type: 'enum', 
+		enumList: [{val: 'comp', dispName: 'Component'}, 
+				   {val: 'interface', dispName: 'Interface'}, 
+				   {val: 'interface2', dispName: 'Interface2'}, 
+				   {val: 'function', dispName: 'Function'}, 
+				   {val: 'interaction', dispName: 'Interaction'}, 
+				   {val: 'service', dispName: 'Service'}, 
+				   {val: 'node', dispName: 'Node'}, 
+				   {val: 'network', dispName: 'Network'}, 
+				   {val: 'commPath', dispName: 'Comm Path'}, 
+				   {val: 'artifact', dispName: 'Artifact'}, 
+				   {val: 'sysSw', dispName: 'System Sw'}, 
+				   {val: 'path', dispName: 'Path'},
+				   {val: 'actor', dispName: 'Actor'}, 
+				   {val: 'role', dispName: 'Role'}, 
+				   {val: 'collab', dispName: 'Collaboration'}]
+	}
+];
 
 /**
 * Function: paintVertexShape
@@ -626,19 +752,33 @@ mxArchiMateApplication.prototype.foreground = function(c, x, y, w, h)
 		c.ellipse(w * 0.6, 0, w * 0.4, h);
 		c.stroke();
 	}
-//	else if (type === mxArchiMateApplication.prototype.cst.COLLABORATION)
-//	{
-//		c.translate(0, 3);
-//		h = h - 6;
-//
-//		c.ellipse(0, 0, w * 0.6, h);
-//		c.stroke();
-//		c.ellipse(w * 0.4, 0, w * 0.6, h);
-//		c.stroke();
-//	}
 };
 
 mxCellRenderer.registerShape(mxArchiMateApplication.prototype.cst.APPLICATION, mxArchiMateApplication);
+
+mxArchiMateApplication.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
 
 //**********************************************************************************************************************************************************
 //Tech
@@ -666,6 +806,13 @@ mxArchiMateTech.prototype.cst = {
 		DEVICE : 'device',
 		PLATEAU : 'plateau'
 };
+
+mxArchiMateTech.prototype.customProperties = [
+	{name: 'techType', dispName: 'Tech Type', type: 'enum', 
+		enumList: [{val: 'device', dispName: 'Device'}, 
+				   {val: 'plateau', dispName: 'Plateau'}]
+	}
+];
 
 /**
 * Function: paintVertexShape
@@ -734,6 +881,32 @@ mxArchiMateTech.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMateTech.prototype.cst.TECH, mxArchiMateTech);
 
+mxArchiMateTech.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, 10));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 10, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, 0, -10));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -10, 0));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
 //Motivational
 //**********************************************************************************************************************************************************
@@ -765,6 +938,18 @@ mxArchiMateMotivational.prototype.cst = {
 		CONSTRAINT : 'const',
 		PRINCIPLE : 'princ'
 };
+
+mxArchiMateMotivational.prototype.customProperties = [
+	{name: 'motivType', dispName: 'Motivational Type', type: 'enum', 
+		enumList: [{val: 'stake', dispName: 'Stake'}, 
+				   {val: 'driver', dispName: 'Driver'},
+				   {val: 'assess', dispName: 'Assessment'},
+				   {val: 'goal', dispName: 'Goal'},
+				   {val: 'req', dispName: 'Requirement'},
+				   {val: 'const', dispName: 'Constraint'},
+				   {val: 'princ', dispName: 'Principle'}]
+	}
+];
 
 /**
 * Function: paintVertexShape
@@ -916,8 +1101,32 @@ mxArchiMateMotivational.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMateMotivational.prototype.cst.MOTIV, mxArchiMateMotivational);
 
+mxArchiMateMotivational.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 5, 5));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, -5, 5));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, -5, -5));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 5, -5));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};
+
 //**********************************************************************************************************************************************************
-//Representation
+//Gap
 //**********************************************************************************************************************************************************
 /**
 * Extends mxShape.
@@ -986,3 +1195,26 @@ mxArchiMateGap.prototype.foreground = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxArchiMateGap.prototype.cst.GAP, mxArchiMateGap);
 
+mxArchiMateGap.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.85), false, null));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0.745), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0.85), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0.955), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.85), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+};

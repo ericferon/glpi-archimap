@@ -238,14 +238,14 @@ mxVsdxCanvas2D.prototype.rect = function(x, y, w, h)
 	h = h * s.scale;
 
 	var geo = this.xmGeo;
-	x = ((x - geo.x + s.dx) * s.scale) /w;
-	y = ((geo.height - y + geo.y - s.dy) * s.scale) /h;
-
-	this.geoSec.appendChild(this.createRowRel("RelMoveTo", this.geoStepIndex++, x, y));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x + 1, y));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x + 1, y - 1));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x, y - 1));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x, y));	
+	x = ((x - geo.x + s.dx) * s.scale);
+	y = ((geo.height - y + geo.y - s.dy) * s.scale);
+	
+	this.geoSec.appendChild(this.createRowScaled("MoveTo", this.geoStepIndex++, x, y));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x + w, y));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x + w, y - h));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x, y - h));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x, y));
 };
 
 /**
@@ -730,6 +730,14 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			str = mxUtils.getOuterHtml(str);
 		}
 
+		//This is the case with edges
+		if (w == 0 && h == 0)
+		{
+			var strSize = mxUtils.getSizeForString(str, that.cellState.style["fontSize"], that.cellState.style["fontFamily"]);
+			w = strSize.width * 2;
+			h = strSize.height * 2;
+		}
+		
 		//TODO support HTML text formatting and remaining attributes
 		if (format == 'html')
     	{
@@ -744,7 +752,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			if (this.html2txtDiv == null)
 				this.html2txtDiv = document.createElement('div');
 			
-			this.html2txtDiv.innerHTML = str;
+			this.html2txtDiv.innerHTML = Graph.sanitizeHtml(str);
 			str = mxUtils.extractTextWithWhitespace(this.html2txtDiv.childNodes);
     	}
 		
@@ -833,21 +841,26 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			
 			charSect.appendChild(charRow);
 			
-//			var pRow = that.createElt("Row");
-//			pRow.setAttribute('IX', pIndex);
-//			
-//			var align = 1; //center is default
-//			
-//			switch(styleMap['align'])
-//			{
-//				case 'left': align = 0; break;
-//				case 'center': align = 1; break;
-//				case 'right': align = 2; break;
-//			}
+			var pRow = that.createElt("Row");
+			pRow.setAttribute('IX', pIndex);
 			
-//			pRow.appendChild(that.createCellElem("HorzAlign", align));
+			var align = 1; //center is default
+			
+			switch(styleMap['align'])
+			{
+				case 'left': align = 0; break;
+				case 'center': align = 1; break;
+				case 'right': align = 2; break;
+				case 'start': align = 0; break; //TODO check right-to-left
+				case 'end': align = 2; break; //TODO check right-to-left
+				case 'justify': align = 0; break;
+				default:
+					align = 1;
+			}
+			
+			pRow.appendChild(that.createCellElem("HorzAlign", align));
 //			pRow.appendChild(that.createCellElem("SpLine", "-1.2"));
-//			pSect.appendChild(pRow);
+			pSect.appendChild(pRow);
 			
 //			var pp = that.createElt("pp");
 //			pp.setAttribute('IX', pIndex++);
@@ -864,24 +877,37 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			pStyle = pStyle || {};
 			for (var i=0; i<ch.length; i++) 
 			{
-				if (ch[i].nodeType == 3) 
+				var curCh = ch[i];
+				
+				if (curCh.nodeType == 3) 
 				{ //#text
+					var fontStyle = that.cellState.style["fontStyle"];
 					var styleMap = {
 						fontColor: pStyle['fontColor'] || that.cellState.style["fontColor"],
 						fontSize: pStyle['fontSize'] || that.cellState.style["fontSize"],
 						fontFamily: pStyle['fontFamily'] || that.cellState.style["fontFamily"],
 						align: pStyle['align'] || that.cellState.style["align"],
-						bold: pStyle['bold'],
-						italic: pStyle['italic'],
-						underline: pStyle['underline']
+						bold: pStyle['bold'] || (fontStyle & 1),
+						italic: pStyle['italic'] || (fontStyle & 2),
+						underline: pStyle['underline'] || (fontStyle & 4)
 					};
-					createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
+					
+					var brNext = false;
+					
+					if (i + 1 < ch.length && ch[i + 1].nodeName.toUpperCase() == 'BR')
+					{
+						brNext = true;
+						i++;
+					}
+					
+					//VSDX doesn't have numbered list!
+					createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + curCh.textContent + (brNext? '\n' : ''));
 				} 
-				else if (ch[i].nodeType == 1) 
+				else if (curCh.nodeType == 1) 
 				{ //element
-					var nodeName = ch[i].nodeName.toUpperCase();
-					var chLen = ch[i].childNodes.length;
-					var style = window.getComputedStyle(ch[i], null);
+					var nodeName = curCh.nodeName.toUpperCase();
+					var chLen = curCh.childNodes.length;
+					var style = window.getComputedStyle(curCh, null);
 					var styleMap = {
 						bold: style.getPropertyValue('font-weight') == 'bold' || pStyle['bold'],
 						italic: style.getPropertyValue('font-style') == 'italic' || pStyle['italic'],
@@ -890,31 +916,58 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 						fontColor: rgb2hex(style.getPropertyValue('color')),
 						fontSize: parseFloat(style.getPropertyValue('font-size')),
 						fontFamily: style.getPropertyValue('font-family').replace(/"/g, ''), //remove quotes
-						blockElem: style.getPropertyValue('display') == 'block' || nodeName == "BR" || nodeName == "LI"
+						blockElem: style.getPropertyValue('display') == 'block' || nodeName == "BR" || nodeName == "LI",
+						OL: pStyle['OL'],
+						LiIndex: pStyle['LiIndex']
 					};
 					
-//					if (nodeName == "OL" || nodeName == "UL")
-//					{
-//						var pRow = that.createElt("Row");
-//						pRow.setAttribute('IX', pIndex);
-//						
-//						pRow.appendChild(that.createCellElem("HorzAlign", "0"));
-//						pRow.appendChild(that.createCellElem("Bullet", "1"));
-//						pSect.appendChild(pRow);
-//						
-//						var pp = that.createElt("pp");
-//						pp.setAttribute('IX', pIndex++);
-//						text.appendChild(pp);
-//					}
+					if (nodeName == "UL")
+					{
+						var pRow = that.createElt("Row");
+						pRow.setAttribute('IX', pIndex);
+						
+						pRow.appendChild(that.createCellElem("HorzAlign", "0"));
+						pRow.appendChild(that.createCellElem("Bullet", "1"));
+						pSect.appendChild(pRow);
+						
+						var pp = that.createElt("pp");
+						pp.setAttribute('IX', pIndex++);
+						text.appendChild(pp);
+					}
+					//VSDX doesn't have numbered list!
+					else if (nodeName == "OL")
+					{
+						styleMap['OL'] = true;
+					}
+					else if (nodeName == "LI")
+					{
+						styleMap['LiIndex'] = i + 1;
+					}
 					
 					if (chLen > 0)
 					{
+						processNodeChildren(curCh.childNodes, styleMap);
+						
+						//Close the UL by adding another pp with no Vullets
+						if (nodeName == "UL")
+						{
+							var pRow = that.createElt("Row");
+							pRow.setAttribute('IX', pIndex);
+							
+							pRow.appendChild(that.createCellElem("Bullet", "0"));
+							pSect.appendChild(pRow);
+							
+							var pp = that.createElt("pp");
+							pp.setAttribute('IX', pIndex++);
+							text.appendChild(pp);
+						}
+
 						createTextRow(styleMap, charSect, pSect, text, ""); //to handle block elements if any
-						processNodeChildren(ch[i].childNodes, styleMap);
 					}
 					else
 					{
-						createTextRow(styleMap, charSect, pSect, text, ch[i].textContent);
+						//VSDX doesn't have numbered list!
+						createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + curCh.textContent);
 					}
 				}
 			}
@@ -942,45 +995,94 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			};
 			createTextRow(styleMap, charSect, pSect, text, str);
 		}
-		
-		var wShift = 0;
-		var hShift = 0;
 
-		switch(align) 
-		{
-			case "right": wShift = calcW/2; break;
-			case "center": wShift = 0; break;
-			case "left": wShift = -calcW/2; break;
-		}
-		
-		switch(valign) 
-		{
-			case "top": hShift = calcH/2; break;
-			case "middle": hShift = 0; break;
-			case "bottom": hShift = -calcH/2; break;
-		}
+		var wShift = 0, hShift = 0;
 
 		h = Math.max(h, calcH); 
 		w = Math.max(w, calcW);
-			
+		var hw = w/2, hh = h/2;
+		var pRotDegrees = parseInt(mxUtils.getValue(this.cellState.style, 'rotation', '0'));
+		var pRot = pRotDegrees * Math.PI / 180;
+
+		//TODO Fix align and valign for rotated cases. Currently, all rotated shapes labels are centered
+		switch(align) 
+		{
+			case "right": 
+				if (pRotDegrees != 0) 
+				{
+					x -= hw * Math.cos(pRot);
+					y -= hw * Math.sin(pRot);
+				}
+				else 
+				{
+					wShift = calcW/2;
+				}
+			break;
+			case "center":
+				//nothing
+			break;
+			case "left":
+				if (pRotDegrees != 0) 
+				{
+					x += hw * Math.cos(pRot);
+					y += hw * Math.sin(pRot);
+				}
+				else
+				{
+					wShift = -calcW/2;
+				}
+			break;
+		}
+
+		switch(valign) 
+		{
+			case "top": 
+				if (pRotDegrees != 0) 
+				{
+					x += hh * Math.sin(pRot);
+					y += hh * Math.cos(pRot);
+				}
+				else
+				{
+					hShift = calcH/2;
+				}
+			break;
+			case "middle":
+				//nothing
+			break;
+			case "bottom": 
+				if (pRotDegrees != 0) 
+				{
+					x -= hh * Math.sin(pRot);
+					y -= hh * Math.cos(pRot);
+				}
+				else
+				{
+					hShift = -calcH/2;
+				}
+			break;
+		}
+
 		x = (x - geo.x + s.dx) * s.scale;
 		y = (geo.height - y + geo.y - s.dy) * s.scale;
 
-		var hw = w/2, hh = h/2;
 		this.shape.appendChild(this.createCellElemScaled("TxtPinX", x));
 		this.shape.appendChild(this.createCellElemScaled("TxtPinY", y));
 		this.shape.appendChild(this.createCellElemScaled("TxtWidth", w));
 		this.shape.appendChild(this.createCellElemScaled("TxtHeight", h));
-		this.shape.appendChild(this.createCellElemScaled("TxtLocPinX", hw + wShift));
-		this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh + hShift));
+        this.shape.appendChild(this.createCellElemScaled("TxtLocPinX", hw + wShift));
+        this.shape.appendChild(this.createCellElemScaled("TxtLocPinY", hh + hShift));
 
+		
+		rotation -= pRotDegrees;
+		
 		if (rotation != 0)
 			this.shape.appendChild(this.createCellElem("TxtAngle", (360 - rotation) * Math.PI / 180));
 
 		
 		
 		this.shape.appendChild(charSect);
-//		this.shape.appendChild(pSect);
+		this.shape.appendChild(pSect);
 		this.shape.appendChild(text);
 //		if (overflow != null)
 //		{

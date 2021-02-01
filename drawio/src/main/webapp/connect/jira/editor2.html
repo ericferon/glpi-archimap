@@ -46,6 +46,18 @@ iframe {
 		return null;
 	};
 
+	function getBaseUrl()
+	{
+		var baseUrl = getUrlParam('xdm_e', true) + getUrlParam('cp', true);
+		//Ensure baseUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+		//Since we add cp to xdm_e, we had to ensure that there is a slash after the domain. Since if xdm_e is ok, cp can corrupt is such as cp = '.fakedomain.com' such that baseUrl is atlassian.net.fakedomain.com
+		if (/^https:\/\/([^\.])+\.jira\.com\//.test(baseUrl + '/') || /^https:\/\/([^\.])+\.atlassian\.net\//.test(baseUrl + '/')) 
+		{
+			return baseUrl;
+		}
+		throw 'Invalid baseUrl!';
+	};
+
 	// Overrides browser language with Confluence user language
 	var lang = getUrlParam('loc');
 
@@ -61,12 +73,11 @@ iframe {
 	}
 	
 	// Specifies connection mode for touch devices (at least one should be true)
-	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
-	var connectUrl = baseUrl + '/atlassian-connect';
+	var connectUrl = getBaseUrl() + '/atlassian-connect';
 	var head = document.getElementsByTagName("head")[0];
 
 	var script = document.createElement('script');
-	script.src = connectUrl + '/all.js';
+	script.src = 'https://connect-cdn.atl-paas.net/all.js';
 	script.setAttribute('data-options', 'resize:false;margin:false');
 
 	script.onload = main;
@@ -368,7 +379,7 @@ iframe {
 				}, timeout);
 				
 				request({
-					url: '/secure/attachment/' + diagramId + '/' + encodeURIComponent(diagramName),
+					url: '/secure/attachment/' + diagramId + '/'),
 					success: function(xml)
 					{
 			    		window.clearTimeout(timeoutThread);

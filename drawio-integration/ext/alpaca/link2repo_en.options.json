@@ -1,0 +1,77 @@
+{
+	"fields": {
+		"stencil": {
+			"size": 20,
+			"label": "Stencil id",
+			"placeholder": "unique identifier",
+			"helper" : "Once saved, this value should not be modified anymore !"
+		},
+		"autocompletetype": {
+			"label": "Access type :",
+			"type": "select",
+			"optionLabels" : ["Local, via SQL",
+							"Remote, via http"
+							]
+		},
+		"autocompletetable": {
+			"size": 20,
+			"label": "Main table",
+			"placeholder": "1 table name",
+			"helper" : "f.i : glpi_plugin_archisw_swcomponents"
+		},
+		"autocompletecolumns": {
+			"size": 20,
+			"label": "Main table column(s)",
+			"placeholder": "comma-separated list",
+			"helper" : "f.i : name, description, glpi_manufacturers.name"
+		},
+		"autocompletejointtables": {
+			"size": 40,
+			"label": "Join criteria",
+			"placeholder": "As expressed in SQL",
+			"helper" : "f.i : left join glpi_plugin_archisw_swcomponenttypes on glpi_plugin_archisw_swcomponenttypes.id = glpi_plugin_archisw_swcomponents.plugin_archisw_swcomponenttypes_id"
+		},
+		"autocompletejointcolumns": {
+			"size": 40,
+			"label": "Join columns",
+			"placeholder": "comma-separated list",
+			"helper" : "f.i : glpi_plugin_archisw_swcomponents.name as name,glpi_plugin_archisw_swcomponents.description as description,glpi_plugin_archisw_swcomponenttypes.name as type,glpi_plugin_archisw_swcomponentstates.name as state"
+		},
+		"autocompleteotherselectioncriteria": {
+			"size": 20,
+			"label": "Selection criteria",
+			"placeholder": "As expressed in SQL, without 'WHERE'",
+			"helper" : "f.i : level > 1"
+		},
+		"autocompleteordercriteria": {
+			"size": 20,
+			"label": "Sort criteria",
+			"placeholder": "As expressed in SQL, without 'ORDER BY'",
+			"helper" : "f.i : glpi_plugin_archisw_swcomponents.name"
+		},
+		"autocompletelabel": {
+			"size": 20,
+			"label": "Display as",
+			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs",
+			"helper" : "how the list of suggested names will be composed (after the name itself) ; f.i : '/'+manufacturer+' (level '+level+' - '+type+' : '+state+')'"
+		},
+		"autocompletecssclass": {
+			"size": 20,
+			"label": "CSS Class",
+			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs",
+			"helper" : "how the CSS classnames, to be added to the shape, will be composed ; f.i : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
+		},
+		"autocompleteobject": {
+			"size": 20,
+			"label": "Class",
+			"placeholder": "Class name",
+			"helper" : "f.i : PluginArchiswSwcomponent"
+		},
+		"autocompletelink": {
+			"size": 20,
+			"label": "Link",
+			"placeholder": "URL expressed as intermixed column names and single-quoted strings, separated by '+' signs",
+			"helper" : "how the URL to be linked to a shape will be composed ; f.i 'http://sysmon/mrtg/rrd/mom.php?'+'HOST='+name"
+		}
+	}
+}

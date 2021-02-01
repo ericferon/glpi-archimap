@@ -5,9 +5,10 @@
 	{
 		var w = 100;
 		var h = 100;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=1;dashed=0;shape=mxgraph.aws3d.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.';
 		var gn = 'mxgraph.aws3d';
 		var dt = 'aws 3d amazon web service';
+		this.setCurrentSearchEntryLibrary('aws3d');
 
 		this.addPaletteFunctions('aws3d', 'AWS 3D', false,
 		[
@@ -29,9 +30,9 @@
 					w * 0.308, h * 0.706, '', 'Content', null, null, this.getTagsForStencil(gn, 'content', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'customerGateway;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.167, h * 1.028, '', 'Customer Gateway', null, null, this.getTagsForStencil(gn, 'customer gateway', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'dataCenter;fillColor=#ffffff;strokeColor=#5E5E5E;aspect=fixed;', 
+			this.createVertexTemplateEntry(s + 'dataCenter;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.23, h * 1.42, '', 'Data Center', null, null, this.getTagsForStencil(gn, 'data center', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'dataServer;fillColor=#ffffff;strokeColor=#5E5E5E;aspect=fixed;', 
+			this.createVertexTemplateEntry(s + 'dataServer;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.23, h * 1.06, '', 'Data Server', null, null, this.getTagsForStencil(gn, 'data server', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'decider;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 0.74, h * 0.5, '', 'Decider', null, null, this.getTagsForStencil(gn, 'decider', dt).join(' ')),
@@ -47,29 +48,26 @@
 					w * 0.92, h * 0.8817, '', 'Elastic Load Balancing', null, null, this.getTagsForStencil(gn, 'elastic load balancing elb', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'elasticMapReduce;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.23, h * 1.33, '', 'Elastic MapReduce', null, null, this.getTagsForStencil(gn, 'elastic mapreduce', dt).join(' ')),
-//			this.createVertexTemplateEntry(s + 'elasticache;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
-//					w * 1.23, h * 1.43, '', 'Elasticache', null, null, this.getTagsForStencil(gn, '', dt).join(' ')),
 					
 		   	this.addEntry(dt + 'elasticache', function()
-			   		{
-					   	var bg1 = new mxCell('', new mxGeometry(70, 0, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
-					   	bg1.vertex = true;
-					   	var bg2 = new mxCell('', new mxGeometry(0, 40, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
-					   	bg2.vertex = true;
-					   	var bg3 = new mxCell('', new mxGeometry(140, 40, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
-					   	bg3.vertex = true;
-					   	var bg4 = new mxCell('', new mxGeometry(70, 80, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
-					   	bg4.vertex = true;
-						
-				   		return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4], 264, 204, 'Elasticache');
-					}),
-					
-					
-			this.createVertexTemplateEntry(s + 'email;aspect=fixed;strokeColor=#292929;fillColor=#ffffff;', 
+	   		{
+			   	var bg1 = new mxCell('', new mxGeometry(70, 0, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
+			   	bg1.vertex = true;
+			   	var bg2 = new mxCell('', new mxGeometry(0, 40, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
+			   	bg2.vertex = true;
+			   	var bg3 = new mxCell('', new mxGeometry(140, 40, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
+			   	bg3.vertex = true;
+			   	var bg4 = new mxCell('', new mxGeometry(70, 80, 123, 124), s + 'application_server;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;');
+			   	bg4.vertex = true;
+				
+		   		return sb.createVertexTemplateFromCells([bg1, bg2, bg3, bg4], 264, 204, 'Elasticache');
+			}),
+	
+			this.createVertexTemplateEntry(s + 'email;aspect=fixed;strokeColor=#292929;', 
 					w * 0.43, h * 0.57, '', 'Email', null, null, this.getTagsForStencil(gn, 'email', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'email_service;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.51, h * 1.92, '', 'Email Service', null, null, this.getTagsForStencil(gn, 'email service', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'file;aspect=fixed;strokeColor=#292929;fillColor=#ffffff;', 
+			this.createVertexTemplateEntry(s + 'file;aspect=fixed;strokeColor=#292929;', 
 					w * 0.308, h * 0.706, '', 'File', null, null, this.getTagsForStencil(gn, 'file', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'glacier;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.81, h * 1.92, '', 'Glacier', null, null, this.getTagsForStencil(gn, 'glacier', dt).join(' ')),
@@ -77,8 +75,6 @@
 					w * 0.5, h * 0.86, '', 'Image/Video', null, null, this.getTagsForStencil(gn, 'image video', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'internetGateway;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.167, h * 1.028, '', 'Internet Gateway', null, null, this.getTagsForStencil(gn, 'internet gateway', dt).join(' ')),
-//			this.createVertexTemplateEntry(s + 'kinesisStream;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
-//					w * 2.2, h * 1.6, '', 'Kinesis Stream', null, null, this.getTagsForStencil(gn, '', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'lambda;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 0.92, h * 1.095, '', 'Lambda', null, null, this.getTagsForStencil(gn, 'lambda', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'mobile_worker;aspect=fixed;strokeColor=none;fillColor=#777777;', 
@@ -119,14 +115,10 @@
 					w * 1.23, h * 0.97, '', 'Spot Instance', null, null, this.getTagsForStencil(gn, 'spot instance', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'sqs;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.84, h * 2.1275, '', 'SQS', null, null, this.getTagsForStencil(gn, 'sqs', dt).join(' ')),
-//			this.createVertexTemplateEntry(s + 'sqs2;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
-//					w * 1.6, h * 0.93, '', 'SQS', null, null, this.getTagsForStencil(gn, '', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'end_user;strokeColor=none;fillColor=#777777;aspect=fixed;', 
 					w * 0.49, h * 1.0046, '', 'User', null, null, this.getTagsForStencil(gn, 'user', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'vpcGateway;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 1.167, h * 1.028, '', 'VPC Gateway', null, null, this.getTagsForStencil(gn, 'vpc gateway', dt).join(' ')),
-//			this.createVertexTemplateEntry(s + 'webServer;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
-//					w * 1.23, h * 1.06, '', 'Web Server', null, null, this.getTagsForStencil(gn, '', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'worker;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
 					w * 0.74, h * 0.5, '', 'Worker', null, null, this.getTagsForStencil(gn, 'worker', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'workflowService;fillColor=#ECECEC;strokeColor=#5E5E5E;aspect=fixed;', 
@@ -163,6 +155,7 @@
 		 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;', 50, 100, 'isometric edge', 'Isometric Edge 1'),
 		 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;elbow=vertical;', 50, 100, 'isometric edge', 'Isometric Edge 2')
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-
 })();

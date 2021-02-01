@@ -1,0 +1,66 @@
+{
+	"type": "object",
+	"properties": {
+		"stencil" : {
+			"title": "Stencil id",
+			"type": "string",
+			"required": false
+		},
+		"autocompletetype": {
+			"title": "Access type",
+			"type": "string",
+			"enum": [
+				"LocalSql"],
+			"required": true,
+			"mutiple": false
+		},
+		"autocompletetable" : {
+			"title": "Main table",
+			"required": true,
+			"type": "string"
+		},
+		"autocompletecolumns" : {
+			"title": "Main columns",
+			"required": true,
+			"type": "string"
+		},
+		"autocompletejointtables" : {
+			"title": "Join tables",
+			"type": "string",
+			"required": false
+		},
+		"autocompletejointcolumns" : {
+			"title": "Join columns",
+			"type": "string",
+			"required": false
+		},
+		"autocompleteotherselectioncriteria" : {
+			"title": "Selection criteria",
+			"type": "string",
+			"required": false
+		},
+		"autocompleteordercriteria" : {
+			"title": "Sort criteria",
+			"type": "string",
+			"required": false
+		},
+		"autocompletelabel" : {
+			"title": "Display as",
+			"type": "string"
+		},
+		"autocompletecssclass" : {
+			"title": "CSS class",
+			"type": "string",
+			"required": false
+		},
+		"autocompleteobject" : {
+			"title": "Repository object class",
+			"type": "string"
+		},
+		"autocompletelink" : {
+			"title": "Graphical link",
+			"type": "string",
+			"required": false
+		}
+	}
+}

@@ -40,7 +40,7 @@
 				{
 					var opt = document.createElement("option");
 					opt.setAttribute('value', atts[i].id);
-					opt.innerHTML = atts[i].name;
+					mxUtils.write(opt, atts[i].name);
 					select.appendChild(opt);
 					count++;
 				}

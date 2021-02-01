@@ -33,10 +33,23 @@ function getUrlParam(param)
 	return null;
 };
 
+function getBaseUrl()
+{
+	var baseUrl = getUrlParam('xdm_e', true) + getUrlParam('cp', true);
+	//Ensure baseUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+	//Since we add cp to xdm_e, we had to ensure that there is a slash after the domain. Since if xdm_e is ok, cp can corrupt is such as cp = '.fakedomain.com' such that baseUrl is atlassian.net.fakedomain.com
+	if (/^https:\/\/([^\.])+\.jira\.com\//.test(baseUrl + '/') || /^https:\/\/([^\.])+\.atlassian\.net\//.test(baseUrl + '/')) 
+	{
+		return baseUrl;
+	}
+	throw 'Invalid baseUrl!';
+};
+
 // Sets global environment variables
 RESOURCE_BASE = '/resources/dia';
 STENCIL_PATH = '/stencils';
 SHAPES_PATH = '/shapes';
+IMAGE_PATH = '/images';
 
 // Overrides browser language with Confluence user language
 var lang = getUrlParam('loc');
@@ -60,8 +73,7 @@ if (lang != null)
 	mxStencilRegistry.dynamicLoading = true;
 
 	// Specifies connection mode for touch devices (at least one should be true)
-	var baseUrl = getUrlParam('xdm_e') + getUrlParam('cp');
-	var connectUrl = baseUrl + '/atlassian-connect';
+	var connectUrl = getBaseUrl() + '/atlassian-connect';
 	var head = document.getElementsByTagName('head')[0];
 	
 	var script = document.createElement('script');
@@ -113,7 +125,7 @@ if (lang != null)
 	    	
 	       	// LATER: Add fallback using diagramName lookup via attachment list
 			request({
-				url: '/secure/attachment/' + diagramId + '/' + encodeURIComponent(diagramName),
+				url: '/secure/attachment/' + diagramId + '/',
 				success: function(xml)
 				{
 		    		window.clearTimeout(timeoutThread);
@@ -186,7 +198,7 @@ if (lang != null)
 		mainBarrier();
 	};
 	
-	script.src = connectUrl + '/all.js';
+	script.src = 'https://connect-cdn.atl-paas.net/all.js';
 </script>
 
 </body>

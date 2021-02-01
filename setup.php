@@ -46,7 +46,16 @@ function plugin_init_archimap() {
    Plugin::registerClass('PluginArchimapProfile',
                          array('addtabon' => 'Profile'));
                          
-// Add other plugin associations
+   //if glpi is loaded
+   if (Session::getLoginUserID()) {
+
+      if (Session::haveRight("plugin_archimap", READ)
+          || Session::haveRight("config", UPDATE)) {
+         $PLUGIN_HOOKS['config_page']['archimap']        = 'front/config.php';
+      }
+   }
+
+   // Add other plugin associations
    if (class_exists('PluginWebapplicationsWebapplication')
 	   && class_exists('PluginArchiswSwcomponent'))
 		PluginArchiswSwcomponent::registerType('PluginWebapplicationsWebapplication');
@@ -56,7 +65,7 @@ function plugin_init_archimap() {
       $plugin = new Plugin();
       if (Session::haveRight("plugin_archimap", READ)) {
 
-         $PLUGIN_HOOKS['menu_toadd']['archimap'] = array('assets'   => 'PluginArchimapMenu');
+         $PLUGIN_HOOKS['menu_toadd']['archimap'] = array('assets'   => 'PluginArchimapMenu', "config" => 'PluginArchimapConfigMenu');
       }
 
       if (Session::haveRight("plugin_archimap", UPDATE)) {
@@ -80,7 +89,7 @@ function plugin_version_archimap() {
 
    return array (
       'name' => _n('Diagram', 'Diagrams', 2, 'archimap'),
-      'version' => '2.2.1',
+      'version' => '3.0.0',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=>'https://github.com/ericferon/glpi-archimap',

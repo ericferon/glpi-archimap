@@ -168,9 +168,142 @@ Toolbar.prototype.init = function()
 	}
 
 	this.addSeparator();
-
 	var insertMenu = this.addMenu('', mxResources.get('insert') + ' (' + mxResources.get('doubleClickTooltip') + ')', true, 'insert', null, true);
 	this.addDropDownArrow(insertMenu, 'geSprite-plus', 38, 48, -4, -3, 36, -8);
+	this.addTableDropDown();
+};
+
+/**
+ * Adds the toolbar elements.
+ */
+Toolbar.prototype.addTableDropDown = function()
+{
+	this.addSeparator();
+	
+	// KNOWN: All table stuff does not work with undo/redo
+	// KNOWN: Lost focus after click on submenu with text (not icon) in quirks and IE8. This is because the TD seems
+	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
+	var menuElt = this.addMenuFunction('geIcon geSprite geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
+	{
+		var graph = this.editorUi.editor.graph;
+		var cell = graph.getSelectionCell();
+
+		if (!graph.isTableCell(cell) && !graph.isTableRow(cell) && !graph.isTable(cell))
+		{
+			this.editorUi.menus.addInsertTableCellItem(menu);
+    	}
+		else
+    	{
+			var elt = menu.addItem('', null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					graph.insertTableColumn(cell, true);
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertcolumnbefore');
+			elt.setAttribute('title', mxResources.get('insertColumnBefore'));
+			
+			elt = menu.addItem('', null, mxUtils.bind(this, function()
+			{	
+				try
+				{
+					graph.insertTableColumn(cell, false);
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertcolumnafter');
+			elt.setAttribute('title', mxResources.get('insertColumnAfter'));
+
+			elt = menu.addItem('Delete column', null, mxUtils.bind(this, function()
+			{
+				if (cell != null)
+				{
+					try
+					{
+						graph.deleteTableColumn(cell);
+					}
+					catch (e)
+					{
+						this.editorUi.handleError(e);
+					}
+				}
+			}), null, 'geIcon geSprite geSprite-deletecolumn');
+			elt.setAttribute('title', mxResources.get('deleteColumn'));
+			
+			elt = menu.addItem('', null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					graph.insertTableRow(cell, true);
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertrowbefore');
+			elt.setAttribute('title', mxResources.get('insertRowBefore'));
+
+			elt = menu.addItem('', null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					graph.insertTableRow(cell, false);
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertrowafter');
+			elt.setAttribute('title', mxResources.get('insertRowAfter'));
+
+			elt = menu.addItem('', null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					graph.deleteTableRow(cell);
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-deleterow');
+			elt.setAttribute('title', mxResources.get('deleteRow'));
+    	}
+	}));
+	
+	menuElt.style.position = 'relative';
+	menuElt.style.whiteSpace = 'nowrap';
+	menuElt.style.overflow = 'hidden';
+	menuElt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
+	menuElt.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+
+	// Fix for item size in kennedy theme
+	if (EditorUi.compactUi)
+	{
+		menuElt.getElementsByTagName('img')[0].style.left = '22px';
+		menuElt.getElementsByTagName('img')[0].style.top = '5px';
+	}
+	
+	// Connects to insert menu enabled state
+	var menu = this.editorUi.menus.get('insert');
+	
+	// Workaround for possible not a function
+	// when extending HTML objects
+	if (menu != null && typeof menuElt.setEnabled === 'function')
+	{
+		menu.addListener('stateChanged', function()
+		{
+			menuElt.setEnabled(menu.enabled);
+		});
+	}
+	
+	return menuElt;
 };
 
 /**
@@ -291,21 +424,21 @@ Toolbar.prototype.createTextToolbar = function()
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
 	var alignMenu = this.addMenuFunction('', mxResources.get('align'), false, mxUtils.bind(this, function(menu)
 	{
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifyleft', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
 		}), null, 'geIcon geSprite geSprite-left');
 		elt.setAttribute('title', mxResources.get('left'));
 
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifycenter', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_CENTER, evt);
 		}), null, 'geIcon geSprite geSprite-center');
 		elt.setAttribute('title', mxResources.get('center'));
 
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifyright', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_RIGHT, evt);
 		}), null, 'geIcon geSprite geSprite-right');
 		elt.setAttribute('title', mxResources.get('right'));
 
@@ -408,7 +541,6 @@ Toolbar.prototype.createTextToolbar = function()
 	
 	this.addSeparator();
 	
-	// FIXME: Uses geButton here and geLabel in main menu
 	var insertMenu = this.addMenuFunction('', mxResources.get('insert'), true, mxUtils.bind(this, function(menu)
 	{
 		menu.addItem(mxResources.get('insertLink'), null, mxUtils.bind(this, function()
@@ -450,11 +582,32 @@ Toolbar.prototype.createTextToolbar = function()
 	var elt = this.addMenuFunction('geIcon geSprite geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
 	{
 		var elt = graph.getSelectedElement();
-		var cell = graph.getParentByName(elt, 'TD', graph.cellEditor.text2);
+		var cell = graph.getParentByNames(elt, ['TD', 'TH'], graph.cellEditor.text2);
 		var row = graph.getParentByName(elt, 'TR', graph.cellEditor.text2);
 
 		if (row == null)
     	{
+			function createTable(rows, cols)
+			{
+				var html = ['<table>'];
+				
+				for (var i = 0; i < rows; i++)
+				{
+					html.push('<tr>');
+					
+					for (var j = 0; j < cols; j++)
+					{
+						html.push('<td><br></td>');
+					}
+					
+					html.push('</tr>');
+				}
+				
+				html.push('</table>');
+				
+				return html.join('');
+			};
+			
 			this.editorUi.menus.addInsertTableItem(menu);
     	}
 		else
@@ -469,7 +622,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertcolumnbefore');
 			elt.setAttribute('title', mxResources.get('insertColumnBefore'));
@@ -482,7 +635,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertcolumnafter');
 			elt.setAttribute('title', mxResources.get('insertColumnAfter'));
@@ -497,7 +650,7 @@ Toolbar.prototype.createTextToolbar = function()
 					}
 					catch (e)
 					{
-						mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+						this.editorUi.handleError(e);
 					}
 				}
 			}), null, 'geIcon geSprite geSprite-deletecolumn');
@@ -511,7 +664,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertrowbefore');
 			elt.setAttribute('title', mxResources.get('insertRowBefore'));
@@ -524,7 +677,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertrowafter');
 			elt.setAttribute('title', mxResources.get('insertRowAfter'));
@@ -537,7 +690,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-deleterow');
 			elt.setAttribute('title', mxResources.get('deleteRow'));
@@ -655,7 +808,7 @@ Toolbar.prototype.hideMenu = function()
 /**
  * Adds a label to the toolbar.
  */
-Toolbar.prototype.addMenu = function(label, tooltip, showLabels, name, c, showAll)
+Toolbar.prototype.addMenu = function(label, tooltip, showLabels, name, c, showAll, ignoreState)
 {
 	var menu = this.editorUi.menus.get(name);
 	var elt = this.addMenuFunction(label, tooltip, showLabels, function()
@@ -663,11 +816,16 @@ Toolbar.prototype.addMenu = function(label, tooltip, showLabels, name, c, showAl
 		menu.funct.apply(menu, arguments);
 	}, c, showAll);
 	
-	menu.addListener('stateChanged', function()
+	// Workaround for possible not a function
+	// when extending HTML objects
+	if (!ignoreState && typeof elt.setEnabled === 'function')
 	{
-		elt.setEnabled(menu.enabled);
-	});
-
+		menu.addListener('stateChanged', function()
+		{
+			elt.setEnabled(menu.enabled);
+		});
+	}
+	
 	return elt;
 };
 
@@ -748,7 +906,9 @@ Toolbar.prototype.addItem = function(sprite, key, c, ignoreDisabled)
 		
 		elt = this.addButton(sprite, tooltip, action.funct, c);
 
-		if (!ignoreDisabled)
+		// Workaround for possible not a function
+		// when extending HTML objects
+		if (!ignoreDisabled && typeof elt.setEnabled === 'function')
 		{
 			elt.setEnabled(action.enabled);
 			
@@ -832,14 +992,12 @@ Toolbar.prototype.addClickHandler = function(elt, funct)
 			mxEvent.consume(evt);
 		});
 		
-		if (document.documentMode != null && document.documentMode >= 9)
-		{
-			// Prevents focus
-			mxEvent.addListener(elt, 'mousedown', function(evt)
-			{
-				evt.preventDefault();
-			});
-		}
+		// Prevents focus
+	    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
+    	{
+			evt.preventDefault();
+		}));
 	}
 };
 
@@ -849,7 +1007,6 @@ Toolbar.prototype.addClickHandler = function(elt, funct)
 Toolbar.prototype.createButton = function(classname)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geButton';
 
 	var inner = document.createElement('div');
@@ -870,7 +1027,6 @@ Toolbar.prototype.createButton = function(classname)
 Toolbar.prototype.createLabel = function(label, tooltip)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geLabel';
 	mxUtils.write(elt, label);
 	
@@ -927,16 +1083,12 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
 			mxEvent.consume(evt);
 		}));
 
-		// Hides menu if already showing
-		mxEvent.addListener(elt, 'mousedown', mxUtils.bind(this, function(evt)
+		// Hides menu if already showing and prevents focus
+        mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
 		{
 			show = this.currentElt != elt;
-			
-			// Prevents focus
-			if (document.documentMode != null && document.documentMode >= 9)
-			{
-				evt.preventDefault();
-			}
+			evt.preventDefault();
 		}));
 	}
 };

@@ -1,5 +1,13 @@
-// Renamed from ac.js. This is the version used for release 1.4.8-AC onwards
+// Sets base path for mxgraph library
+if (typeof window.mxBasePath === 'undefined')
+{
+	window.mxBasePath = '/mxgraph';
+}
 
+// Sets absolute path for proxy
+window.PROXY_URL = window.PROXY_URL || '/proxy';
+
+// Renamed from ac.js. This is the version used for release 1.4.8-AC onwards
 var AC = {};
 
 AC.autosaveTimeout = 10000;
@@ -7,14 +15,62 @@ AC.draftExtension = '.tmp';
 AC.draftPrefix = '~';
 AC.timeout = 25000;
 
-// If save should also exit. To disable this, multiple saveMacro calls
-// must be possible (not yet in production on 08-AUG-2017)
+//Allow saving multiple times
 AC.autoExit = true;
 
 // Last Checked on 08-AUG-2017: No delete scope needed to delete drafts
 // LATER: If delete scope is needed users must upgrade to the latest json
 // Disabled. Flag to mute notifications for drafts is needed. 16-AUG-2017
 AC.draftEnabled = true; //Enabled with the new save that mute notifications for saving TODO is there notification for deleting a draft?
+
+AC.customContentEditMode = false;
+
+AC.findMacrosRegEx = new RegExp('\\<ac\\:structured\\-macro[^\\>]+?(?=ac\\:name\\=)ac\\:name\\=\\"drawio\\".*?(?=\\<\\/ac\\:structured\\-macro\\>)', 'g');
+
+AC.VERSION = '1.4.8'; //TODO Get the version
+
+AC.logError = function(message, url, linenumber, colno, err, severity)
+{
+	try
+	{
+		if (message == AC.lastErrorMessage || (message != null && url != null &&
+			((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
+		{
+			// TODO log external domain script failure "Script error." is
+			// reported when the error occurs in a script that is hosted
+			// on a domain other than the domain of the current page
+		}
+		// DocumentClosedError seems to be an FF bug an can be ignored for now
+		else if (message != null && message.indexOf('DocumentClosedError') < 0)
+		{
+			AC.lastErrorMessage = message;
+			severity = ((severity != null) ? severity : (message.indexOf('NetworkError') >= 0 ||
+				message.indexOf('SecurityError') >= 0 || message.indexOf('NS_ERROR_FAILURE') >= 0 ||
+				message.indexOf('out of memory') >= 0) ? 'CONFIG' : 'SEVERE');
+			err = (err != null) ? err : new Error(message);
+			
+			var img = new Image();
+			img.src = 'https://log.draw.io/log?severity=' + severity + '&v=' + encodeURIComponent(AC.VERSION) +
+    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
+    			':lnum:' + encodeURIComponent(linenumber) + ((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
+    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+		}
+	}
+	catch (err)
+	{
+		// do nothing
+	}
+};
+
+(function() {
+	AC.macroParams = ["diagramName", "diagramDisplayName", "revision", "pageId", "contentId", "contentVer", "baseUrl", "width", "height", "tbstyle", "links", "simple", "lbox", "zoom", "hiResPreview", "inComment", "aspect", "custContentId", "pCenter"];
+	AC.findMacroParamRegEx = {};
+	
+	for (var i = 0; i < AC.macroParams.length; i++)
+	{
+		AC.findMacroParamRegEx[AC.macroParams[i]] = new RegExp('\\<ac\\:parameter\\s+ac\\:name\\=\\"'+ AC.macroParams[i] +'\\"\\s*\\>([^\\<]+)'); 
+	}
+})();
 
 AC.getUrlParam = function(param, escape, url){
     try{
@@ -33,7 +89,7 @@ AC.getSpaceKey = function(url)
     try{
         var url = url || window.location.href;
         var regex = new RegExp(/\/(spaces|space)\/([^\/]+)/);
-        return regex.exec(url)[2];
+        return decodeURIComponent(regex.exec(url)[2]);
     } catch (e){
         return undefined;
     }
@@ -42,6 +98,29 @@ AC.getSpaceKey = function(url)
 AC.getMetaTag = function(name) {
 	return document.getElementsByTagName('meta')[name].getAttribute('content');
 }
+
+AC.getBaseUrl = function()
+{
+	var baseUrl = AC.getUrlParam('xdm_e', true) + AC.getUrlParam('cp', true);
+	//Ensure baseUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+	//Since we add cp to xdm_e, we had to ensure that there is a slash after the domain. Since if xdm_e is ok, cp can corrupt is such as cp = '.fakedomain.com' such that baseUrl is atlassian.net.fakedomain.com
+	if (/^https:\/\/([^\.])+\.jira\.com\//.test(baseUrl + '/') || /^https:\/\/([^\.])+\.atlassian\.net\//.test(baseUrl + '/')) 
+	{
+		return baseUrl;
+	}
+	throw 'Invalid baseUrl!';
+};
+
+AC.getSiteUrl = function()
+{
+	var siteUrl = AC.getUrlParam('xdm_e', true);
+	//Ensure siteUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+	if (/^https:\/\/([^\.])+\.jira\.com$/.test(siteUrl) || /^https:\/\/([^\.])+\.atlassian\.net$/.test(siteUrl)) 
+	{
+		return siteUrl;
+	}
+	throw 'Invalid siteUrl!';
+};
 
 //Code from: https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
 AC.b64toBlob = function(b64Data, contentType, sliceSize, isByteCharacters) 
@@ -67,28 +146,111 @@ AC.b64toBlob = function(b64Data, contentType, sliceSize, isByteCharacters)
 
 	  var blob = new Blob(byteArrays, {type: contentType});
 	  return blob;
-  }
+};
 
-AC.initAsync = function(baseUrl)
+//We need language translation for error messages mainly which are not needed immediately
+AC.initI18nAsync = function(lang, callback)
 {
+	RESOURCE_BASE = '/resources/dia';
+	
+	//define mxResources such that it is available until code is loaded
+	mxResources = {
+		get: function(key, params, def)
+		{
+			return (def || '').replace('{1}', params? (params[0] || '') : ''); //Simple replacement which covers most cases 
+		}
+	};
+	
+	var script = document.createElement('script');
+	
+	script.onload = function()
+	{
+		mxResources.loadDefaultBundle = false;
+		var bundle = mxResources.getDefaultBundle(RESOURCE_BASE, lang) ||
+			mxResources.getSpecialBundle(RESOURCE_BASE, lang);
+		
+		mxUtils.getAll([bundle], function(xhr)
+		{
+			// Adds bundle text to resources
+			mxResources.parse(xhr[0].getText());
+			
+			if (callback) 
+			{
+				callback();
+			}
+		});
+	};
+	
+	script.src = '/js/viewer-static.min.js';
+	document.getElementsByTagName('head')[0].appendChild(script);
+};
+
+//AP.flag has a bug and stopped working, we'll use alert until it is fixed
+//		https://ecosystem.atlassian.net/browse/ACJS-1052
+AC.showNotification = function(notifConfig)
+{
+	AP.flag.create(notifConfig);
+	alert(notifConfig.title + ': ' + notifConfig.body);
+};
+
+AC.initAsync = function(baseUrl, contentId, initMacroData, config, lang)
+{
+	AC.customContentEditMode = contentId != null;
+	var contentVer = initMacroData != null? initMacroData.contentVer : null;
+	
 	var link = document.createElement('a');
 	link.href = location.href;
 	link.href = link.href; //to have 'host' populated under IE
 	var hostUrl = link.protocol + '//' + link.hostname;
-	var lang = AC.getUrlParam('loc', true);
-	var site = AC.getUrlParam('xdm_e', true);
-	var user = AC.getUrlParam('user_id', true);
-
+	var site = AC.getSiteUrl();
+	var user = null;
+	
+	AP.user.getCurrentUser(function(atlUser) 
+	{
+		user = atlUser.atlassianAccountId;
+	});
+		
 	if (lang != null)
 	{
-		var dash = lang.indexOf('-');
+		var dash = lang.indexOf('_');
 		
 		if (dash >= 0)
 		{
 			lang = lang.substring(0, dash);
 		}
+		
+		AC.initI18nAsync(lang);
 	}
-
+	
+	var ui = 'atlas';
+	var plugins = 'ac148;ac148cmnt';
+	
+	try
+	{
+		var configObj = (config != null) ? JSON.parse(config) : null;
+		
+		if (configObj != null)
+		{
+			// Adds support for ui theme
+			if (configObj.ui != null)
+			{
+				ui = configObj.ui;
+			}
+			
+			// Redirects plugins to p URL parameter
+			if (configObj.plugins != null)
+			{
+				plugins = plugins + ';' + configObj.plugins;
+			}
+			
+			AC.hiResPreview = configObj.hiResPreview || false;
+		}
+	}
+	catch (e)
+	{
+		console.log('Configuration error', e);
+	}
+	
 	var editor = document.createElement('iframe');
 	editor.setAttribute('width', '100%');
 	editor.setAttribute('height', '100%');
@@ -96,11 +258,11 @@ AC.initAsync = function(baseUrl)
 	editor.style.height = '100%';
 	editor.setAttribute('id', 'editorFrame');
 	editor.setAttribute('frameborder', '0');
-	//editor.setAttribute('src', 'https://9674265b.ngrok.io/?dev=1&drawdev=1&' +
+	//editor.setAttribute('src', hostUrl + '/?dev=1&' +
 	editor.setAttribute('src', hostUrl + '/?' +
-			'ui=atlas&p=ac&embed=1&modified=unsavedChanges' +
-			((!AC.autoExit) ? '&saveAndExit=1' : '') +
-			'&keepmodified=1&spin=1&libraries=1&proto=json' +
+			'ui=' + ui + '&p=' + plugins + '&embed=1&modified=unsavedChanges' +
+			((AC.autoExit) ? '&noSaveBtn=1' : '&saveAndExit=1') +
+			'&keepmodified=1&spin=1&libraries=1&confLib=1&proto=json' +
 		((lang != null) ? '&lang=' + lang : '') + ((site != null) ? '&site=' + encodeURIComponent(site) : '') +
 		((user != null) ? '&user=' + encodeURIComponent(user) : ''));
 
@@ -117,7 +279,7 @@ AC.initAsync = function(baseUrl)
 	var theLocation = null;
 	var attachments = null;
 
-	var serverName = document.referrer;
+	var serverName = AC.getSiteUrl();
 	var index1 = serverName.indexOf('//');
 
 	if (index1 > 0)
@@ -127,6 +289,10 @@ AC.initAsync = function(baseUrl)
 		if (index2 > index1)
 		{
 			serverName = serverName.substring(index1 + 2, index2);
+		}
+		else
+		{
+			serverName = serverName.substring(index1 + 2);
 		}
 	}
 	
@@ -154,7 +320,7 @@ AC.initAsync = function(baseUrl)
 			// Check if attachments contains draftName
 			for (var i = 0; i < attachments.length; i++)
 			{
-				var fn = attachments[i].fileName;
+				var fn = attachments[i].title;
 				
 				if (draftName == null && attachments[i].fileSize > 0 &&
 					fn.substring(0, prefix.length) === prefix &&
@@ -166,7 +332,7 @@ AC.initAsync = function(baseUrl)
 				
 				if (fn == draftName)
 				{
-					AP.require(['messages', 'confluence'], function (messages, confluence)
+					//keeping the block of AP.require to minimize the number of changes!
 					{
 						var acceptResponse = true;
 						var timeoutHandler = function()
@@ -176,13 +342,18 @@ AC.initAsync = function(baseUrl)
 							document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
 							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
 	
-							var message = messages.error('The connection has timed out', 'The server at ' +
-								serverName + ' is taking too long to respond.');
-						
-							messages.onClose(message, function()
-							{
-								confluence.closeMacroEditor();
-							});
+							AC.showNotification({
+								  title: mxResources.get('confTimeout'),
+								  body: mxResources.get('confSrvTakeTooLong', [serverName]),
+								  type: 'error',
+								  close: 'manual'
+								});
+
+							//TODO find how to listen to flag close event, currently just close the editor immediately
+//							messages.onClose(message, function()
+//							{
+				    			AP.dialog.close();
+//							});
 						};
 						
 						var timeoutThread = window.setTimeout(timeoutHandler, AC.timeout);
@@ -212,7 +383,7 @@ AC.initAsync = function(baseUrl)
 					    			startEditor();
 						    	}
 						});
-					});
+					};
 					
 					// Terminates function
 					return;
@@ -230,7 +401,30 @@ AC.initAsync = function(baseUrl)
 		{
 			var msg = JSON.parse(evt.data);
 			
-			if (msg.event == 'init')
+			if (msg.event == 'configure')
+			{
+				// Configure must be sent even if JSON invalid
+				var configObj = {compressXml: false};
+				
+				try
+				{
+					configObj = JSON.parse(config);
+
+					// Overrides default
+					if (configObj != null && configObj.compressXml == null)
+					{
+						configObj.compressXml = false;
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
+				
+				editor.contentWindow.postMessage(JSON.stringify({action: 'configure',
+					config: configObj}), '*');
+			}
+			else if (msg.event == 'init')
 			{
 				window.removeEventListener('message', initHandler);
 				document.body.style.backgroundImage = 'none';
@@ -242,196 +436,748 @@ AC.initAsync = function(baseUrl)
 
 	window.addEventListener('message', initHandler);
 
-	// Parallel loading for data and iframe
-	document.body.appendChild(editor);
-	
 	AP.getLocation(function(location) 
 	{
 		theLocation = location;
 		
-		AP.require(['messages', 'navigator', 'confluence', 'request'], function (messages, navigator, confluence, request)
-		{
-		    navigator.getLocation(function (data)
-		    {
-			    	if (data != null && data.target != null && data.context!= null &&
-			    		(data.target == 'contentedit' || data.target == 'contentcreate'))
-			    	{
-			    		draftPage = (data.target == 'contentcreate');
-			    		pageId = data.context.contentId;
-			    	}
-
-			    	if (pageId == null || isNaN(pageId))
+	    var infoReady = function(data, macroData_p)
+	    {
+	    	if (pageId == null || isNaN(pageId))
+    		{
+    			document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
+    			document.body.style.backgroundSize = 'auto auto';
+    			
+	    		if (data != null && data.target == 'contentcreate') 
+	    		{
+	    			AC.showNotification({
+						  title: mxResources.get('confCannotInsertNew'),
+						  body: mxResources.get('confSaveTry'),
+						  type: 'error',
+						  close: 'manual'
+						});
+	    		}
+	    		else 
+	    		{
+	    			AC.showNotification({
+						  title: mxResources.get('confCannotGetID'),
+						  body: mxResources.get('confContactAdmin'),
+						  type: 'error',
+						  close: 'manual'
+						});
+	    		}
+	    		
+	    		//TODO find how to listen to flag close event, currently just close the editor immediately
+//    			messages.onClose(message, function()
+//    			{
+	    			AP.dialog.close();
+//    			});
+    		}
+	    	else
+	    	{
+	    		// Workaround for blocked referrer policy in iframe
+	    		editor.setAttribute('src', editor.getAttribute('src') + '&base=' +
+	    			encodeURIComponent(baseUrl + '/pages/viewpage.action?pageId=' + pageId) +
+	    			//adding config here to be the last in the url
+	    			(config != null? '&configure=1' : ''));
+	    		document.body.appendChild(editor);
+	    		
+		    	// Not needed if drafts not enabled
+		    	if (AC.draftEnabled)
+		    	{
+		    		waitingForAttachments = true;
+		    		var acceptResponse2 = true;
+		    		var timeoutHandler2 = function()
 		    		{
-		    			document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
+		    			acceptResponse2 = false;
 		    			document.body.style.backgroundSize = 'auto auto';
-			    		editor.parentNode.removeChild(editor);
-		    			
-			    		var message;
-			    		
-			    		if (data != null && data.target == 'contentcreate') 
-			    		{
-			    			message = messages.error('Cannot insert draw.io diagram to a new Confluence page',
-			    				'Please save the page and try again.');
-			    		}
-			    		else 
-			    		{
-			    			message = messages.error('Unable to determine page ID',
-		    				'Please contact your Confluence administrator.');
-			    		}
-			    		
-			    		
-		    			messages.onClose(message, function()
-		    			{
-		    				confluence.closeMacroEditor();
-		    			});
-		    		}
-			    	else
-			    	{
-				    	// Not needed if drafts not enabled
-				    	if (AC.draftEnabled)
-				    	{
-				    		waitingForAttachments = true;
-				    		var acceptResponse2 = true;
-				    		var timeoutHandler2 = function()
-				    		{
-				    			acceptResponse2 = false;
-				    			document.body.style.backgroundSize = 'auto auto';
-				    			document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
-				    			editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+		    			document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
+		    			editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
 
-				    			var message = messages.error('The connection has timed out', 'The server at ' +
-				    				serverName + ' is taking too long to respond.');
-				    		
-				    			messages.onClose(message, function()
-				    			{
-				    				confluence.closeMacroEditor();
-				    			});
-				    		};
-				    		
-						var timeoutThread2 = window.setTimeout(timeoutHandler2, AC.timeout);
-						
-						request({
-							type: 'POST',
-							data: JSON.stringify([pageId]),
-							url: '/rpc/json-rpc/confluenceservice-v2/getAttachments',
-							contentType: 'application/json;charset=UTF-8',
-							success: function(res)
-							{
-						    		window.clearTimeout(timeoutThread2);
-						    		
-						    		if (acceptResponse2)
-							    	{
-									waitingForAttachments = false;
-						    			attachments = JSON.parse(res);
-						    			loadDraft();
-							    	}
-							},
-							error: function(res)
-							{
-						    		window.clearTimeout(timeoutThread2);
-						    		
-						    		if (acceptResponse2)
-							    	{
-									waitingForAttachments = false;
-						    			draftHandled = true;
-							    	}
-							}
-						});
+		    			AC.showNotification({
+							  title: mxResources.get('confTimeout'),
+							  body: mxResources.get('confSrvTakeTooLong', [serverName]),
+							  type: 'error',
+							  close: 'manual'
+							});
+		    		
+		    			//TODO find how to listen to flag close event, currently just close the editor immediately
+//		    			messages.onClose(message, function()
+//		    			{
+			    			AP.dialog.close();
+//		    			});
+		    		};
+		    		
+		    		var timeoutThread2 = window.setTimeout(timeoutHandler2, AC.timeout);
+				
+		    		//TODO do a search instead if possible
+		    		AC.getPageAttachments(pageId, function(atts) 
+    				{
+						window.clearTimeout(timeoutThread2);
+			    		
+			    		if (acceptResponse2)
+				    	{
+			    			waitingForAttachments = false;
+			    			attachments = atts;
+			    			loadDraft();
 				    	}
-			    	
-					var acceptResponse = true;	
-					var timeoutHandler = function()
+    				}, function(res)
 					{
-						acceptResponse = false;
-						document.body.style.backgroundSize = 'auto auto';
-						document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
-						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
-
-						var message = messages.error('The connection has timed out', 'The server at ' +
-							serverName + ' is taking too long to respond.');
-					
-						messages.onClose(message, function()
-						{
-							confluence.closeMacroEditor();
-						});
-					};
-					
-					var timeoutThread = window.setTimeout(timeoutHandler, AC.timeout);
-					
-				    	confluence.getMacroData(function (macroData) 
+			    		window.clearTimeout(timeoutThread2);
+			    		
+			    		if (acceptResponse2)
 				    	{
-				    		window.clearTimeout(timeoutThread);
-				    		
-				    		if (acceptResponse)
-					    	{
-					    		var name = (macroData != null) ? (macroData.diagramName || '') : null;
-			    				theMacroData = macroData;
-			    				
-					    		if (name != null && name.length > 0)
-					    		{
-					    			var revision = parseInt(macroData.revision);
-					    			var owningPageId = macroData.pageId;
-						    		draftName = (name != null) ? AC.draftPrefix + name + AC.draftExtension : null;
-						    		loadDraft();
-					    			
-					    			if (isNaN(revision))
-					    			{
-					    				revision = null;
-					    			}
-					    			
-								timeoutThread = window.setTimeout(timeoutHandler, AC.timeout);
+			    			waitingForAttachments = false;
+			    			draftHandled = true;
+				    	}
+					});
+		    	}
+	    	
+				var acceptResponse = true;	
+				var timeoutHandler = function()
+				{
+					acceptResponse = false;
+					document.body.style.backgroundSize = 'auto auto';
+					document.body.style.backgroundImage = 'url(/images/stop-flat-icon-80.png)';
+					editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+
+					AC.showNotification({
+						  title: mxResources.get('confTimeout'),
+						  body: mxResources.get('confSrvTakeTooLong', [serverName]),
+						  type: 'error',
+						  close: 'manual'
+						});
+				
+					//TODO find how to listen to flag close event, currently just close the editor immediately
+//						messages.onClose(message, function()
+//						{
+		    			AP.dialog.close();
+//						});
+				};
+				
+				var timeoutThread = window.setTimeout(timeoutHandler, AC.timeout);
 			
-					    			AC.loadDiagram(pageId, name, revision, function(loadResp)
+				AP.confluence.getMacroData(function (macroData) 
+		    	{
+		    		window.clearTimeout(timeoutThread);
+		    		
+		    		if (acceptResponse)
+			    	{
+			    		var name = null, revision, owningPageId;
+	    				
+	    				if (AC.customContentEditMode)
+    					{
+	    					name = macroData_p.diagramName;
+	    					revision = macroData_p.revision;
+	    					owningPageId = pageId;
+	    					
+	    					//fill the macro data
+	    					theMacroData = macroData_p;
+    					}
+	    				else if (macroData != null)
+    					{
+	    					theMacroData = macroData;
+	    					name = macroData.diagramName || '';
+	    					revision = parseInt(macroData.revision);
+	    					owningPageId  = macroData.pageId;
+    					}
+	    				
+	    				if (name != null && name.length > 0)
+			    		{
+				    		draftName = (name != null) ? AC.draftPrefix + name + AC.draftExtension : null;
+				    		loadDraft();
+			    			
+			    			if (isNaN(revision))
+			    			{
+			    				revision = null;
+			    			}
+			    			
+			    			timeoutThread = window.setTimeout(timeoutHandler, AC.timeout);
+	
+			    			AC.loadDiagram(pageId, name, revision, function(loadResp, curPageId, curDiagName)
+			    			{
+					    		window.clearTimeout(timeoutThread);
+					    		
+					    		if (acceptResponse)
+						    	{
+					    			//Get current diagram information which is needed for comments
+					    			AC.getAttachmentInfo(curPageId, curDiagName, function(info)
 					    			{
-							    		window.clearTimeout(timeoutThread);
-							    		
-							    		if (acceptResponse)
-								    	{
-						    				xmlReceived = loadResp;
-						    				filename = name;
-										//console.trace('DRAFT: Created', AC.draftPrefix + filename + AC.draftExtension);
-										startEditor();
-								    	}
-								}, 
-					    			function(resp) 
+					    				AC.curDiagVer = info.version.number;
+					    				AC.curDiagId = info.id;
+					    			}, function()
 					    			{
-							    		window.clearTimeout(timeoutThread);
-							    		
-							    		if (acceptResponse)
-								    	{
-						    				editor.parentNode.removeChild(editor);
-						    				var message = messages.error('Read Error', (resp.status == 404) ?
-						    					'File not found' : 'Error loading file');
-						    		
-						    				messages.onClose(message, function()
-						    				{
-						    					confluence.closeMacroEditor();
-						    				});
-								    	}
-					    			}, owningPageId, true);
-					    		}
-					    		else
-					    		{
-					    			filename = null;
-						    		xmlReceived = '';
-						    		loadDraft();
-					    		}
-					    	}
-				    	});
+					    				AC.curDiagId = false;
+					    			});
+					    			
+				    				xmlReceived = loadResp;
+				    				filename = name;
+									//console.trace('DRAFT: Created', AC.draftPrefix + filename + AC.draftExtension);
+									startEditor();
+						    	}
+			    			}, 
+			    			function(resp) 
+			    			{
+					    		window.clearTimeout(timeoutThread);
+					    		
+					    		if (acceptResponse)
+						    	{
+				    				editor.parentNode.removeChild(editor);
+				    				
+				    				AC.showNotification({
+										  title: mxResources.get('readErr'),
+										  body: (resp.status == 404) ?
+												  mxResources.get('fileNotFound') : mxResources.get('errorLoadingFile'),
+										  type: 'error',
+										  close: 'manual'
+										});
+				    		
+				    				//TODO find how to listen to flag close event, currently just close the editor immediately
+//				    				messages.onClose(message, function()
+//				    				{
+						    			AP.dialog.close();
+//				    				});
+						    	}
+			    			}, owningPageId, true);
+			    		}
+			    		else
+			    		{
+			    			filename = null;
+				    		xmlReceived = '';
+				    		loadDraft();
+			    		}
 			    	}
 		    	});
-		});
+	    	}
+	    };
+		
+	    var extEditingError = function()
+	    {
+	    	AC.showNotification({
+				  title: mxResources.get('editingErr'),
+				  body: mxResources.get('confExtEditNotPossible'),
+				  type: 'error',
+				  close: 'manual'
+				});
+	
+			AP.dialog.close({noBack: true});
+	    };
+	    
+		//keeping the block of AP.require to minimize the number of changes!
+		{
+		    AP.navigator.getLocation(function (data)
+		    {
+		    	AC.inComment = (data != null && data.context != null && data.context.contentType == 'comment');
+
+	    		if (AC.customContentEditMode) //we can also find the contentId in data.target == 'addonmodule' and data.context.context["content.id"][0]
+    			{
+	    			//load the custom content to get the page info
+	    			AP.request({
+                        type: 'GET',
+                        url: '/rest/api/content/' + contentId + '/?expand=body.storage,version' + (contentVer != null? ('&version=' + contentVer) : ''),
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function (resp) 
+                        {
+                            resp = JSON.parse(resp);
+                            
+                            var info = JSON.parse(decodeURIComponent(resp.body.storage.value));
+                            
+                            pageId = info.pageId;
+                            info.displayName = resp.title;
+                            info.contentVer = resp.version.number;
+                            
+                            //Out of sync custom content. This happen when a page is moved/copied
+                        	if (initMacroData != null && 
+                        			((initMacroData.pageId != null && initMacroData.pageId != pageId) 
+                					|| (initMacroData.diagramName != null && initMacroData.diagramName != info.diagramName)
+                					|| (initMacroData.diagramDisplayName != null && initMacroData.diagramDisplayName != info.displayName)
+                					|| (initMacroData.revision != null && initMacroData.revision != info.version)))
+                        	{
+                            	pageId = initMacroData.pageId; 
+                            	
+                            	info.createCustomContent = true;
+                        	}
+                            
+                            AC.findMacroInPage(pageId, info.diagramName, info.version, function(macroFound, originalBody, matchingMacros, page)
+                    		{
+                            	if (macroFound)
+                        		{
+                            		if (info.createCustomContent)
+                        			{
+                                     	info.diagramName = initMacroData.diagramName;
+                                    	info.displayName = initMacroData.diagramDisplayName;
+                                    	info.version = initMacroData.revision || 1; //using version one when null is received which is usually the case 
+               
+                            			//Create a new custom content and update the macro
+                            			var spaceKey = AC.getSpaceKey(page._expandable.space);
+            							var pageType = page.type;
+        
+            							AC.saveCustomContent(spaceKey, pageId, pageType, info.diagramName, info.displayName, info.version,
+            									null, null,
+            									function(responseText) 
+            									{
+            										var content = JSON.parse(responseText);
+            										
+            										contentId = content.id;
+            										info.contentVer = content.version? content.version.number : 1;
+            										contentVer = info.contentVer;
+            										
+            										AC.adjustMacroParametersDirect(pageId, 
+            												{pageId: pageId, revision: info.version, contentId: content.id, custContentId: content.id, contentVer: contentVer},
+            												originalBody, matchingMacros, page, function()
+    												{
+            											infoReady(null, matchingMacros[0].macroParams);
+    												}, extEditingError);
+            									}, extEditingError);
+                        			}
+                            		else
+                        			{
+                            			infoReady(null, matchingMacros[0].macroParams);
+                        			}
+                        		}
+                            	else //A published page that has a draft content containing the diagram OR the diagram is deleted from the page OR diagram is edited and page is old!
+                        		{
+                            		var directPageEdit = contentVer != null;
+                            		
+                            		if (directPageEdit)
+                        			{
+                            			//We added translation since sometimes resources doesn't load quickly for this error
+                            			AC.showNotification({
+	        							  title: mxResources.get('confEditedExt', null, 'Diagram/Page edited externally'),
+	          							  body: mxResources.get('confEditedExtRefresh', null, 'Diagram/Page is edited externally. Please refresh the page.'),
+	          							  type: 'error',
+	          							  close: 'manual'
+                            			});
+                            			AP.dialog.close({noBack: true, noBackOnClose: directPageEdit});                            			
+                        			}
+                            		else //If this is edit of a custom content, we allow editing since it can be a stranded diagram (only exists as an attachment and custom contents BUT not as a macro)
+                        			{
+                            			//We added translation since sometimes resources doesn't load quickly for this error
+                            			AC.showNotification({
+                            				title: mxResources.get('macroNotFound', null, 'Macro Not Found'),
+	  	          							body: mxResources.get('confEditDraftDelOrExt', null, 'This diagram is in a draft page, is deleted from the page, or is edited externally. ' + 
+	  	          										  'It will be saved as a new attachment version and may not be reflected in the page.'),
+	  	          							type: 'warning',
+	  	          							close: 'manual'
+                            			});
+                            			AC.strandedMode = true;
+                            			//Add required info that is usually found in the macro
+                            			info.contentId = contentId;
+                            			info.custContentId = contentId;
+                            			info.revision = info.version;
+                            			info.diagramDisplayName = info.displayName;
+                            			infoReady(null, info);
+                        			}
+                        		}
+                    		}, function() //On error, it means the page is a newly created draft that is not published
+                    		{
+                    			AC.showNotification({
+    							  title: mxResources.get('diagNotFound'),
+    							  body: mxResources.get('confDiagNotPublished'),
+    							  type: 'error',
+    							  close: 'manual',
+      							  actions: {
+    							    'actionkey': mxResources.get('retBack')
+    							  }
+    							});
+    	    		
+				    			AP.dialog.close({noBack: true});
+                    		});
+                        },
+                        error: extEditingError //We can create the custom content and fix this case but it adds more complexity to rare situation (e.g., a page is copied then the source page is deleted) 
+                    });
+    			}
+	    		else if (data != null && data.context != null
+			    		&& (data.target == 'contentedit' || data.target == 'contentcreate' || AC.inComment))
+	    		{
+		    		draftPage = (data.target == 'contentcreate');
+		    		pageId = data.context.contentId;
+		    		infoReady(data);
+		    	}
+	    		else
+    			{
+	    			infoReady();
+    			}
+		    });
+		};
 	});
+};
+
+
+AC.getPageAttachments = function(pageId, success, error)
+{
+	var attachments = [];
+
+	function getAttsChunk(start)
+	{
+		AP.request({
+			url: '/rest/api/content/' + pageId + '/child/attachment?limit=100&start=' + start,
+			type: 'GET',
+			contentType: 'application/json;charset=UTF-8',
+			success: function(resp) 
+			{
+				resp = JSON.parse(resp);				
+				Array.prototype.push.apply(attachments, resp.results);
+				
+				//Support paging
+				if (resp._links && resp._links.next) 
+				{
+					start += resp.limit; //Sometimes the limit is changed by the server
+					getAttsChunk(start);
+				}
+				else
+				{
+					success(attachments);
+				}
+			},
+			error : error
+		});
+	};
+	
+	getAttsChunk(0);	
+};
+
+AC.searchDiagrams = function(searchStr, success, error)
+{
+	//Note: we manually filter trashed diagrams as we couldn't make cqlcontext={"contentStatuses":["current"]} work
+	AP.request({
+		url: '/rest/api/content/search?cql=' + encodeURIComponent('type="ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram" and title ~ "*' + searchStr + '*"') + '&limit=50&expand=body.storage,version',  
+		success: function(resp) 
+		{
+			resp = JSON.parse(resp);
+			var retList = [];
+			var gliffyList = [];
+			var list = resp.results; 
+			var customContentMap = {};
+			if (list)
+			{
+				//Add items in the list and convert the list to map so we can search by name efficiently
+				for (var i = 0; i < list.length; i++)
+				{
+					if (list[i].status == 'trashed') continue;
+					
+					try 
+					{
+						var attInfo = JSON.parse(decodeURIComponent(list[i]["body"]["storage"]["value"]));
+						
+						customContentMap[attInfo.pageId + '|' + attInfo.diagramName] = true;
+						
+						retList.push({
+							title: list[i].title,
+							url: "/download/attachments/" + attInfo.pageId + "/"
+								+ encodeURIComponent(attInfo.diagramName)
+								+ '?version=' + attInfo.version,
+							info: {
+								id: list[i].id,
+								contentId: list[i].id,
+								custContentId: list[i].id,
+								contentVer: list[i].version.number,
+								pageId: attInfo.pageId,
+								version: attInfo.version,
+								name: attInfo.diagramName,
+								displayName: list[i].title
+							},
+							imgUrl: baseUrl + "/download/attachments/" + attInfo.pageId + "/"
+								+ encodeURIComponent(attInfo.diagramName)
+								+ ".png?api=v2&version=" + attInfo.version
+						});
+					}
+					catch(e)
+					{
+						//ignore, this should not happen!
+						console.log(e);
+					}
+				}
+			}
+			
+			//This request search for Gliffy files as well as to support old draw.io diagrams that have no associated draw.io custom contents
+			AP.request({
+				url: '/rest/api/content/search?cql=' + encodeURIComponent('type=attachment and (title ~ "*' + searchStr + '*" or title ~ "*' + searchStr + '*.png")') + '&limit=200&expand=metadata', //limit is 200 to get as much results as possible
+				success: function(resp) 
+				{
+					resp = JSON.parse(resp);
+					var list = resp.results; 
+					if (list)
+					{
+						var attMap = {};
+						//convert the list to map so we can search by name efficiently
+						for (var i = 0; i < list.length; i++)
+						{
+							if (list[i].status == 'trashed') continue;
+							
+							//key is pageId + | + att name
+							var pageId = list[i]["_links"]["webui"].match(/pages\/(\d+)/);
+							
+							if (pageId != null)
+							{
+								var key = pageId[1] + '|' + list[i].title;
+								
+								//exclude contents already found in the custom contents
+								if (!customContentMap[key])
+								{
+									attMap[key] = {att: list[i], pageId: pageId[1]};
+								}
+							}
+						}
+
+						function getAttObj(att, isImport, noImg)
+						{
+							var obj = {
+								title: att.att.title,
+								url: "/download/attachments/" + att.pageId + "/"
+									+ encodeURIComponent(att.att.title),
+								info: {
+									id: att.att.id, 
+									pageId: att.pageId,
+									name: att.att.title,
+									isImport: isImport
+								}
+							};
+							
+							if (noImg)
+							{
+								obj.noImg = true;
+							}
+							else
+							{
+								obj.imgUrl = baseUrl + '/download/attachments/' + att.pageId + '/'
+											+ encodeURIComponent(att.att.title)
+											+ '.png?api=v2';
+							}
+							
+							return obj;
+						};
+						
+						for (var key in attMap) 
+						{
+							var att = attMap[key];
+							var mimeType = att.att.metadata.mediaType;
+							
+							if (mimeType == 'application/gliffy+json')
+							{
+								gliffyList.push(getAttObj(att, true));
+							}
+							else if (mimeType == 'text/plain' && attMap[key+'.png']) //each draw.io attachment should have an associated png preview and mimeType is text/plain
+							{
+								//We cannot get the latest version info, it can be searched when a diagram is selected
+								retList.push(getAttObj(att));
+							}
+						}
+					}
+
+					success(retList, null, {"Gliffy": gliffyList});
+				},
+				error : error
+			});
+		},
+		error : error
+	});
+};
+
+AC.getRecentDiagrams = function(success, error)
+{
+	//I think it is safe now to base the recent documents on draw.io custom contents only since it is in production for long time now
+	AP.request({
+		url: '/rest/api/content/search?cql=type%3D%22ac%3Acom.mxgraph.confluence.plugins.diagramly%3Adrawio-diagram%22%20and%20lastmodified%20%3E%20startOfDay(%22-7d%22)&limit=50&expand=body.storage,version', // type="ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram" and lastmodified > startOfDay("-7d") //modified in the last 7 days
+		success: function(resp) 
+		{
+			resp = JSON.parse(resp);
+			var retList = [];
+			var list = resp.results; 
+			if (list)
+			{
+				//Add items in the list
+				for (var i = 0; i < list.length; i++)
+				{
+					try 
+					{
+						var attInfo = JSON.parse(decodeURIComponent(list[i]["body"]["storage"]["value"]));
+						
+						retList.push({
+							title: list[i].title,
+							url: "/download/attachments/" + attInfo.pageId + "/"
+								+ encodeURIComponent(attInfo.diagramName)
+								+ '?version=' + attInfo.version,
+							info: {
+								id: list[i].id,
+								contentId: list[i].id,
+								custContentId: list[i].id,
+								contentVer: list[i].version.number,
+								pageId: attInfo.pageId,
+								version: attInfo.version,
+								name: attInfo.diagramName,
+								displayName: list[i].title
+							},
+							imgUrl: baseUrl + "/download/attachments/" + attInfo.pageId + "/"
+								+ encodeURIComponent(attInfo.diagramName)
+								+ ".png?api=v2&version=" + attInfo.version
+						});
+					}
+					catch(e)
+					{
+						//ignore, this should not happen!
+						console.log(e);
+					}
+				}
+			}
+			
+			success(retList);
+		},
+		error : error
+	});
+};
+
+AC.getPageDrawioDiagrams = function(pageId, success, error)
+{
+	AP.request({
+        type: 'GET',
+        url: '/rest/api/content/' + pageId + '/child/ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram?limit=100&expand=body.storage,version',
+        contentType: 'application/json;charset=UTF-8',
+        success: function (resp) 
+        {
+        	resp = JSON.parse(resp);
+			var retList = [];
+			var list = resp.results; 
+			
+			if (list)
+			{
+				//Add items in the list
+				for (var i = 0; i < list.length; i++)
+				{
+					try 
+					{
+						var attInfo = JSON.parse(decodeURIComponent(list[i]["body"]["storage"]["value"]));
+						var diagramName = list[i].title.replace('.drawio', '');
+						
+						retList.push({
+							title: diagramName,
+							url: "/download/attachments/" + attInfo.pageId + "/"
+								+ encodeURIComponent(attInfo.diagramName)
+								+ '?version=' + attInfo.version,
+							info: {
+								id: list[i].id,
+								contentId: list[i].id,
+								custContentId: list[i].id,
+								contentVer: list[i].version.number,
+								pageId: attInfo.pageId,
+								version: attInfo.version,
+								name: attInfo.diagramName,
+								displayName: diagramName
+							},
+							imgUrl: baseUrl + "/download/attachments/" + attInfo.pageId + "/"
+								+ encodeURIComponent(attInfo.diagramName)
+								+ ".png?api=v2&version=" + attInfo.version
+						});
+					}
+					catch(e)
+					{
+						//ignore, this should not happen!
+						console.log(e);
+					}
+				}
+			}
+			
+			success(retList);
+        },
+        error: error
+	});
+};
+
+AC.getCustomTemplates = function(success, error)
+{
+	var customCats = {};
+	var customCatsCount = 0;
+	var customCatsDone = 0;
+	
+	function checkDone()
+	{
+		customCatsDone++;
+		
+		if (customCatsCount == customCatsDone)
+		{
+			success(customCats, customCatsDone);
+		}
+	}
+	
+	AP.request({
+        type: 'GET',
+        url: '/rest/api/content/search?cql=type%3Dpage%20and%20space%3DDRAWIOCONFIG%20and%20title%3DTemplates', //type=page and space=DRAWIOCONFIG and title=Templates.
+        contentType: 'application/json;charset=UTF-8',
+        success: function (resp) 
+        {
+            resp = JSON.parse(resp);
+            
+            if (resp.size == 1)
+           	{
+            	var tempPageId = resp.results[0].id;
+            	//load the configuration file
+        		AP.request({
+                    type: 'GET',
+        			url: '/rest/api/content/search?limit=50&cql=type%3Dpage%20and%20space%3DDRAWIOCONFIG%20and%20ancestor%3D' + tempPageId, //type=page and space=DRAWIOCONFIG and ancestor={tempPageId}. Limit 50 which is most probably more than enough
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (resp) 
+                    {
+                    	resp = JSON.parse(resp);
+                    	
+                    	if (resp.size > 0)
+                       	{
+                    		for (var i = 0; i < resp.results.length; i++)
+                    		{
+                    			var cat = resp.results[i];
+                    			customCats[cat.title] = [];
+                    			customCatsCount++;
+                    			
+                    			(function(cat2){
+                    				AC.getPageDrawioDiagrams(cat2.id, function(catList)
+                        			{
+                        				customCats[cat2.title] = catList;
+                        				checkDone();
+                        			}, checkDone); //On error, just ignore this page
+                    			})(cat);
+                    		}
+                       	}
+                    	else 
+                       	{
+                        	success({}, 0);
+                       	}
+        			},
+        			error: error
+        		});
+           	}
+            else 
+           	{
+            	success({}, 0);
+           	}
+		},
+		error: error
+	});	
 };
 
 AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, draftName, draftXml, macroData, draftPage)
 {
 	// Hides the logo
 	document.body.style.backgroundImage = 'none';
-	var user = AC.getUrlParam('user_id', true);
-	var draftExists = false;
+	var user = null;
 	
-	AP.require(['messages', 'confluence', 'request'], function(messages, confluence, request)
+	AP.user.getCurrentUser(function(atlUser) 
+	{
+		user = atlUser.atlassianAccountId;
+	});
+	
+	var draftExists = false;
+
+	var diagramDisplayName = diagramName, contentId = null, contentVer = null, lastMacroVer = null, revision = null;
+
+	if (macroData != null)
+	{
+		diagramDisplayName = macroData.diagramDisplayName || diagramName;
+		contentId = macroData.contentId || macroData.custContentId;
+		contentVer = macroData.contentVer;
+		lastMacroVer = macroData.revision;
+		AC.aspect = macroData.aspect;
+		AC.hiResPreview = macroData.hiResPreview != null? macroData.hiResPreview == '1' : AC.hiResPreview;
+	}
+		
+	//keeping the block of AP.require to minimize the number of changes!
 	{
 		var newPage = location.indexOf('createpage.action') > -1 ? true : false;
 		var diagramXml = null;
@@ -511,18 +1257,18 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							err(obj);
 						}
 					}
-				}, false, 'text/plain', 'Created by Draw.io', false, draftPage);
+				}, false, 'application/vnd.jgraph.mxfile', mxResources.get('createdByDraw'), false, draftPage);
 	   	};
 	   	
 		function showTemplateDialog()
 		{
 			if (AC.draftEnabled)
 			{
-				editor.contentWindow.postMessage(JSON.stringify({action: 'template', callback: true, enableRecent: true, enableSearch: true}), '*');
+				editor.contentWindow.postMessage(JSON.stringify({action: 'template', callback: true, enableRecent: true, enableSearch: true, enableCustomTemp: true}), '*');
 			}
 			else
 			{
-				editor.contentWindow.postMessage(JSON.stringify({action: 'template', enableRecent: true, enableSearch: true}), '*');
+				editor.contentWindow.postMessage(JSON.stringify({action: 'template', enableRecent: true, enableSearch: true, enableCustomTemp: true}), '*');
 			}
 		};
 		
@@ -543,64 +1289,51 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 		{
 			if (name == null || name.length == 0)
 			{
-				err(name, 'Filename too short');
+				err(name, mxResources.get('filenameShort'));
 			}
 			else if (/[&\*+=\\;/{}|\":<>\?~]/g.test(name))
 			{
-				err(name, 'Invalid characters \\ / | : { } < > & + ? = ; * " ~');
+				err(name, mxResources.get('invalidChars') + ' \\ / | : { } < > & + ? = ; * " ~');
 			}
 			else
 			{
-				request({
-					type: 'POST',
-					data: JSON.stringify([pageId]),
-					url: '/rpc/json-rpc/confluenceservice-v2/getAttachments',
-					contentType: 'application/json;charset=UTF-8',
-					success: function(res)
-					{
-						var attachments = JSON.parse(res);
-						
-						if (attachments.error != null)
-						{
-							err(name, attachments.error.message);
-						}
-						else
-						{
-							var draftPattern = new RegExp('^~drawio~.*~' + name.
-								replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") + '.tmp$', 'i');
-							var lc = name.toLowerCase();
-							var dn = AC.draftPrefix + lc + AC.draftExtension
-							var fileExists = false;
+				name = name.trim();
+	    		//TODO do a search instead if possible
+	    		AC.getPageAttachments(pageId, function(attachments) 
+				{
+	    			var draftPattern = new RegExp('^~drawio~.*~' + name.
+							replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") + '.tmp$', 'i');
+					var lc = name.toLowerCase();
+					var dn = AC.draftPrefix + lc + AC.draftExtension
+					var fileExists = false;
 
-							// Checks if any files will be overwritten
-							for (var i = 0; i < attachments.length && !fileExists; i++)
-							{
-								// To avoid name clash with new diagrams of other users,
-								// we need to check for ~drawio~.*~filename.tmp
-								var an = attachments[i].fileName.toLowerCase();
-
-								if (an == lc || an == lc + '.png' || (AC.draftEnabled &&
-									(an == dn || draftPattern.test(an))))
-								{
-									fileExists = true;
-								}
-							}
-							
-							if (fileExists)
-							{
-								err(name, null, 'fileExists');
-							}
-							else
-							{
-								fn(name);
-							}
-						}
-					},
-					error: function(res) 
+					// Checks if any files will be overwritten
+					for (var i = 0; i < attachments.length && !fileExists; i++)
 					{
-						// LATER: What error message to return here?
-						err(name, res);
+						// To avoid name clash with new diagrams of other users,
+						// we need to check for ~drawio~.*~filename.tmp
+						var an = attachments[i].title.toLowerCase();
+
+						if (an == lc || an == lc + '.png' || (AC.draftEnabled &&
+							(an == dn || draftPattern.test(an))))
+						{
+							fileExists = true;
+						}
 					}
+					
+					if (fileExists)
+					{
+						err(name, mxResources.get('alreadyExst', [name]));
+					}
+					else
+					{
+						fn(name);
+					}
+
+				}, function(res)
+				{
+					// TODO: What error message to return here?
+					err(name, res);
 				});
 			}
 		};
@@ -613,7 +1346,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 		if (initialXml != '')
 		{
 			editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-				autosave: 1, xml: initialXml, title: diagramName,
+				autosave: 1, xml: initialXml, title: diagramDisplayName,
 				macroData: macroData}), '*');
 		}
 
@@ -621,7 +1354,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 		{
 			// Keeps ignore option even for existing files
 			editor.contentWindow.postMessage(JSON.stringify({action: 'draft', xml: draftXml,
-				name: diagramName, discardKey: 'discardChanges', ignore: true}), '*');
+				name: diagramDisplayName, discardKey: 'discardChanges', ignore: true}), '*');
 		}
 		else if (initialXml == '')
 		{
@@ -641,12 +1374,19 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						//console.log('DRAFT: error', drawMsg);
 						
 						editor.parentNode.removeChild(editor);
-						var message = messages.error('Draft Read Error', drawMsg.error);
+						
+						AC.showNotification({
+							  title: mxResources.get('draftReadErr'),
+							  body: drawMsg.error,
+							  type: 'error',
+							  close: 'manual'
+							});
 	    		
-		    				messages.onClose(message, function()
-		    				{
-		    					confluence.closeMacroEditor();
-		    				});
+						//TODO find how to listen to flag close event, currently just close the editor immediately
+//		    				messages.onClose(message, function()
+//		    				{
+				    			AP.dialog.close();
+//		    				});
 					}
 					else if (drawMsg.result == 'edit')
 					{
@@ -654,19 +1394,26 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						//console.trace('DRAFT: Using', draftName);
 
 						editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-							autosave: 1, xml: drawMsg.message.xml, title: diagramName}), '*');
+							autosave: 1, xml: drawMsg.message.xml, title: diagramDisplayName}), '*');
 						editor.contentWindow.postMessage(JSON.stringify({action: 'status',
 							messageKey: 'unsavedChanges', modified: true}), '*');
 						draftExists = true;
 					}
 					else
 					{
+						if (drawMsg.result == 'discard')
+						{
+							//console.trace('DRAFT: Discarding', draftName);
+							
+							AC.removeAttachment(pageId, draftName);
+						}
+						
 						if (initialXml == '' || drawMsg.result == 'ignore')
 						{
 							if (initialXml != '')
 							{
 								editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-									autosave: 1, xml: initialXml, title: diagramName,
+									autosave: 1, xml: initialXml, title: diagramDisplayName,
 									macroData: macroData}), '*');
 							}
 							else
@@ -675,166 +1422,11 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 								showTemplateDialog();
 							}
 						}
-						else
-						{
-							//console.trace('DRAFT: Discarding', draftName);
-							
-							AC.removeAttachment(pageId, draftName);
-						}
 					}	
-				}
-				else if (drawMsg.event == 'searchDocs')
-				{
-					//since we don't use a unique file extension for draw.io diagrams, we need to find pages having draw.io macro also
-					//So, two search requests are needed
-					AP.require('request', function(request) {
-						request({
-							//TODO this query can be enhanced to get part of the name matching but the problem is with the png!
-							url: '/rest/api/content/search?cql=' + encodeURIComponent('type=attachment and (title ~ "' + drawMsg.searchStr + '" or title ~ "' + drawMsg.searchStr + '.png")') + '&limit=100', //limit is 100 and the pages limit is 50 since each diagram has two attachments (and we assume one diagram per page) 
-							success: function(resp) 
-							{
-								resp = JSON.parse(resp);
-								var retList = [];
-								var list = resp.results; 
-								if (list)
-								{
-									var attMap = {};
-									//convert the list to map so we can search by name effeciently
-									for (var i = 0; i < list.length; i++)
-									{
-										//key is pageId + | + att name
-										var pageId = list[i]["_links"]["webui"].match(/pages\/(\d+)/);
-										
-										if (pageId != null)
-										{
-											attMap[pageId[1] + '|' + list[i].title] = {att: list[i], pageId: pageId[1]};
-										}
-									}
-
-									//TODO confirm that the attachments are in a page having draw.io macro
-									for (var key in attMap) 
-									{
-										var att = attMap[key];
-										
-										if (attMap[key+'.png']) //each draw.io attachment should have an associated png preview
-										{
-											//We cannot get the latest version info, it can searched when a diagram is selected
-											retList.push({
-												title: att.att.title,
-												url: "/download/attachments/" + att.pageId + "/"
-													+ encodeURIComponent(att.att.title),
-												info: {
-													id: att.att.id, 
-													pageId: att.pageId 
-												},
-												imgUrl: baseUrl + "/download/attachments/" + att.pageId + "/"
-													+ encodeURIComponent(att.att.title)
-													+ ".png?api=v2"
-											});
-										}
-									}
-									editor.contentWindow.postMessage(JSON.stringify({action: 'searchDocsList',
-										list: retList}), '*');
-								}
-							},
-							error : function(resp) 
-							{
-								editor.contentWindow.postMessage(JSON.stringify({action: 'searchDocsList',
-									list: [], errorMsg: "Network Error!"}), '*');
-							}
-						});
-					});
-
-				}
-				else if (drawMsg.event == 'recentDocs')
-				{
-					//since we don't use a unique file extension for draw.io diagrams, we need to find pages having draw.io macro also
-					//So, two search requests are needed
-					AP.require('request', function(request) {
-						request({
-							url: '/rest/api/content/search?cql=type=attachment%20and%20lastmodified%3E%20startOfDay(%22-7d%22)&limit=100', //cql= type=attachment and lastmodified > startOfDay("-7d") //modified in the last 7 days
-																																		   //limit is 100 and the pages limit is 50 since each diagram has two attachments (and we assume one diagram per page) 
-							success: function(resp) 
-							{
-								resp = JSON.parse(resp);
-								var retList = [];
-								var list = resp.results; 
-								if (list)
-								{
-									var attMap = {};
-									//convert the list to map so we can search by name effeciently
-									for (var i = 0; i < list.length; i++)
-									{
-										//key is pageId + | + att name
-										var pageId = list[i]["_links"]["webui"].match(/pages\/(\d+)/);
-										
-										if (pageId != null)
-										{
-											attMap[pageId[1] + '|' + list[i].title] = {att: list[i], pageId: pageId[1]};
-										}
-									}
-
-									//confirm that the attachments are in a page having draw.io macro
-									request({
-										url: '/rest/api/content/search?cql=macro=drawio%20and%20lastmodified%3E%20startOfDay(%22-7d%22)&limit=50', //cql= macro=drawio and lastmodified > startOfDay("-7d") //modified in the last 7 days
-										success: function(resp) 
-										{
-											resp = JSON.parse(resp);
-											var pages = {};
-											var list = resp.results; 
-											if (list)
-											{
-												for (var i = 0; i < list.length; i++)
-												{
-													pages[list[i].id] = list[i];
-												}
-											}
-											
-											
-											for (var key in attMap) 
-											{
-												var att = attMap[key];
-												
-												if (attMap[key+'.png'] && pages[att.pageId] != null) //each draw.io attachment should have an associated png preview
-												{
-													//We cannot get the latest version info, it can searched when a diagram is selected
-													retList.push({
-														title: att.att.title,
-														url: "/download/attachments/" + att.pageId + "/"
-															+ encodeURIComponent(att.att.title),
-														info: {
-															id: att.att.id, 
-															pageId: att.pageId
-														},
-														imgUrl: baseUrl + "/download/attachments/" + att.pageId + "/"
-														+ encodeURIComponent(att.att.title)
-														+ ".png?api=v2"
-													});
-												}
-											}
-											editor.contentWindow.postMessage(JSON.stringify({action: 'recentDocsList',
-												list: retList}), '*');
-										},
-										error : function(resp) 
-										{
-											editor.contentWindow.postMessage(JSON.stringify({action: 'recentDocsList',
-												list: [], errorMsg: "Network Error!"}), '*');
-										}
-									});
-								}
-							},
-							error : function(resp) 
-							{
-								editor.contentWindow.postMessage(JSON.stringify({action: 'recentDocsList',
-									list: [], errorMsg: "Network Error!"}), '*');
-							}
-						});
-					});
-
-					
 				}
 				else if (drawMsg.event == 'template')
 				{
+					AC.curDiagId = false; //New diagram, so no diagram id
 					editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 						show: true, messageKey: 'inserting'}), '*');
 					
@@ -843,17 +1435,18 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						checkName(drawMsg.name, function(name)
 						{
 							diagramName = name;
+							diagramDisplayName = name;
 							
-							AP.require('request', function(request) {
-								
+							//keeping the block of AP.require to minimize the number of changes!
+							{
 								var loadTemplate = function(version)
 								{
-									request({
+									AP.request({
 										url: drawMsg.docUrl + (version != null? "?version=" + version : ""),
 										success: function(xml) 
 										{
 											editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-												autosave: 1, xml: xml, title: diagramName}), '*');
+												autosave: 1, xml: xml, title: diagramDisplayName}), '*');
 											editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 												show: false}), '*');
 										},
@@ -862,13 +1455,13 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 											editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 												show: false}), '*');
 											editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
-												titleKey: 'error', message: "Diagram cannot be loaded", messageKey: null,
+												titleKey: 'error', message: mxResources.get('diagCantLoad'), messageKey: null,
 												buttonKey: 'ok'}), '*');
 										}
 									});
 								}
 								
-								request({
+								AP.request({
 									url: '/rest/api/content/' + drawMsg.info.id,
 									success: function(resp) 
 									{
@@ -888,7 +1481,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 										loadTemplate();
 									}
 								});
-							});
+							};
 						},
 						function(name, err, errKey)
 						{
@@ -906,6 +1499,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 								show: false}), '*');
 							diagramName = name;
+							diagramDisplayName = name;
 	
 							if (AC.draftEnabled)
 							{
@@ -917,23 +1511,30 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 								{
 									editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
 									editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-										autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
+										autosave: 1, xml: drawMsg.xml, title: diagramDisplayName}), '*');
 								},
 								function()
 								{
 									editor.parentNode.removeChild(editor);
-									var message = messages.error('Draft Write Error', 'Draft could not be created');
+									
+									AC.showNotification({
+										  title: mxResources.get('draftWriteErr'),
+										  body: mxResources.get('draftCantCreate'),
+										  type: 'error',
+										  close: 'manual'
+										});
 				    		
-				    				messages.onClose(message, function()
-				    				{
-				    					confluence.closeMacroEditor();
-				    				});
+									//TODO find how to listen to flag close event, currently just close the editor immediately
+//				    				messages.onClose(message, function()
+//				    				{
+						    			AP.dialog.close();
+//				    				});
 								});
 							}
 							else
 							{
 								editor.contentWindow.postMessage(JSON.stringify({action: 'load',
-									autosave: 1, xml: drawMsg.xml, title: diagramName}), '*');
+									autosave: 1, xml: drawMsg.xml, title: diagramDisplayName}), '*');
 							}
 						},
 						function(name, err, errKey)
@@ -969,7 +1570,8 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 				{
 					removeDraft(function()
 					{
-						confluence.closeMacroEditor();
+			    		//revision is non-null if the diagram is saved
+		    			AP.dialog.close(revision? {newRev: revision, newContentVer: contentVer, newContentId: contentId, newAspect: AC.aspect} : null);
 					});
 				}
 				else if (drawMsg.event == 'save')
@@ -982,8 +1584,51 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 					}
 					else
 					{
-						editor.contentWindow.postMessage(JSON.stringify({action: 'export',
-							format: 'png', spinKey: 'saving', message: drawMsg}), '*');
+						var aspectObj = AC.getAspectObj();
+						
+						//Copy & Paste causes multiple diagrams in a page to have the same attachment name. Rename doesn't help as it only changes the display name (not the attachment name)
+						//So, prompt the use for a new attachment name
+						AP.request({
+							url: '/rest/api/content/' + pageId + '/?expand=body.storage,version&status=draft', //always request draft content which will match published content if no draft is found
+					        contentType: 'application/json;charset=UTF-8',
+					        success: function (resp) 
+					        {
+					        	var page = JSON.parse(resp);
+					    		
+								//find all macros and check if diagram name (attachment) is used more than once
+					    		var foundMacros = page.body.storage.value.match(AC.findMacrosRegEx);
+					    		matchingCount = 0;
+					    		
+					    		for (var i = 0; foundMacros != null && i < foundMacros.length; i++)
+								{
+					    			var macroDiagName = foundMacros[i].match(AC.findMacroParamRegEx["diagramName"]);
+					    			
+					    			if (macroDiagName != null && macroDiagName[1] == diagramName)
+									{
+					    				matchingCount++;
+									}
+								}
+								
+					    		if (matchingCount > 1)
+					    		{
+					    			promptName(diagramName, mxResources.get('confDuplName'));
+				    			}
+					    		else
+				    			{
+									editor.contentWindow.postMessage(JSON.stringify({action: 'export',
+										format: 'png', spinKey: 'saving', scale: AC.hiResPreview? 2 : 1, 
+										pageId: aspectObj.pageId, layerIds: aspectObj.layerIds, message: drawMsg}), '*');
+
+				    			}
+							},
+							error : function(resp) 
+							{
+								//We can safely ignore errors to avoid complicating loading diagram process
+								editor.contentWindow.postMessage(JSON.stringify({action: 'export',
+									format: 'png', spinKey: 'saving', scale: AC.hiResPreview? 2 : 1, 
+									pageId: aspectPageId, layerIds: aspectLayerIds, message: drawMsg}), '*');
+							}
+						});
 					}
 				}
 				else if (drawMsg.event == 'prompt')
@@ -993,11 +1638,17 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 
 					checkName(drawMsg.value, function(name)
 					{
+						var aspectObj = AC.getAspectObj();
+						
 						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 							show: false}), '*');
 						diagramName = name;
+						diagramDisplayName = name;
+						contentId = null;
+						contentVer = null;
 						editor.contentWindow.postMessage(JSON.stringify({action: 'export',
-							format: 'png', spinKey: 'saving'}), '*');
+							format: 'png', spinKey: 'saving', scale: AC.hiResPreview? 2 : 1,
+							pageId: aspectObj.pageId, layerIds: aspectObj.layerIds}), '*');
 					},
 					function(name, err, errKey)
 					{
@@ -1005,6 +1656,39 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							show: false}), '*');
 						promptName(name, err, errKey);
 					});
+				}
+				else if (drawMsg.event == 'rename')
+				{
+					//If diagram name is not set yet, use the new name for both file and diagram
+					//TODO should we disable renaming if diagramName is null?
+					if (diagramName == null) 
+					{
+						editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+							show: true}), '*');
+
+						checkName(drawMsg.name, function(name)
+						{
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							diagramName = name;
+							diagramDisplayName = name;
+						},
+						function(name, err, errKey)
+						{
+							editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
+								show: false}), '*');
+							editor.contentWindow.postMessage(JSON.stringify({action: 'dialog',
+								titleKey: 'error', message: err, messageKey: errKey,
+								buttonKey: 'ok'}), '*');
+						});	
+					}
+					else
+					{
+						diagramDisplayName = drawMsg.name;
+					}
+					
+					editor.contentWindow.postMessage(JSON.stringify({action: 'status',
+						messageKey: 'unsavedChanges', modified: true}), '*');
 				}
 				else if (drawMsg.event == 'export')
 				{
@@ -1043,8 +1727,21 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						else if (err.status == 401)
 						{
 							// Session expired
-							message = 'Looks like your session expired. Log in again to keep working. ' +
-								'<a href="' + baseUrl + '/pages/dashboard.action" target="_blank">Login</a>';
+							message = mxResources.get('confSessionExpired') +
+								' <a href="' + baseUrl + '/pages/dashboard.action" target="_blank">' + mxResources.get('login') + '</a>';
+						}
+						else if (err.status == 400)
+						{
+							try
+							{
+								var errObj = JSON.parse(err.responseText);
+								
+								if (errObj.message.indexOf('Content body cannot be converted to new editor') > 0)
+								{
+									message = 'A Confluence Bug (CONFCLOUD-69902) prevented saving the page. Please edit the diagram from "Confluence Page Editor" where you can restore you changes from "File -> Revision history".';
+								}	
+							}
+							catch(e){} //Ignore
 						}
 						
 						showError(key, message);
@@ -1053,8 +1750,9 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 					function successXml(responseText) 
 					{
 						var resp = null;
-						var revision = '1';
-
+						revision = '1';
+						
+						//TODO Why this code (Is it expected to have incorrect responseText?)
 						try
 						{
 							resp = JSON.parse(responseText);
@@ -1069,7 +1767,24 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 						//TODO Is prev comment still needed with REST API?
 						if (resp != null && resp.results != null && resp.results[0])
 						{
-							revision = resp.results[0].version.number;
+							var attObj = resp.results[0];
+							revision = attObj.version.number;
+							//Save/update the custom content
+							var spaceKey = AC.getSpaceKey(attObj._expandable.space);
+							var pageType = attObj.container.type;
+
+							AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, 
+									contentId, contentVer,
+									function(responseText) 
+									{
+										var content = JSON.parse(responseText);
+										
+										contentId = content.id;
+										contentVer = content.version? content.version.number : 1;
+										
+										AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
+												successPng, saveError, false, 'image/png', mxResources.get('drawPrev'), false, draftPage);
+									}, saveError, drawMsg.comments);
 						}
 						else
 						{
@@ -1080,44 +1795,104 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 								var message = 'Invalid Confluence Cloud response';
 						    		img.src = '/images/2x2.png?msg=' + encodeURIComponent(message) +
 					    				((responseText != null) ? '&resp=' + encodeURIComponent(responseText) : '&resp=[null]');
-						    			'&url=' + encodeURIComponent(window.location.href) +
-						    			'&v=' + encodeURIComponent(EditorUi.VERSION);
+						    			'&url=' + encodeURIComponent(window.location.href);
 							}
 							catch (err)
 							{
 								// do nothing
 							}
+							
+							//TODO Save png here in case responseText is incorrect (But why it can be incorrect?)
+							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
+									successPng, saveError, false, 'image/png', mxResources.get('drawPrev'), false, draftPage);
 						}
 
 						function successPng(pngResponseText) 
 						{
 							try
 							{
-								confluence.saveMacro(
-								{
+								// IMPORTANT: New macro parameters must be added to AC.macroParams to for adjustMacroParametersDirect to parse existing parameters correctly.
+								var newMacroData = {
 									diagramName: diagramName,
+									diagramDisplayName: diagramDisplayName,
 									revision: revision,
 									pageId: newPage ? null : pageId,
+									custContentId: contentId,
+									contentVer: contentVer,
 									baseUrl: baseUrl,
 									width: diaWidth,
 									height: diaHeight,
-									tbstyle: (drawMsg.macroData != null) ? drawMsg.macroData.tbstyle : '',
-									links: (drawMsg.macroData != null) ? drawMsg.macroData.links : '',
+									tbstyle: (drawMsg.macroData != null && drawMsg.macroData.tbstyle) ? drawMsg.macroData.tbstyle : '',
+									links: (drawMsg.macroData != null && drawMsg.macroData.links) ? drawMsg.macroData.links : '',
+									simple: (drawMsg.macroData != null && drawMsg.macroData.simple != null) ? drawMsg.macroData.simple : '0',
 									lbox: (drawMsg.macroData != null && drawMsg.macroData.lbox != null) ? drawMsg.macroData.lbox : '1',
-									zoom: (drawMsg.macroData != null && drawMsg.macroData.zoom != null) ? drawMsg.macroData.zoom : '1'
-								});
-								
-								if (AC.autoExit || drawMsg.message == null || drawMsg.message.message == null || drawMsg.message.message.exit)
+									zoom: (drawMsg.macroData != null && drawMsg.macroData.zoom != null) ? drawMsg.macroData.zoom : '1',
+									pCenter: (drawMsg.macroData != null && drawMsg.macroData.pCenter != null) ? drawMsg.macroData.pCenter : '0',
+									aspect:	AC.aspect,
+									inComment: AC.inComment? '1' : '0'
+								};
+
+								//Set the hiResPreview only if the user set it in the UI which overrides the global settings
+								if (drawMsg.macroData != null && drawMsg.macroData.hiResPreview != null)
 								{
-									removeDraft(function()
+									newMacroData.hiResPreview = drawMsg.macroData.hiResPreview;									
+								}
+									
+								var finalizeSaving = function()
+								{
+									if (AC.autoExit || drawMsg.message == null || drawMsg.message.message == null || drawMsg.message.message.exit)
 									{
-										confluence.closeMacroEditor();
-									});
+										var savingCallback = function()
+										{
+											removeDraft(function()
+											{
+								    			AP.dialog.close({newRev: revision, newContentVer: contentVer, newContentId: contentId, newAspect: AC.aspect});
+											});
+										};
+										
+										//Save indexing text
+										//Exit is done when the response is received!
+										//This is needed for advanced search by draw.io diagrams type
+										AC.remoteInvoke('getDiagramTextContent', null, null, function(textContent)
+										{
+											AC.saveContentSearchBody(contentId, diagramDisplayName + ' ' + textContent,
+													savingCallback, savingCallback);	//ignore error and just exit
+										}, savingCallback);
+									}
+									else
+									{
+										editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
+										editor.contentWindow.postMessage(JSON.stringify({action: 'status', message: '', modified: false}), '*');
+									}
+								};
+
+								if (AC.customContentEditMode)
+								{
+									//load the page to edit the macro
+									AC.findMacroInPage(pageId, diagramName, lastMacroVer, function(macroFound, originalBody, matchingMacros, page)
+									{
+										if (macroFound)
+										{
+											AC.adjustMacroParametersDirect(pageId, newMacroData, originalBody, matchingMacros, page, finalizeSaving, saveError);
+											lastMacroVer = revision; //for next save
+										}
+										else //macro is not found in the page content, so just continue with saving instead of showing an error and losing users modifications
+										{
+											//Using alert here to pause execution as some execution flows go back and Confluence error messages will be lost
+											//In strandedMode, we already warned the user at the beginning
+											if (!AC.strandedMode)
+											{
+												alert(mxResources.get('confDiagEditedExt'));
+											}
+											
+											finalizeSaving();
+										}
+									}, saveError);
 								}
 								else
 								{
-									editor.contentWindow.postMessage(JSON.stringify({action: 'spinner', show: false}), '*');
-									editor.contentWindow.postMessage(JSON.stringify({action: 'status', message: '', modified: false}), '*');
+									AP.confluence.saveMacro(newMacroData);
+									finalizeSaving();
 								}
 							}
 							catch (e)
@@ -1127,12 +1902,6 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 									titleKey: 'errorSavingFile', message: e.message, buttonKey: 'ok'}), '*');
 							}
 						};
-
-						if (diagramName != null) 
-						{
-							AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, 'image/png'),
-								successPng, saveError, false, 'image/png', 'draw.io preview', false, draftPage);
-						}
 					};
 
 					if (diagramName != null) 
@@ -1141,41 +1910,71 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							show: true, messageKey: 'saving'}), '*');
 						
 						AC.saveDiagram(pageId, diagramName, diagramXml,
-							successXml, saveError, false, 'text/plain', 'draw.io diagram', false, draftPage);
+							successXml, saveError, false, 'application/vnd.jgraph.mxfile', mxResources.get('drawDiag'), false, draftPage);
 					}
+				}
+				else if (drawMsg.event == 'remoteInvoke')
+				{
+					AC.handleRemoteInvoke(drawMsg);
+				}
+				else if (drawMsg.event == 'remoteInvokeResponse')
+				{
+					AC.handleRemoteInvokeResponse(drawMsg);
 				}
 			}
 		};
 
 		window.addEventListener('message', messageListener);
-	});
+		editor.contentWindow.postMessage(JSON.stringify({action: 'remoteInvokeReady'}), '*');
+		AC.remoteWin = editor.contentWindow;
+	};
 };
 
-AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1) {
+AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1, dontCheckVer) 
+{
+	var curDiagName = diagramName;
+	var curPageId = pageId;
 	// TODO: Get binary
 	
-	AP.require('request', function(request) {
-		request({
+	//keeping the block of AP.require to minimize the number of changes!
+	{
+		var localSuccess = function(resp)
+		{
+			success(resp, curPageId, curDiagName);
+		}
+		
+		AP.request({
 			//TODO find out the ID of the page that actually holds the attachments because historical revisions do not have attachments
 			url: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName) +
 				((revision != null) ? '?version=' + revision : ''),
-			success: success,
+			success: localSuccess,
 			error : function(resp) 
 			{
 				//When a page is copied, attachments are reset to version 1 while the revision parameter remains the same
 				if (tryRev1 && revision > 1 && resp.status == 404)
 				{
-					request({
+					AP.request({
 						url: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName),
-						success: success,
+						success: localSuccess,
 						error : function(resp) { //If revesion 1 failed, then try the owningPageId
 							if (owningPageId && resp.status == 404)
 							{
-								request({
+								curPageId = owningPageId;
+								AP.request({
 									url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName)
 										+'?version=' + revision, //this version should exists in the original owning page
-									success: success,
-									error : error
+									success: localSuccess,
+									error : function(resp)
+									{
+										if (/(^\s|\s$)/.test(diagramName))
+										{
+											AC.loadDiagram(pageId, diagramName.trim(), revision, success, error, owningPageId, tryRev1, dontCheckVer);
+										}
+										else
+										{
+											error(resp);
+										}
+									}
 								});
 							}
 						}
@@ -1183,10 +1982,21 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 				}
 				else if (owningPageId && resp.status == 404) //We are at revesion 1, so try the owningPageId directly
 				{
-					request({
+					curPageId = owningPageId;
+					AP.request({
 						url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName),
-						success: success,
-						error : error
+						success: localSuccess,
+						error : function(resp)
+						{
+							if (/(^\s|\s$)/.test(diagramName))
+							{
+								AC.loadDiagram(pageId, diagramName.trim(), revision, success, error, owningPageId, tryRev1, dontCheckVer);
+							}
+							else
+							{
+								error(resp);
+							}
+						}
 					});
 				}
 				else
@@ -1195,11 +2005,125 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 				}
 			}
 		});
-	});
+	};
 };
 
-AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revision, contentId, contentVer, success, error)
+AC.findMacroInPage = function(pageId, diagramName, lastMacroVer, success, error, draftPage)
 {
+	//load the page to edit the macro
+	AP.request({
+        type: 'GET',
+        url: '/rest/api/content/' + pageId + '/?expand=body.storage,version' + (draftPage ? "&status=draft" : ""),
+        contentType: 'application/json;charset=UTF-8',
+        success: function (resp) 
+        {
+        	var page = JSON.parse(resp);
+    		
+    		var originalBody = page.body.storage.value;
+    		
+    		var foundMacros = originalBody.match(AC.findMacrosRegEx);
+
+    		var macroFound = false;
+    		var matchingMacros = [];
+    		
+    		for (var i = 0; foundMacros != null && i < foundMacros.length; i++)
+			{
+    			var macroDiagName = foundMacros[i].match(AC.findMacroParamRegEx["diagramName"]);
+    			var macroRevision = foundMacros[i].match(AC.findMacroParamRegEx["revision"]);
+    			
+    			if (macroDiagName != null && macroRevision != null && macroDiagName[1] == diagramName && (macroRevision[1] == lastMacroVer || lastMacroVer == false))
+				{
+    				var macroParams = {};
+    				
+    				for (var j = 0; j < AC.macroParams.length; j++)
+					{
+    					var param = AC.macroParams[j];
+    					var val = foundMacros[i].match(AC.findMacroParamRegEx[param]);
+    					
+    					if (val != null)
+    						macroParams[param] = val[1];
+					}
+    				
+    				matchingMacros.push({macro: foundMacros[i], macroParams: macroParams});
+    				macroFound = true;
+				}
+			}
+    		
+    		success(macroFound, originalBody, matchingMacros, page);
+        },
+        error: error
+    });
+};
+
+//FIXME Confluence adjust macros in draft such that there is no way to adjust the content of drafts currently! So, drafts code is removed
+AC.adjustMacroParametersDirect = function(pageId, macroData, originalBody, matchingMacros, page, success, error)
+{
+	for (var i = 0; i < matchingMacros.length; i++)
+	{
+		var modMacro = matchingMacros[i].macro;
+
+		for (var param in macroData) 
+		{
+			var pRegEx = AC.findMacroParamRegEx[param];
+			
+			//This to avoid errors if a new parameter/key is added to the macro and is not in the macro regexps
+			if (pRegEx == null) continue;
+			
+			var newParamVal = '<ac:parameter ac:name="'+ param +'">' + macroData[param];
+			
+			//If parameter exists, change it. Otherwise, add it
+			if (modMacro.match(pRegEx))
+			{
+				modMacro = modMacro.replace(pRegEx, newParamVal);
+			}
+			else
+			{
+				modMacro += newParamVal + "</ac:parameter>";
+			}
+		}
+		
+		originalBody = originalBody.replace(matchingMacros[i].macro, modMacro);
+	}
+	
+	page.body.storage.value = originalBody;
+    page.version.number++;
+
+	AP.request({
+           type: 'PUT',
+           data: JSON.stringify(page),
+           url:  "/rest/api/content/" + pageId,
+           contentType: "application/json",
+           success: success,
+           error: error
+       });
+};
+
+AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, comments, reportAllErr)
+{
+	//Make sure comments are not lost
+	if (comments == null)
+	{
+		AC.getOldComments(contentId, function(comments)
+		{
+			AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, comments, reportAllErr);
+		}, 
+		//On error, whether the custom content is deleted or corrupted. It is better to proceed with saving and losing the comments than losing the diagram
+		function()
+		{
+			AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, [], reportAllErr);
+		});
+		
+		return;
+	}
+	
+	var info = {
+	    "pageId": pageId,
+	    "diagramName": diagramName,
+	    "version": revision,
+	    "inComment": AC.inComment,
+	    "comments": comments || []
+	};
+	
     var customObj = {
         "type": "ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram",
         "space": {
@@ -1209,14 +2133,10 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
                "type": pageType,
                "id": pageId
             },
-         "title": diagramName,
+         "title": diagramDisplayName,
          "body": {
            "storage": {
-             "value": encodeURIComponent(JSON.stringify({
-                 "pageId": pageId,
-                 "diagramName": diagramName,
-                 "version": revision
-               })),
+             "value": encodeURIComponent(JSON.stringify(info)),
              "representation": "storage"
            }
          },
@@ -1230,22 +2150,43 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
         };
     }
     
-    AP.require(['request'], function(request) 
+	//keeping the block of AP.require to minimize the number of changes!
     {
-       request({
+       AP.request({
            type: contentId? 'PUT' : 'POST',
            data: JSON.stringify(customObj),
            url:  "/rest/api/content/" + (contentId? contentId : ""),
            contentType: "application/json",
            success: success,
-           error: function(resp) {
+           error: function(resp) 
+           {
+        	   if (reportAllErr)
+    		   {
+        		   error(resp);
+        		   return;
+    		   }
+        	   
                //User can delete a custom content externally and we will get error 403 and message will contain the given id
                //Then save a new one
                var err = JSON.parse(resp.responseText);
                
-               if (contentId && err.statusCode == 403 && err.message.indexOf(contentId) > 0)
+               //Sometimes the macro is not updated such that the version is not correct. The same happens when a page version is restored
+               if (err.statusCode == 409 && err.message.indexOf("Current version is:") > 0)
+        	   {
+            	   //We will use the error message to detect the correct version instead of doing another request. 
+            	   //It should be safe as long as error messages are not translated or changed
+            	   var curContentVer = err.message.match(/\d+/);
+            	   
+            	   if (curContentVer != null)
+        		   {
+            		   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, curContentVer[0], success, error, comments);
+        		   }
+        	   }
+               //Sometimes, when a page is copied or site is cloned, custom contents are lost, so create a new one
+               //For example, error 400: When a page is moved to another space, an error occur since the original  custom content belong to another space/page
+               else if (contentId != null)
                {
-                   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, revision, null, null, success, error);
+                   AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, null, null, success, error, comments);
                }
                else
                {
@@ -1253,16 +2194,43 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, revisio
                }
            }
        });
-    });
+    };
 };
 
+AC.saveContentSearchBody = function(contentId, searchBody, success, error)
+{
+	var doSaveSearchBody = function(version)
+	{
+		AC.setContentProperty(contentId, 'ac:custom-content:search-body', searchBody, version, success, error);
+	};
+	
+	
+	AC.getContentProperty(contentId, 'ac:custom-content:search-body', function(resp)
+    {
+		resp = JSON.parse(resp);
+      
+		doSaveSearchBody(resp.version.number);
+    },
+    function(resp)
+    {
+    	var err = JSON.parse(resp.responseText);
+	  
+    	//if not found, create one
+		if (err.statusCode == 404)
+		{
+			doSaveSearchBody();
+		}
+		else
+			error();
+    });
+};
 
 //TODO We can upload both the diagram and its png in one call if needed?
 AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mime, comment, sendNotif, draftPage) 
 {
 	loadSucess = function(resp) 
 	{
-		error({status: 409, message: 'File already exists'});
+		error({status: 409, message: mxResources.get('fileExists')});
 	};
 	
 	loadError = function(resp)
@@ -1296,12 +2264,12 @@ AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mim
 	
 	doSave = function() 
 	{
-		AP.require(['request'], function(request) 
+		//keeping the block of AP.require to minimize the number of changes!
 		{
 			 var attFile = (xml instanceof Blob)? xml : new Blob([xml], {type: mime});
 			 attFile.name = diagramName;
 			 
-			 var reqData = {file: attFile, minorEdit: sendNotif? false : true};
+			 var reqData = {file: attFile, minorEdit: !sendNotif};
 			 var draft = draftPage ? "?status=draft" : "";
 
 			 if (comment != null)
@@ -1309,7 +2277,7 @@ AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mim
 				 reqData.comment = comment;
 			 }
 			 
-			 request({
+			 AP.request({
 				type: 'PUT',
 				data: reqData,
 				url:  "/rest/api/content/"+ pageId +"/child/attachment" + draft,
@@ -1317,10 +2285,10 @@ AC.saveDiagram = function(pageId, diagramName, xml, success, error, newSave, mim
 				success: sessionCheck,
 				error: error
 			 });
-		});
+		};
 	};
 	
-	if(newSave && mime == 'text/plain') 
+	if(newSave && mime == 'application/vnd.jgraph.mxfile')
 	{
 		this.loadDiagram(pageId, diagramName, 0, loadSucess, loadError);
 	}
@@ -1334,33 +2302,43 @@ AC.removeAttachment = function(pageId, filename, fn, err)
 {
 	if (pageId != null && filename != null)
 	{
-		AP.require('request', function(request) {
-			request({
-				type: 'POST',
-				data: JSON.stringify([pageId, filename]),
-				url: '/rpc/json-rpc/confluenceservice-v2/removeAttachment',
-				contentType: 'application/json;charset=UTF-8',
-				success: function()
-				{
-					if (fn != null)
+		var errFn = function()
+		{
+			if (err != null)
+			{
+				err();
+			}
+			
+			if (fn != null)
+			{
+				fn();
+			}
+		};
+		
+		 //Empty the draft file without deleting it to prevent email notifications 
+		 var attFile = new Blob(['']);
+		 attFile.name = filename;
+		 
+		 var reqData = {
+			 file: attFile, 
+			 minorEdit: true,
+			 comment: 'draw.io draft (D)'
+		 };
+		 
+		 AP.request({
+				type: 'PUT',
+				data: reqData,
+				url:  "/rest/api/content/"+ pageId +"/child/attachment",
+				contentType: "multipart/form-data",
+				success: function () 
+	            {
+	            	if (fn != null)
 					{
 						fn();
 					}
 				},
-				error: function()
-				{
-					if (err != null)
-					{
-						err();
-					}
-					
-					if (fn != null)
-					{
-						fn();
-					}
-				}
-			});
-		});
+				error: errFn
+		 });
 	}
 	else
 	{
@@ -1368,10 +2346,9 @@ AC.removeAttachment = function(pageId, filename, fn, err)
 	}
 };
 
-AC.getMacroData = function(fn) {
-	AP.require('confluence', function(confluence) {
-		confluence.getMacroData(fn);
-	});
+AC.getMacroData = function(fn) 
+{
+	AP.confluence.getMacroData(fn);
 }
 
 //From mxUtils
@@ -1393,21 +2370,1108 @@ AC.htmlEntities = function(s, newline)
 	return s;
 };
 
-AC.fromHtmlEntities = function(s, newline)
+AC.fromHtmlEntities = function(str)
 {
-	s = String(s || '');
-	
-	s = s.replace(/&amp;/g,'&'); // 38 26
-	s = s.replace(/&quot;/g,'"'); // 34 22
-	s = s.replace(/&#39;/g,'\\'); // 39 27
-	s = s.replace(/&lt;/g,'<'); // 60 3C
-	s = s.replace(/&gt;/g,'>'); // 62 3E
-
-	if (newline == null || newline)
-	{
-		s = s.replace(/&#xa;/g, '\n');
-	}
-	
-	return s;
+    var doc = new DOMParser().parseFromString(str || '', "text/html");
+    return doc.documentElement.textContent;
 };
 
+AC.getCustomLibraries = function(callback, error)
+{
+    var ret = [];
+
+    function getChunk(url)
+    {
+    	AP.request({
+            type: 'GET',
+			url: url,
+            contentType: 'application/json;charset=UTF-8',
+            success: function (resp) 
+            {
+            	resp = JSON.parse(resp);
+            	
+               	for (var i = 0; i < resp.results.length; i++)
+           		{
+               		var obj = resp.results[i];
+               		ret.push({
+               			id: obj.id, 
+               			title: obj.title, 
+               			downloadUrl: obj._links? obj._links.download : null
+               		});
+           		}
+               	
+               	//Support pageing
+				if (resp._links && resp._links.next) 
+				{
+					getChunk(resp._links.next);
+				}
+				else
+				{
+					callback(ret);
+				}
+			},
+			error: error
+		});
+    };
+    
+	AP.request({
+        type: 'GET',
+        url: '/rest/api/content/search?cql=type%3Dpage%20and%20space%3DDRAWIOCONFIG%20and%20title%3DLibraries', //type=page and space=DRAWIOCONFIG and title=Libraries. Search doesn't return 404 if not found
+        contentType: 'application/json;charset=UTF-8',
+        success: function (resp) 
+        {
+            resp = JSON.parse(resp);
+            
+            if (resp.size == 1)
+           	{
+            	var libsPageId = resp.results[0].id;
+
+            	getChunk('/rest/api/content/' + libsPageId + '/child/attachment?limit=100');
+           	}
+            else
+            {
+            	callback(ret);            	
+            }
+		},
+		error: error
+	});	
+};
+
+AC.getFileContent = function(url, callback, error)
+{
+	AP.request({
+        type: 'GET',
+		url: url,
+        contentType: 'text/xml;charset=UTF-8',
+        success: function (fileContent) 
+        {
+        	callback(fileContent); 
+		},
+		error: error
+	});
+};
+
+AC.getCurrentUser = function(callback, error)
+{
+	var baseUrl = AC.getBaseUrl();
+	
+	AP.request({
+        type: 'GET',
+		url: '/rest/api/user/current',
+		contentType: 'application/json;charset=UTF-8',
+        success: function (resp) 
+        {
+        	resp = JSON.parse(resp);
+        	
+        	callback({
+        		id: resp.accountId,
+        		username: resp.username,
+        		email: resp.email,
+        		displayName: resp.displayName,
+        		pictureUrl: resp.profilePicture? baseUrl.substr(0, baseUrl.lastIndexOf('/')) + resp.profilePicture.path : null
+        	}); 
+		},
+		error: error
+	});
+};
+
+AC.RESOLVED_MARKER = '$$RES$$ ';
+AC.REPLY_MARKER = '$$REP$$';
+AC.REPLY_MARKER_END = '$$ ';
+AC.DELETED_MARKER = '$$DELETED$$';
+AC.PREV_VERSIONS_KEY = '$$PREV_VER$$';
+AC.PREV_VERSIONS_START = '{"' + AC.PREV_VERSIONS_KEY + '": [';
+AC.PREV_VERSIONS_END = ']}';
+AC.COMMENTS_INDEX_PROP = 'commentsAttVerIndex';
+
+AC.getPrevVersionsComment = function(attId, attVer, callback, error)
+{
+	AP.request({
+        url : '/rest/api/content/' + attId + 
+        		'/child/comment?limit=200&expand=body.storage&parentVersion=' + attVer,
+        type : 'GET',
+        success : function(comments) 
+        {
+        	comments = JSON.parse(comments).results;
+        	var count = comments.length;
+        	var prevVer = [];
+        	
+        	for (var i = 0; i < comments.length; i++)
+    		{
+        		var decCntn = decodeURIComponent(comments[i].body.storage.value);
+        		
+        		if (decCntn.indexOf(AC.PREV_VERSIONS_START) == 0)
+    			{
+        			count--;
+        			
+        			try
+        			{
+        				prevVer = JSON.parse(decCntn)[AC.PREV_VERSIONS_KEY];
+        			}
+        			catch(e){} //Ignore
+    			}
+    		}
+        	
+        	if (count > 0)
+    		{
+        		prevVer.push(attVer);
+    		}
+        	
+        	callback(prevVer.length == 0? null : AC.PREV_VERSIONS_START + prevVer.join(',') +  AC.PREV_VERSIONS_END);
+        },
+        error : error
+    }); 
+};
+
+//TODO Use of globals is risky and error-prone. Find another way to get attachment id and version? 
+AC.commentsFnWrapper = function(fn, noErrCheck)
+{
+	//Wait for attId and ver to be ready
+	function wrappedFn()
+	{
+		if (AC.curDiagId == false && !noErrCheck)
+		{
+			//Call error (last argument)
+			arguments[arguments.length - 1]();
+		}
+		else if (AC.curDiagId != null)
+		{
+			fn.apply(this, arguments);
+		}
+		else
+		{
+			var fnArgs = arguments;
+			//Wait
+			setTimeout(function()
+			{
+				wrappedFn.apply(this, fnArgs);
+			}, 300);
+		}
+	}
+	
+	return wrappedFn;
+};
+
+AC.getComments = AC.commentsFnWrapper(function(attVer, checkUnresolvedOnly, success, error)
+{
+	function isResolvedComment(atlasComment)
+	{
+		if (atlasComment.children != null)
+		{
+			var lastReply = atlasComment.children.comment.results.pop();
+			
+			if (lastReply != null && decodeURIComponent(lastReply.body.storage.value).indexOf(AC.RESOLVED_MARKER) == 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	};
+	
+	var attId = AC.curDiagId;
+	attVer = attVer || AC.curDiagVer;
+	
+	var confComments = [], remaining;
+	
+	if (attId)
+	{
+		AC.getCommentsAttVersIndex(attId, function()
+		{
+			remaining = AC.curCommentIndex.length;
+			doNextChunk();
+			indexIntegrityCheck();
+		}, function()
+		{
+			indexIntegrityCheck(function()
+			{
+				remaining = AC.curCommentIndex.length;
+				doNextChunk();
+			}, error);
+		});
+		
+		function indexIntegrityCheck(callback, error)
+		{
+			if (checkUnresolvedOnly && callback == null) return;
+				
+			AC.getAttVersWithComments(attId, attVer, function(vers, versMap)
+			{
+				var matches = 0;
+				
+				for (var i = 0; i < AC.curCommentIndex.length; i++)
+				{
+					if (versMap[AC.curCommentIndex[i]])
+					{
+						matches++;
+					}
+				}
+    			
+				if (matches != vers.length || AC.curCommentIndex.length != vers.length)
+				{
+					AC.curCommentIndex = vers;
+					AC.setCommentsAttVersIndex(attId, vers);
+				}
+				
+				if (callback)
+				{
+					callback();
+				}
+    		}, 
+    		function()
+    		{
+    			console.log('Error while checking integrity of comments index for ' + attVer); //TODO What to do when integrity call fails?
+    			
+    			if (error)
+    			{
+    				error();
+    			}
+    		});
+		};
+		
+		function doGetComments(ver, callback, error)
+		{
+			AP.request({
+		        url : '/rest/api/content/' + attId + 
+		        		'/child/comment?limit=200&expand=body.storage,version,history,children.comment.body.storage,children.comment.version,children.comment.history' + 
+		        		'&parentVersion=' + ver,
+		        type : 'GET',
+		        success : function(comments) 
+		        {
+		        	//TODO handle paging or 200 comments + 25 replies are enough?
+		        	comments = JSON.parse(comments).results;
+	
+		        	for (var i = 0; i < comments.length; i++)
+	        		{
+		        		if (checkUnresolvedOnly)
+	        			{
+		        			if (!isResolvedComment(comments[i]))
+		        			{
+		            			success(true);
+		            			return;
+		        			}
+	        			}
+		        		else
+		        		{
+			        		comments[i].attVer = ver;
+			        		confComments.push(comments[i]);
+		        		}
+	        		}
+		        	
+		        	callback();
+		        },
+		        error : error
+		    }); 
+		};
+		
+		function doNextChunk()
+		{
+			remaining--;
+			
+			if (remaining < 0)
+			{
+				success(checkUnresolvedOnly? false : confComments, AC.getSiteUrl());
+				return;
+			}
+			
+			doGetComments(AC.curCommentIndex[remaining], doNextChunk, error);
+		}
+	}
+	else
+	{
+		error({message: mxResources.get('saveDiagramFirst', null, 'Save diagram first!')});
+	}
+}, true);
+
+AC.hasUnresolvedComments = function(pageId, contentId, diagramName, callback, error) 
+{
+	AC.getOldComments(contentId, function(comments)
+	{
+		var hasOldComments = false;
+		
+		for (var i = 0; i < comments.length; i++)
+		{
+			if (comments[i].isDeleted) continue;
+			
+			hasOldComments = true;
+			
+			if (!comments[i].isResolved)
+			{
+				callback(true);
+				break;
+			}
+		}
+		
+		if (!hasOldComments)
+		{
+			//Get current diagram information which is needed for comments
+			//This call is needed since we allow calling this from viewer without using AC.loadDiagram
+			//TODO viewer needs to use AC for interaction with Confluence
+			AC.getAttachmentInfo(pageId, diagramName, function(info)
+			{
+				AC.curDiagVer = info.version.number;
+				AC.curDiagId = info.id;
+				
+				AC.getComments(null, true, callback, error);
+			}, 
+			error);
+		}
+	}, 
+	error);
+};
+
+AC.setCommentsAttVersIndex = function(attId, vers) 
+{
+	AC.setContentProperty(attId, AC.COMMENTS_INDEX_PROP, JSON.stringify(vers), AC.curCommentIndexVer, 
+	function(resp)
+	{
+		resp = JSON.parse(resp);
+		AC.curCommentIndexVer = resp.version.number;
+	}, 
+	function(){}); //Ignore errors	
+};
+
+AC.getCommentsAttVersIndex = function(attId, success, error)
+{
+	AC.getContentProperty(attId, AC.COMMENTS_INDEX_PROP, function(resp)
+	{
+		resp = JSON.parse(resp);
+		AC.curCommentIndexVer = resp.version.number;
+		
+		try
+		{
+			AC.curCommentIndex = JSON.parse(resp.value);
+			
+			if (AC.curCommentIndex.length > AC.curDiagVer)
+			{
+				AC.curCommentIndex = []; //The length of the index cannot exceed the number of the versions, so, index is corrupt
+			}
+		}
+		catch(e)
+		{
+			AC.curCommentIndex = [];
+		}
+		
+		success(AC.curCommentIndex);
+	}, function()
+	{
+		AC.curCommentIndex = [];
+		error();
+	});	
+};
+
+AC.getAttVersWithComments = function(attId, attVer, callback, error)
+{
+	var start = 1;
+	var vers = [], versMap = {};
+	
+	function checkChunk(start, end, callback, error)
+	{
+		var doneCount = 0, total = end - start + 1;
+		
+		function checkDone()
+		{
+			doneCount++;
+			
+			if (doneCount == total)
+			{
+				callback();	
+			}
+		}
+		
+		function checkVer(ver)
+		{
+			AP.request({
+		        url : '/rest/api/content/' + attId + 
+		        		'/child/comment?limit=200&parentVersion=' + ver,
+		        type : 'GET',
+		        success : function(comments) 
+		        {
+		        	//TODO handle paging or 200 comments + 25 replies are enough?
+		        	if (JSON.parse(comments).results.length > 0)
+		        	{
+		        		vers.push(ver);
+		        		versMap[ver] = true;
+		        	}
+		        	
+	        		checkDone();
+		        },
+		        error : error
+			});
+		};
+		
+		for (var i = start; i <= end; i++)
+		{
+			checkVer(i);
+		}
+	};
+	
+	function doNextChunk()
+	{
+		if (start > attVer)
+		{
+			callback(vers, versMap);
+			return;
+		}
+		
+		//Check all versions 5 at a time
+		checkChunk(start, Math.min(start + 4, attVer), doNextChunk, error);
+		start += 5;
+	}
+	
+	doNextChunk();
+};
+
+AC.addComment = AC.commentsFnWrapper(function(commentContent, success, error)
+{
+	var attId = AC.curDiagId;
+	
+	if (attId)
+	{
+		AP.request({
+	        url : '/rest/api/content',
+	        type : 'POST',
+	        data: JSON.stringify({
+            	type: 'comment',
+            	container: {
+                    "type": 'attachment',
+                    "id": attId
+                 },
+                 "body": {
+  		           "storage": {
+  		             "value": encodeURIComponent(commentContent),
+  		             "representation": "storage"
+  		           }
+  		         }
+	        }),
+	        success : function(addedComment) 
+	        {
+	        	addedComment = JSON.parse(addedComment);
+	        	success(addedComment.id, addedComment.version.number, AC.curDiagVer);
+	        	
+	        	//Add cur ver to list of versions
+	        	if (AC.curCommentIndex.indexOf(AC.curDiagVer) == -1)
+        		{
+	        		AC.curCommentIndex.push(AC.curDiagVer);
+	        		AC.setCommentsAttVersIndex(attId, AC.curCommentIndex);
+        		}
+	        },
+	        error : error,
+	        contentType: 'application/json'
+	    });
+	}
+	else
+	{
+		error({message: mxResources.get('saveDiagramFirst', null, 'Save diagram first!')});
+	}
+}, true);
+
+AC.addCommentReply = AC.commentsFnWrapper(function(parentId, parentAttVer, replyContent, doResolve, callback, error)
+{
+	var attId = AC.curDiagId;
+	
+	//We cannot add replies to comments that belong to old versions of the attachment, so, as a workaround we add a special regular comment
+	if (parentAttVer != AC.curDiagVer)
+	{
+		AC.addComment(AC.REPLY_MARKER + parentId + AC.REPLY_MARKER_END + (doResolve? AC.RESOLVED_MARKER : '') + replyContent, callback, error);
+	}
+	else
+	{
+		AP.request({
+	        url : '/rest/api/content',
+	        type : 'POST',
+	        data: JSON.stringify({
+	        	"type": 'comment',
+	        	"ancestors": [
+	        	    {
+	        	      "id": parentId
+	        	    }
+	        	],
+	        	"container": {
+	                "type": 'attachment',
+	                "id": attId
+	             },
+	             "body": {
+			           "storage": {
+			             "value": encodeURIComponent((doResolve? AC.RESOLVED_MARKER : '') + replyContent),
+			             "representation": "storage"
+			           }
+			         }
+	        }),
+	        success : function(addedReply) 
+	        {
+	        	addedReply = JSON.parse(addedReply);
+	        	callback(addedReply.id, addedReply.version.number);
+	        },
+	        error : function(xhr) 
+	        {
+	        	if (xhr.responseText.indexOf('messageKey=parent.comment.does.not.exist') > 0)
+	    		{
+	        		error({message: mxResources.get('parentCommentDel', null, 'Parent comment has been deleted. A reply cannot be added.')});
+	    		}
+	        	else 
+	        	{
+	        		error(xhr)
+	        	}
+	        },
+	        contentType: 'application/json'
+		});
+	}
+});
+
+AC.editComment = AC.commentsFnWrapper(function(id, version, newContent, success, error)
+{
+	var attId = AC.curDiagId;
+	
+	AP.request({
+        url : '/rest/api/content/' + id,
+        type : 'PUT',
+        data: JSON.stringify({
+        	"type": 'comment',
+        	"body": {
+		           "storage": {
+		             "value": encodeURIComponent(newContent),
+		             "representation": "storage"
+		           }
+		         },
+		         "container": {
+               "type": 'attachment',
+               "id": attId
+             },
+             "version": {
+ 	            "number": version + 1
+ 	         }
+        }),
+        success : function(editedComment) 
+        {
+        	editedComment = JSON.parse(editedComment);
+        	success(editedComment.version.number);
+        },
+        error : error,
+        contentType: 'application/json'
+    });
+});
+
+AC.deleteComment = function(id, version, hasReplies, success, error)
+{
+	function doDel()
+	{
+		AP.request({
+	        url : '/rest/api/content/' + id,
+	        type : 'DELETE',
+	        success : success,
+	        error : error
+	    });
+	};
+	
+	if (hasReplies)
+	{
+		//Mark as deleted if there is replies
+		AC.editComment(id, version, AC.DELETED_MARKER, function()
+		{
+			success(true);
+		}, error);
+	}
+	else
+	{
+		doDel();
+	}
+};
+
+AC.getOldComments = function(contentId, callback, error)
+{
+	if (contentId)
+	{
+		AP.request({
+			type: 'GET',
+			url: '/rest/api/content/' + contentId + '/?expand=body.storage,version,container',
+			contentType: 'application/json;charset=UTF-8',
+			success: function(resp)
+			{
+				try 
+				{
+					resp = JSON.parse(resp);
+					var infoObj = JSON.parse(decodeURIComponent(resp.body.storage.value));
+					var spaceKey = AC.getSpaceKey(resp._expandable.space);
+					var pageId = resp.container.id;
+                    var pageType = resp.container.type;
+                    var contentVer = resp.version.number;
+                    
+					callback(infoObj.comments || [], spaceKey, pageId, pageType, contentVer);
+				}
+				catch(e)
+				{
+					error(e);
+				}
+			},
+			error: error
+		});
+	}
+	else
+	{
+		callback([]);
+	}
+};
+
+//Check if user can edit content (page or another content)
+//Confluence doesn't provide an easy way to check for permissions. 
+//		E.g., https://draw-test.atlassian.net/wiki/rest/api/content/{contentId}/restriction/byOperation/update/user?accountId={userAccountId}
+//		It returns 404 even if the user has permission. It only returns 200 (OK) if the user is explicitly in restrictions list (doesn't check groups also)
+AC.userCanEdit = function(contentId, callback, error)
+{
+	var userFound = false;
+	var accountId, groupsCount, parsedGroups = 0;
+	
+	function checkGroupMembers(resp)
+	{
+		//If the user belong to multiple groups, callback will be called more than once
+		if (userFound) return;
+		
+		resp = JSON.parse(resp);
+		
+		var list = resp.results;
+		
+		for (var i = 0; i < list.length; i++)
+		{
+			if (list[i].accountId == accountId)
+			{
+				callback(true);
+				userFound = true;
+				return;
+			}
+		}
+		
+		parsedGroups++;
+		
+		//All groups parsed
+		if (groupsCount == parsedGroups)
+		{
+			callback(false);
+		}
+	};
+	
+	AP.user.getCurrentUser(function(user) {
+		accountId = user.atlassianAccountId;
+		
+		AP.request({
+			type: 'GET',
+			url: '/rest/api/content/' + contentId + '/restriction/byOperation/update', //This API doesn't work well with paging, BUT 100 as a default limit looks enough
+			contentType: 'application/json;charset=UTF-8',
+			success: function(resp)
+			{
+				resp = JSON.parse(resp);
+				
+				if (resp.restrictions.user.size == 0) //When restrictions are empty, it means all are allowed
+				{
+					callback(true);
+				}
+				else
+				{
+					//Search users
+					var list = resp.restrictions.user.results;
+					
+					for (var i = 0; i < list.length; i++)
+					{
+						if (list[i].accountId == accountId)
+						{
+							callback(true);
+							userFound = true;
+							break;
+						}
+					}
+					
+					//Check groups
+					if (!userFound)
+					{
+						if (resp.restrictions.group.size == 0) //The owner must be in the list of editors, so, a group cannot exist without a user in the list
+						{
+							callback(false); //User cannot edit
+						}
+						else //For each group check its members!
+						{
+							var groups = resp.restrictions.group.results;
+							groupsCount = groups.length;
+							
+							for (var i = 0; i < groups.length; i++)
+							{
+								AP.request({
+									type: 'GET',
+									url: '/rest/api/group/' + encodeURIComponent(groups[i].name) + '/member',
+									contentType: 'application/json;charset=UTF-8',
+									success: checkGroupMembers,
+									error: error
+								});
+							}
+						}
+					}
+				}
+			},
+			error: error
+		});		
+	});
+};
+
+AC.getPageInfo = function(urlOnly, success, error)
+{
+	AP.getLocation(function(url)
+	{
+		if (urlOnly) 
+		{
+			success({url: url});	
+		}
+		else
+		{
+			AP.navigator.getLocation(function (location) 
+			{
+				AP.request({
+					type: 'GET',
+					url: '/rest/api/content/' + location.context.contentId,
+					contentType: 'application/json;charset=UTF-8',
+					success: function(resp)
+					{
+						resp = JSON.parse(resp);
+						resp.url = url;
+						success(resp);
+					},
+					error: error
+				});
+			});
+			
+		}
+	});
+};
+
+AC.getContentProperty = function(contentId, propName, success, error)
+{
+	AP.request({
+		type: 'GET',
+		url: '/rest/api/content/' + contentId + '/property/' + encodeURIComponent(propName) + '?expand=version',
+		contentType: 'application/json;charset=UTF-8',
+		success: success,
+		error: error
+	});
+};
+
+AC.setContentProperty = function(contentId, propName, propVal, propVersion, success, error)
+{
+	var obj = {
+		    'value': propVal
+		};
+		
+		if (propVersion) 
+		{
+			obj['version'] = {
+				    'number': propVersion + 1,
+				    'minorEdit': true
+				  };
+		}
+		else
+		{
+			obj['key'] = propName;
+		}
+		
+		AP.request({
+			  url: '/rest/api/content/' + contentId + '/property' + (propVersion? '/' + encodeURIComponent(propName) + '?expand=version' : ''),
+			  type: propVersion? 'PUT' : 'POST',
+			  contentType: 'application/json',
+			  data: JSON.stringify(obj),
+			  success: success,
+			  error: error
+		});
+};
+
+AC.getConfPageEditorVer = function(pageId, callback)
+{
+	AC.getContentProperty(pageId, 'editor', function(resp)
+	{
+		resp = JSON.parse(resp);
+		callback(resp.value == 'v2'? 2 : 1);
+	}, function()
+	{
+		callback(1);// On error, assume the old editor
+	})
+};
+
+AC.gotoAnchor = function(anchor)
+{
+	AC.getPageInfo(false, function(info)
+	{
+		var url = info.url;
+		
+		if (url != null)
+		{
+			//remove any hash
+			var hash = url.indexOf('#');
+			
+			if (hash > -1)
+			{
+				url = url.substring(0, hash);
+			}
+			
+			AC.getConfPageEditorVer(info.id, function(ver)
+			{
+				if (ver == 1)
+				{
+					//When page title has a [ at the beginning, conf adds id- to anchor name
+					url = url + '#' + (info.title.indexOf('[') == 0? 'id-' : '') + 
+											encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
+				}
+				else
+				{
+					url = url + '#' + encodeURIComponent(anchor.replace(/\s/g, '-'));
+				}
+				
+				top.window.location = url;
+			});
+			
+		}
+	}, function()
+	{
+		//ignore as we cannot get the page info
+	});
+};
+
+AC.getDiagramRevisions = function(diagramName, pageId, success, error)
+{
+	AP.request({
+		type: 'GET',
+		url: '/rest/api/content/' + pageId + '/child/attachment',
+		contentType: 'application/json;charset=UTF-8',
+		success: function(resp)
+		{
+			resp = JSON.parse(resp);
+			var attObj = null;
+			
+			for (var i = 0; i < resp.results.length; i++)
+			{
+				if (resp.results[i].title == diagramName)
+				{
+					attObj = resp.results[i];
+				}
+			}
+
+			if (attObj != null)
+			{
+				AP.request({
+					type: 'GET',
+					url: '/rest/api/content/' + attObj.id + '/version',
+					contentType: 'application/json;charset=UTF-8',
+					success: function(resp)
+					{
+						resp = JSON.parse(resp);
+						var revs = [];
+						
+						for (var i = 0; i < resp.results.length; i++)
+						{
+							var rev =  resp.results[i];
+
+							revs.unshift({
+								modifiedDate: rev.when,
+								lastModifyingUserName: rev.by? rev.by.displayName : '', 
+								downloadUrl: '/download/attachments/' + pageId + '/' + encodeURIComponent(diagramName) + '?version=' + rev.number,
+								obj: rev
+							});
+						}
+						
+						success(revs);
+					},
+					error: error
+				});
+			}
+			else
+			{
+				error();
+			}
+		},
+		error: error
+	});
+};
+
+AC.setHiResPreview = function(hiResPreview, success, error)
+{
+	AC.hiResPreview = hiResPreview;
+};
+
+AC.setAspect = function(aspect, success, error)
+{
+	AC.aspect = aspect;
+};
+
+AC.getAspectObj = function()
+{
+	if (AC.aspect != null)
+	{
+		var aspectArray = AC.aspect.split(' ');
+		
+		if (aspectArray.length > 1)
+		{
+			return {pageId: aspectArray[0], layerIds: aspectArray.slice(1)};
+		}
+	}
+	
+	return {};
+};
+
+AC.getAttachmentInfo = function(pageId, attName, sucess, error)
+{
+	AP.request({
+        type: 'GET',
+        url: '/rest/api/content/' + pageId + '/child/attachment?expand=version&filename=' + 
+        		encodeURIComponent(attName),
+        contentType: 'application/json;charset=UTF-8',
+        success: function (resp) 
+        {
+        	var tmp = JSON.parse(resp);
+            
+        	if (tmp.results && tmp.results.length == 1)
+        	{
+        		sucess(tmp.results[0]);
+        	}
+        	else
+    		{
+        		error({status: 404});
+    		}
+        },
+        error: error
+    });	
+};
+
+//White-listed functions and some info about it
+AC.remoteInvokableFns = {
+	getRecentDiagrams: {isAsync: true},
+	searchDiagrams: {isAsync: true},
+	getCustomLibraries: {isAsync: true},
+	getFileContent: {isAsync: true},
+	getCurrentUser: {isAsync: true},
+	getOldComments: {isAsync: true},
+	getComments: {isAsync: true},
+	addComment: {isAsync: true},
+	addCommentReply: {isAsync: true},
+	editComment: {isAsync: true},
+	deleteComment: {isAsync: true},
+	userCanEdit: {isAsync: true},
+	getCustomTemplates: {isAsync: true},
+	getPageInfo: {isAsync: true},
+	getDiagramRevisions: {isAsync: true},
+	setHiResPreview: {isAsync: false},
+	setAspect: {isAsync: false}
+};
+
+AC.remoteInvokeCallbacks = [];
+
+AC.handleRemoteInvokeResponse = function(msg)
+{
+	var msgMarkers = msg.msgMarkers;
+	var callback = AC.remoteInvokeCallbacks[msgMarkers.callbackId];
+	
+	if (msg.error)
+	{
+		if (callback.error) callback.error(msg.error.errResp);
+	}
+	else if (callback.callback)
+	{
+		callback.callback.apply(this, msg.resp);
+	}
+	
+	AC.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
+};
+
+//Here, the editor is ready before sending init even which starts everything, so no need for waiting for ready message. Init is enough
+AC.remoteInvoke = function(remoteFn, remoteFnArgs, msgMarkers, callback, error)
+{
+	msgMarkers = msgMarkers || {};
+	msgMarkers.callbackId = AC.remoteInvokeCallbacks.length;
+	AC.remoteInvokeCallbacks.push({callback: callback, error: error});
+	AC.remoteWin.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: remoteFn, functionArgs: remoteFnArgs, msgMarkers: msgMarkers}), '*');
+};
+
+AC.handleRemoteInvoke = function(msg)
+{
+	function sendResponse(resp, error)
+	{
+		var respMsg = {action: 'remoteInvokeResponse', msgMarkers: msg.msgMarkers};
+		
+		if (error != null)
+		{
+			respMsg.error = {errResp: error};
+		}
+		else if (resp != null) 
+		{
+			respMsg.resp = resp;
+		}
+		
+		AC.remoteWin.postMessage(JSON.stringify(respMsg), '*');
+	}
+	
+	try
+	{
+		//Remote invoke are allowed to call functions in AC
+		var funtionName = msg.funtionName;
+		var functionInfo = AC.remoteInvokableFns[funtionName];
+		
+		if (functionInfo != null && typeof AC[funtionName] === 'function')
+		{
+			var functionArgs = msg.functionArgs;
+			
+			//Confirm functionArgs are not null and is array, otherwise, discard it
+			if (!Array.isArray(functionArgs))
+			{
+				functionArgs = [];
+			}
+			
+			//for functions with callbacks (async) we assume last two arguments are success, error
+			if (functionInfo.isAsync)
+			{
+				//success
+				functionArgs.push(function() 
+				{
+					sendResponse(Array.prototype.slice.apply(arguments));
+				});
+				
+				//error
+				functionArgs.push(function(err) 
+				{
+					sendResponse(null, err || mxResources.get('unknownError'));
+				});
+				
+				AC[funtionName].apply(this, functionArgs);
+			}
+			else
+			{
+				var resp = AC[funtionName].apply(this, functionArgs);
+				
+				sendResponse([resp]);
+			}
+		}
+		else
+		{
+			sendResponse(null, mxResources.get('invalidCallFnNotFound', [funtionName]));
+		}
+	}
+	catch(e)
+	{
+		sendResponse(null, mxResources.get('invalidCallErrOccured', [e.message]));
+	}
+};
+
+//Allow loading of plugins (we need it for comments) 
+AC.plugins = [];
+
+window.Draw = new Object();
+window.Draw.loadPlugin = function(callback)
+{
+	AC.plugins.push(callback);
+};
+
+AC.loadPlugins = function(ui)
+{
+	for (var i = 0; i < AC.plugins.length; i++)
+	{
+		AC.plugins[i](ui);
+	}
+};

@@ -61,6 +61,7 @@ if (isset($_POST["add"])) {
 } else if (isset($_POST["update"])) {
 
    $graph->check($_POST['id'], UPDATE);
+   $graph->link($_POST['id'], $_POST['graph']);
    $graph->update($_POST);
    Html::back();
 

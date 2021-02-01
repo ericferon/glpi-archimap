@@ -145,6 +145,10 @@ class PluginArchimapProfile extends Profile {
                 'label'     => _n('Diagram', 'Diagrams', 2, 'archimap'),
                 'field'     => 'plugin_archimap'
           ],
+          ['rights'    => [READ => __('Read'), CREATE => __('Create'), UPDATE => __('Update')],
+                'itemtype'  => 'PluginArchimapConfig',
+                'label'     => __('Configuration', 'archimap'),
+                'field'     => 'plugin_archimap_configuration']
       ];
 
       if ($all) {
