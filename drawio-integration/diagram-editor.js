@@ -120,7 +120,7 @@ DiagramEditor.prototype.editElement = function(elem)
     {
         let tables = {};
         tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
-                    'column' : '`key`, value', 
+                    'column' : 'key, value', 
                     'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
         var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
