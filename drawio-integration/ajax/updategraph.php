@@ -25,6 +25,17 @@
  */
 
 include ('../../../../inc/includes.php');
+// receive parameters into Http body
+$params = file_get_contents('php://input');
+if (isset($params)) {
+	$params = json_decode($params);
+} else {
+    die("No parameters contained in body of POST request 'updategraph'");
+}
+// Put parameters into $_POST
+foreach($params as $key => $value) {
+    $_POST[$key] = $value;
+}
 
 if (!isset($_GET["id"])) $_GET["id"] = "";
 if (!isset($_GET["withtemplate"])) $_GET["withtemplate"] = "";

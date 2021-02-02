@@ -29,7 +29,6 @@ include (GLPI_ROOT . "/inc/includes.php");
 
 $DB = new DB;
 $keys = file_get_contents('php://input');
-Toolbox::logInFile("gettables", "setconfig ".$keys."\n");
 if (isset($keys)) {
 	$keys = json_decode($keys);
 } else {
@@ -40,12 +39,12 @@ foreach($keys as $key => $typevalue) {
 	$type = $typevalue->type;
 	$value = $typevalue->value;
     $query = "UPDATE glpi_plugin_archimap_configs SET value = '$value' WHERE type = '$type' and `key` = '$key';";
-Toolbox::logInFile("gettables", "postconfig ".$query."\n");
+//Toolbox::logInFile("postconfig", "postconfig ".$query."\n");
 //var_dump($query);
     $result=$DB->query($query);
     $datas[$key] = $DB->affectedRows();
 }
 //var_dump($datas);
-Toolbox::logInFile("gettables", "postconfig ".print_r($datas,TRUE)."\n");
+//Toolbox::logInFile("postconfig", "postconfig ".print_r($datas,TRUE)."\n");
 echo json_encode($result);
 ?>

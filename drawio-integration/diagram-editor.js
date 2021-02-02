@@ -597,13 +597,16 @@ DiagramEditor.prototype.done = function(data, draft, elt)
 								}	
 							}; 
 							xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/updategraph.php", false);
-							xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-							xhr.send("update=Save&id="+ diagramid.value + '&graph=' + elt.value);
+							xhr.setRequestHeader("Content-Type", "application/json");
+							xhr.setRequestHeader("Session-Token", token.value);
+							xhr.send(JSON.stringify({'update' : 'Save',
+                                                    'id' : diagramid.value,
+                                                    'graph' : elt.value
+                                                    }));
 //							if (exit)
 //							{
 //								this.ui.actions.get('exit').funct();
 //							}
-                    console.log('really saved !');
 						}
 						else
 						{

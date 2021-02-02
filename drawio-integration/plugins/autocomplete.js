@@ -531,7 +531,6 @@ EditorUi.prototype.updateTabContainer = function()
             
 //		if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 		{
-			console.log('autocomplete isLocalStorage', isLocalStorage);
 			editorUi.menus.addMenuItems(menu, ['-', 'search', 'scratchpad', '-'/*, 'showStartScreen'*/], parent);
 		}
 

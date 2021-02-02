@@ -25,6 +25,8 @@
  */
 
 include ('../../../inc/includes.php');
+Toolbox::logInFile("updategraph", "GET".print_r($_GET,TRUE)."\n");
+Toolbox::logInFile("updategraph", "POST".print_r($_POST,TRUE)."\n");
 
 if (!isset($_GET["id"])) $_GET["id"] = "";
 if (!isset($_GET["withtemplate"])) $_GET["withtemplate"] = "";
@@ -60,6 +62,7 @@ if (isset($_POST["add"])) {
 
 } else if (isset($_POST["update"])) {
 
+Toolbox::logInFile("updategraph", "update ".$_POST['id']."\n");
    $graph->check($_POST['id'], UPDATE);
    $graph->link($_POST['id'], $_POST['graph']);
    $graph->update($_POST);

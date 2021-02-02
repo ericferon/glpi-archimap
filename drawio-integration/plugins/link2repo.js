@@ -879,93 +879,93 @@ App.prototype.getPeerForMode = function(mode)
 	{
 		const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat()))); // cartesian product of matrices : see https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
 		var dataSource = function(callback)
-				{
+        {
 
-					// Get the CSS classes, from customproperties, as constituent parts
-					let classes = [];
-					let i = 0;
-					let j = 0;
-					let k = 0;
-					for (let entry of cell.customproperties.autocompletecssclass.split(";"))
+			// Get the CSS classes, from customproperties, as constituent parts
+			let classes = [];
+			let i = 0;
+			let j = 0;
+			let k = 0;
+			for (let entry of cell.customproperties.autocompletecssclass.split(";"))
+			{
+				let cssclass = entry.split("+");
+				classes[i] = cssclass;
+				for (let j = 0; j<classes[i].length; j++)
+				{
+					// test if only 1 quote character
+					if ((classes[i][j].match(/'/g) || []).length == 1)
 					{
-						let cssclass = entry.split("+");
-						classes[i] = cssclass;
-						for (let j = 0; j<classes[i].length; j++)
+						// add the missing quote at begin or end of the string
+						classes[i][j].charAt(0) == "'" ? classes[i][j] = classes[i][j].concat("'") : classes[i][j] = "'".concat(classes[i][j]);
+					}
+				}
+				i++;
+			}
+//			console.log('classes', classes);
+			// Get the columns names, from customproperties, to build the query and list the available values
+			let columns = cell.customproperties.autocompletejointcolumns.split(',');
+			let tables = {};
+			let icolumn = -1;
+			for (i = 0; i<classes.length; i++)
+			{
+				for (let j = 0; j<classes[i].length; j++)
+				{
+					if (!classes[i][j].includes("'") && !classes[i][j].includes('"')) // no single or double quote => this is a column name
+					{
+						icolumn = columns.findIndex(function(value) {return RegExp('[ \'\"`]+'+classes[i][j]).test(value);}); // index of where to find this column name (preceded by space, single or double quote) in columns
+						if (icolumn >= 0)
 						{
-							// test if only 1 quote character
-							if ((classes[i][j].match(/'/g) || []).length == 1)
+//							tables[classes[i][j]] = [];
+							tablecolumn = columns[icolumn].split(' '); // split into array of string (f.i ["table.column", "as", "alias"])
+							if (tablecolumn[0].includes('.')) // is there a dot ?
 							{
-								// add the missing quote at begin or end of the string
-								classes[i][j].charAt(0) == "'" ? classes[i][j] = classes[i][j].concat("'") : classes[i][j] = "'".concat(classes[i][j]);
+								let pos = tablecolumn[0].indexOf('.');
+								tables[classes[i][j]] = {'table' : tablecolumn[0].substring(0, pos), 'column' : tablecolumn[0].substring(pos+1)}; // tables[alias] = [table, column]
+							}
+							else
+							{
+								tables[classes[i][j]] = {'table' : cell.customproperties.autocompletetable, 'column' : classes[i][j]}; // tables[alias] = [main table, alias]
 							}
 						}
-						i++;
 					}
-//					console.log('classes', classes);
-					// Get the columns names, from customproperties, to build the query and list the available values
-					let columns = cell.customproperties.autocompletejointcolumns.split(',');
-					let tables = {};
-					let icolumn = -1;
-					for (i = 0; i<classes.length; i++)
+				}
+			}
+			// Get the list of available values from repository
+//			console.log('tables', tables);
+			let cssclasses = [];
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function() {
+				if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+					let 	datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+//					console.log('datas', datas);
+					let cssclass = [''];
+					// combine the CSS class tokens, replacing column names with real values
+					for (i = 0; i < classes.length; i++)
 					{
-						for (let j = 0; j<classes[i].length; j++)
+						cssclass = [''];
+						for (j = 0; j < classes[i].length; j++)
 						{
 							if (!classes[i][j].includes("'") && !classes[i][j].includes('"')) // no single or double quote => this is a column name
 							{
-								icolumn = columns.findIndex(function(value) {return RegExp('[ \'\"`]+'+classes[i][j]).test(value);}); // index of where to find this column name (preceded by space, single or double quote) in columns
-								if (icolumn >= 0)
-								{
-//									tables[classes[i][j]] = [];
-									tablecolumn = columns[icolumn].split(' '); // split into array of string (f.i ["table.column", "as", "alias"])
-									if (tablecolumn[0].includes('.')) // is there a dot ?
-									{
-										let pos = tablecolumn[0].indexOf('.');
-										tables[classes[i][j]] = {'table' : tablecolumn[0].substring(0, pos), 'column' : tablecolumn[0].substring(pos+1)}; // tables[alias] = [table, column]
-									}
-									else
-									{
-										tables[classes[i][j]] = {'table' : cell.customproperties.autocompletetable, 'column' : classes[i][j]}; // tables[alias] = [main table, alias]
-									}
-								}
+								cssclass = cartesian(cssclass, datas[classes[i][j]]);
+							}
+							else
+							{
+								cssclass = cartesian(cssclass, [classes[i][j].replace(/['"]/gi,'')]); // remove single and double quotes in literals
 							}
 						}
+						for (k = 0; k < cssclass.length; k++)
+						{
+							cssclasses.push(cssclass[k].join('').replace(/[ ]/gi,'_')); // replace spaces by underscore
+						}
 					}
-					// Get the list of available values from repository
-//					console.log('tables', tables);
-					let cssclasses = [];
-					var xhr = new XMLHttpRequest();
-					xhr.onreadystatechange = function() {
-						if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-							let 	datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-//							console.log('datas', datas);
-							let cssclass = [''];
-							// combine the CSS class tokens, replacing column names with real values
-							for (i = 0; i < classes.length; i++)
-							{
-								cssclass = [''];
-								for (j = 0; j < classes[i].length; j++)
-								{
-									if (!classes[i][j].includes("'") && !classes[i][j].includes('"')) // no single or double quote => this is a column name
-									{
-										cssclass = cartesian(cssclass, datas[classes[i][j]]);
-									}
-									else
-									{
-										cssclass = cartesian(cssclass, [classes[i][j].replace(/['"]/gi,'')]); // remove single and double quotes in literals
-									}
-								}
-								for (k = 0; k < cssclass.length; k++)
-								{
-									cssclasses.push(cssclass[k].join('').replace(/[ ]/gi,'_')); // replace spaces by underscore
-								}
-							}
-							callback(cssclasses);
-						}; 
-					}
-					xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
-					xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-					xhr.send(JSON.stringify(tables));
-				};
+					callback(cssclasses);
+				}; 
+			}
+			xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
+			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			xhr.send(JSON.stringify(tables));
+		};
 		var div = document.createElement('div');
 		div.style.overflowY = 'auto';
 		div.id = 'alpaca';
@@ -996,7 +996,10 @@ App.prototype.getPeerForMode = function(mode)
 							"sort" : false,
 							"size" : 1,
 							"dataSource" : dataSource
-						}
+						},
+                        "fillColor" : {
+                            "type" : "color"
+                        }
 					},
 					"form" : {
 						"buttons" : {
