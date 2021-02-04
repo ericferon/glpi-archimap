@@ -32,6 +32,7 @@ Draw.loadPlugin(function(ui)
 	App.MODE_REPOSITORY = 'repository';
 // Adds resource for plugin
 	mxResources.add(window.DRAWIOINTEGRATION_PATH + '/resources/archi');
+//--- Manage libraries in central repository --------------------------------------------------------------------------------------------------
 // Add 'repository' to 'newLibrary' and 'openLibraryFrom' menu (inspired from diagramly/Menu.js)
     if (Editor.enableCustomLibraries)
 	{
@@ -552,7 +553,7 @@ App.prototype.getPeerForMode = function(mode)
         }
     };
 
-    
+//--- Attach menus to library cells ---------------------------------------------------------------------------    
 // Attach menu to library element
 	function addMenuToElement(elt, index, imgs, file)
 	{
@@ -622,187 +623,7 @@ App.prototype.getPeerForMode = function(mode)
 		}
 	};
 
-// Inspired from drawio/src/main/webapp/js/diagramly/App.js : App.prototype.saveLibrary
-//	Save custom properties to a local file
-/*	Sidebar.prototype.saveLibraryEntries = function(name, images, file, mode, noSpin, noReload, fn)
-	{
-	try
-	{
-		mode = (mode != null) ? mode : this.editorUi.mode;
-		noSpin = (noSpin != null) ? noSpin : false;
-		noReload = (noReload != null) ? noReload : false;
-		var xml = this.editorUi.createLibraryDataFromImages(images);
-		
-		var error = mxUtils.bind(this, function(resp)
-		{
-			this.editorUi.spinner.stop();
-			
-			if (fn != null)
-			{
-				fn();
-			}
-			
-			this.editorUi.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
-		});
-	
-		// Handles special case for local libraries
-		if (file == null && mode == App.MODE_DEVICE)
-		{
-			file = new LocalLibrary(this, xml, name);
-		}
-		
-		if (file == null)
-		{
-			this.pickFolder(mode, mxUtils.bind(this, function(folderId)
-			{
-				if (mode == App.MODE_REPOSITORY && this.editorUi.repository != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.repository.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_GOOGLE && this.editorUi.drive != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.drive.insertFile(name, xml, folderId, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, this.editorUi.drive.libraryMimeType);
-				}
-				else if (mode == App.MODE_GITHUB && this.editorUi.gitHub != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.gitHub.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_GITLAB && this.editorUi.gitLab != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.gitLab.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_TRELLO && this.editorUi.trello != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.trello.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_DROPBOX && this.editorUi.dropbox != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.dropbox.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_ONEDRIVE && this.editorUi.oneDrive != null && this.editorUi.spinner.spin(document.body, mxResources.get('inserting')))
-				{
-					this.editorUi.oneDrive.insertLibrary(name, xml, mxUtils.bind(this, function(newFile)
-					{
-						this.editorUi.spinner.stop();
-						this.editorUi.hideDialog(true);
-						this.editorUi.libraryLoaded(newFile, images);
-					}), error, folderId);
-				}
-				else if (mode == App.MODE_BROWSER)
-				{
-					var fn = mxUtils.bind(this, function()
-					{
-						var file = new StorageLibrary(this, xml, name);
-						
-						// Inserts data into local storage
-						file.saveFile(name, false, mxUtils.bind(this, function()
-						{
-							this.editorUi.hideDialog(true);
-							this.editorUi.libraryLoaded(file, images);
-						}), error);
-					});
-					
-					if (localStorage.getItem(name) == null)
-					{
-						fn();
-					}
-					else
-					{
-						this.confirm(mxResources.get('replaceIt', [name]), fn);
-					}
-				}
-				else
-				{
-					this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
-				}
-			}));
-		}
-		else if (noSpin || this.editorUi.spinner.spin(document.body, mxResources.get('saving')))
-		{
-			file.setData(xml);
-			
-			var doSave = mxUtils.bind(this, function()
-			{
-				file.save(true, mxUtils.bind(this, function(resp)
-				{
-					this.editorUi.spinner.stop();
-					this.editorUi.hideDialog(true);
-					
-					if (!noReload)
-					{
-						this.editorUi.libraryLoaded(file, images);
-					}
-					
-					if (fn != null)
-					{
-						fn();
-					}
-				}), error);
-			});
-			
-			if (name != file.getTitle())
-			{
-				var oldHash = file.getHash();
-				
-				file.rename(name, mxUtils.bind(this, function(resp)
-				{
-					// Change hash in stored settings
-					if (file.constructor != LocalLibrary && oldHash != file.getHash())
-					{
-						mxSettings.removeCustomLibrary(oldHash);
-						mxSettings.addCustomLibrary(file.getHash());
-					}
-	
-					// Workaround for library files changing hash so
-					// the old library cannot be removed from the
-					// sidebar using the updated file in libraryLoaded
-					this.editorUi.removeLibrarySidebar(oldHash);
-	
-					doSave();
-				}), error)
-			}
-			else
-			{
-				doSave();
-			}
-		}
-	}
-	catch (e)
-	{
-		this.editorUi.handleError(e);
-	}
-	};
-*/
+
 //	Display custom properties with alpacajs, based on configuration files located in drawio-integration/ext/alpaca
 	var Link2RepoDialog = function (editorUi, index, imgs, file)
 	{
