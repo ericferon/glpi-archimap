@@ -31,7 +31,7 @@ Draw.loadPlugin(function(editorUi)
 	mxResources.add(window.DRAWIOINTEGRATION_PATH + '/resources/archi');
 	
 // Load diagram, refresh custom properties and adapt menus --------------------------------------------------------------------------------------------------------------------------------------------------------
-// Load custom stylesheets
+// Load custom stylesheets (css)
 	mxUtils.getAll([window.DRAWIOINTEGRATION_PATH + '/styles/archimap.xml'], function(xhr)
 	{
 		var node = mxUtils.parseXml(xhr[0].getText()).documentElement;
@@ -67,6 +67,37 @@ Draw.loadPlugin(function(editorUi)
 		}
 	});
 
+// Load CSS classes from central repository
+    var repository = new Repository(editorUi);
+    repository.getStyles('STYLE', null, mxUtils.bind(this, function(req)
+	{
+        var decodeHTML = function (html) {
+            var txt = document.createElement('textarea');
+            txt.innerHTML = html;
+            return txt.value;
+        };
+		var customstyles = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
+        if (customstyles['param'])
+		{
+            var stylesheet = editorUi.editor.graph.getStylesheet()
+            for (var i = 0 in customstyles['param'])
+			{
+                var node = mxUtils.parseXml(decodeHTML(customstyles['param'][i].value)).documentElement;
+                var dec = new mxCodec(node.ownerDocument);
+                var customstyle = dec.decode(node);
+				// copy style in stylesheet
+				stylesheet.styles[customstyles['param'][i].key] = customstyle.styles[customstyles['param'][i].key];
+				// mark it as "customstyle"
+				stylesheet.styles[customstyles['param'][i].key].customstyle = true;
+			}
+        }
+	}), 
+    mxUtils.bind(this, function(message)
+    {
+        this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
+    }));
+
+// Load custom libraries in sidebar -----------------------------------------------------------------------------------
 	// Add custom libraries as customstencils in sidebar object. So they can be retrieved in refreshCustomProperties.
 	if (editorUi.sidebar.customEntries != null)
 		{

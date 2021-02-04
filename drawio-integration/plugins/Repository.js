@@ -255,7 +255,7 @@ Repository.prototype.checkInexistence = function(type, key, mustBeInexistent, fn
 	}), mxUtils.bind(this, function(message)
 	{
 			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
-	}), null, true);
+	}));
 };
 
 Repository.prototype.executeRequest = function(req, success, error, ignoreNotFound)
@@ -390,6 +390,23 @@ Repository.prototype.getLibraries = function(type, key, success, error)
 	}));
 }
 
+Repository.prototype.getStyles = function(type, key, success, error)
+{
+	let tables = {};
+    tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
+                    'column' : 'key, value', 
+                    'where' : 'type = "STYLE"' + (key ? ' and `key` LIKE "'+key+'"' : '')};
+	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '../../ajax/getconfig.php', JSON.stringify(tables), 'POST');
+		
+	this.executeRequest(req, mxUtils.bind(this, function(req)
+	{
+		success(req);
+	}), mxUtils.bind(this, function(err)
+	{
+		error(err);
+	}));
+}
+
 Repository.prototype.createRepositoryFile = function(type, key, data, asLibrary)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
@@ -472,10 +489,10 @@ Repository.prototype.showRepositoryDialog = function(showFiles, fn)
         {
             fn(listItem.value, decodeHTML(libs['param'][listItem.value].value));
         }));
-        this.ui.showDialog(dlg.container, 420, 360, true, true);
+        this.ui.showDialog(dlg.container, 420, 260, true, true);
 	}), mxUtils.bind(this, function(message)
 	{
 			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
-	}), null, true);
+	}));
 
 }
