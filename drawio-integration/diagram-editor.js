@@ -190,6 +190,7 @@ DiagramEditor.prototype.editElement = function(elem)
 								'../../../../drawio-integration/ext/jquery/jquery.min.js',
 								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
 								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
+								'../../../../drawio-integration/plugins/Repository.js',
 								'../../../../drawio-integration/plugins/autocomplete.js', 
 								// load libraries needed by Alpaca
 								'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
@@ -199,7 +200,6 @@ DiagramEditor.prototype.editElement = function(elem)
 								'../../../../drawio-integration/ext/alpaca/alpaca.min.css', 
 								'../../../../drawio-integration/ext/alpaca/alpaca.min.js', 
 								// load plugin needed to link a library's stencil to a (architecture) repository
-								'../../../../drawio-integration/plugins/Repository.js',
 								'../../../../drawio-integration/plugins/link2repo.js'];
 		this.libraries = true;	// allow libraries creation/modification
 	} else

@@ -88,7 +88,8 @@ Draw.loadPlugin(function(editorUi)
 				// copy style in stylesheet
 				stylesheet.styles[customstyles['param'][i].key] = customstyle.styles[customstyles['param'][i].key];
 				// mark it as "customstyle"
-				stylesheet.styles[customstyles['param'][i].key].customstyle = true;
+				if (stylesheet.styles[customstyles['param'][i].key])
+                    stylesheet.styles[customstyles['param'][i].key].customstyle = true;
 			}
         }
 	}), 
