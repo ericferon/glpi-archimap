@@ -528,7 +528,7 @@ EditorUi.prototype.updateTabContainer = function()
 						}
 					}
 				}; 
-				xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "../../ajax/getcustomproperties.php", true);
+				xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getcustomproperties.php", true);
 				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 				xhr.send(JSON.stringify(glpiCells));
 	}
@@ -706,6 +706,29 @@ EditorUi.prototype.updateTabContainer = function()
 	})));
 
 // Display preferences ---------------------------------------------------------------------------------------------------------------------------------
+/**
+ * Variable: pageFormat
+ *
+ * Specifies the page format for the background page. Default is
+ * <mxConstants.PAGE_FORMAT_A4_PORTRAIT>. This is used as the default in
+ * <mxPrintPreview> and for painting the background page if <pageVisible> is
+ * true and the pagebreaks if <pageBreaksVisible> is true.
+ */
+// Added EFE 20131218
+//mxGraph.prototype.pageFormat = mxConstants.PAGE_FORMAT_A4_PORTRAIT;
+mxGraph.prototype.pageFormat = mxConstants.PAGE_FORMAT_A4_LANDSCAPE;
+
+/**
+ * Variable: custompreferences
+ *
+ * Specifies the user preferences, like display of GLPI fields as label.
+ */
+mxGraph.prototype.preferences = [
+								];
+mxGraph.prototype.preferences['displayIconOnVertex'] = {'id':'displayIconOnVertex','description':'Display Icons on Nodes','type':'radio','values':['false'],'options':['true','false']}
+mxGraph.prototype.preferences['displayIconOnEdge'] = {'id':'displayIconOnEdge','description':'Display Icons on Links','type':'radio','values':['false'],'options':['true','false']}
+// End of Added EFE 20131218
+
 // Added EFE 20141201
 /**
  * Function: addRadioInput
@@ -919,25 +942,7 @@ mxForm.prototype.addFieldMove = function(name, input, output)
 	
 		// Creates a form for the graph preferences
 		var div = document.createElement('div');
-/*		div.id = 'alpaca';
-		var alpacaSchema = {"type": "object",
-							"properties": []};
-		var alpacaOptions = {	"fields" : [],
-								"form" : {
-									"buttons" : {
-										"cancel" : {
-											"title" : "Cancel",
-											"click" : cancelFunct
-										},
-										"ok" : {
-											"title" : "Save",
-											"click" : saveFunct
-										}
-									}
-								}
-							};
-		var alpacaData = [];
-*/		var form = new mxForm('displaypreferences');
+		var form = new mxForm('displaypreferences');
 		form.table.style.width = '100%';
 		form.table.setAttribute('cellpadding', (mxClient.IS_SF) ? '0' : '2');
 	
@@ -1312,7 +1317,6 @@ mxForm.prototype.addFieldMove = function(name, input, output)
 
 // End of Added EFE 20140103
 // Autocomplete ---------------------------------------------------------------------------------------------------------------------------------------
-// Inspired from mxClient.js
 
 // Added EFE 20170902
 /**
@@ -1366,6 +1370,7 @@ mxGraph.prototype.getContainingCellFor = function(cell)
 };
 
 // End of Added EFE 20170902
+
 /**
  * Function: installListeners
  * 
@@ -1464,7 +1469,7 @@ mxCellEditor.prototype.installListeners = function(elt)
 					source: function(request, response){
 						//pass request to server  
 						$.ajax({
-							url: window.DRAWIOINTEGRATION_PATH + '../../ajax/autocomplete.php?callback=?',
+							url: window.DRAWIOINTEGRATION_PATH + '/ajax/autocomplete.php?callback=?',
 							type:"get",
 							dataType: 'text json',
 							data: 'table=' + tablename + '&columns=' + columnname + (othercriteria ? '&othercriteria=' + encodeURIComponent(othercriteria) : '') 
@@ -1529,7 +1534,7 @@ mxCellEditor.prototype.installListeners = function(elt)
 							glpiCells[editorUi.item.archimap_id].jointcolumns = jointcolumns;
 							glpiCells[editorUi.item.archimap_id].jointcriteria = jointcriteria;
 							$.ajax({
-								url: window.DRAWIOINTEGRATION_PATH + "../../ajax/getcustomproperties.php?callback=?",
+								url: window.DRAWIOINTEGRATION_PATH + "/ajax/getcustomproperties.php?callback=?",
 								type: "post",
 								contentType: 'application/json',
 								data: JSON.stringify(glpiCells),

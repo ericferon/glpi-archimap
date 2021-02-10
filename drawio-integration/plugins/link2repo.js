@@ -373,6 +373,7 @@ App.prototype.getPeerForMode = function(mode)
     // Save library in repository
     App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
     {
+		console.log('Saving library', name, images, file, mode);
         try
         {
             mode = (mode != null) ? mode : this.mode;
@@ -681,7 +682,7 @@ App.prototype.getPeerForMode = function(mode)
 									imgs[index].xml = Graph.compress(mxUtils.getXml(editorUi.editor.graph.encodeCells(cells)));
 									editorUi.hideDialog();
 //									editorUi.sidebar.saveLibraryEntries(file.title, imgs, file, file.mode);
-									editorUi.sidebar.saveLibrary(file.title, imgs, file, file.mode);
+									editorUi.saveLibrary(file.title, imgs, file, file.mode);
 								}
 							}
 						}
@@ -789,7 +790,7 @@ App.prototype.getPeerForMode = function(mode)
 		};
 		var div = document.createElement('div');
 		div.style.overflowY = 'auto';
-		div.id = 'alpaca';
+/*		div.id = 'alpaca';
 		// alpaca
 		if (mxClient.language)
 		{	
@@ -843,7 +844,7 @@ App.prototype.getPeerForMode = function(mode)
 			});
 		});
 	
-
+*/
 		this.container = div;
 	};
 

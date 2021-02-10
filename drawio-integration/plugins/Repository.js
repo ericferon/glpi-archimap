@@ -455,7 +455,7 @@ Repository.prototype.showRepositoryDialog = function(showFiles, fn)
 	var content = document.createElement('div');
 	content.style.whiteSpace = 'nowrap';
 	content.style.overflow = 'hidden';
-	content.style.height = '304px';
+//	content.style.height = '304px';
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get((showFiles) ? 'selectFile' : 'selectFolder'));
@@ -489,7 +489,7 @@ Repository.prototype.showRepositoryDialog = function(showFiles, fn)
         {
             fn(listItem.value, decodeHTML(libs['param'][listItem.value].value));
         }));
-        this.ui.showDialog(dlg.container, 420, 260, true, true);
+        this.ui.showDialog(dlg.container, 420, 120, true, true);
 	}), mxUtils.bind(this, function(message)
 	{
 			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);

@@ -68,6 +68,8 @@ if (isset($_GET['term'])) {
 }
 if (isset($_GET['othercriteria'])) {
     $othercriteria = stripslashes(htmlspecialchars_decode(urldecode($_GET['othercriteria'])));
+    if ($othercriteria)
+		$othercriteria = " AND (".$othercriteria.")";
 } else {
     $othercriteria = "";
 }
