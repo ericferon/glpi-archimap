@@ -148,7 +148,7 @@
 		<add as="shape" value="label"/>
 		<add as="spacing" value="0"/>
 		<add as="spacingTop" value="0"/>
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/Sap_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
 		<add as="imageWidth" value="25"/>
 		<add as="imageHeight" value="25"/>
 		<add as="imageAlign" value="right"/>
@@ -168,7 +168,7 @@
 		<add as="shape" value="label"/>
 		<add as="spacing" value="0"/>
 		<add as="spacingTop" value="0"/>
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/Internet_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Internet_128x128.png"/>
 		<add as="imageWidth" value="25"/>
 		<add as="imageHeight" value="25"/>
 		<add as="imageAlign" value="right"/>
@@ -180,16 +180,16 @@
 		<add as="fontColor" value="#FFFFFF"/>
 	</add>
 	<add as="SWComponent_Document_Folder" extend="SWComponent_Webservice">
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/Empty_Folder_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Empty_Folder_128x128.png"/>
 	</add>
 	<add as="SWComponent_Document_Html" extend="SWComponent_Webservice">
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/InternetExplorer_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/InternetExplorer_128x128.png"/>
 	</add>
 	<add as="SWComponent_Document_Pdf" extend="SWComponent_Webservice">
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/Adobe-pdf_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Adobe-pdf_128x128.png"/>
 	</add>
 	<add as="SWComponent_Document_Excel" extend="SWComponent_Webservice">
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/MS-Excel_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/MS-Excel_128x128.png"/>
 	</add>
 	<add as="Supplier">
 		<add as="align" value="center"/>
@@ -262,7 +262,7 @@
 	</add>/>
 	<add as="Dataflow_Email">
 		<add as="shape" value="connector"/>
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/email_128x92.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/email_128x92.png"/>
 		<add as="imageWidth" value="16"/>
 		<add as="imageHeight" value="12"/>
 		<add as="imageAlign" value="left"/>
@@ -270,7 +270,15 @@
 	</add>/>
 	<add as="Dataflow_Tibco">
 		<add as="shape" value="connector"/>
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/tibco_128x32.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/tibco_128x32.png"/>
+		<add as="imageWidth" value="48"/>
+		<add as="imageHeight" value="12"/>
+		<add as="imageAlign" value="left"/>
+		<add as="imageVerticalAlign" value="middle"/>
+	</add>/>
+<add as="Dataflow_SAPPO">
+		<add as="shape" value="connector"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
 		<add as="imageWidth" value="48"/>
 		<add as="imageHeight" value="12"/>
 		<add as="imageAlign" value="left"/>
@@ -280,7 +288,7 @@
 		<add as="shape" value="doubleconnector"/>
 		<add as="direction" value="backnforth"/>
 		<add as="dashed" value="1"/>
-		<add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/internet_128x128.png"/>
+		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/internet_128x128.png"/>
 		<add as="imageWidth" value="16"/>
 		<add as="imageHeight" value="16"/>
 		<add as="imageAlign" value="left"/>
