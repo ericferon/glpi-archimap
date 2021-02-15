@@ -653,13 +653,13 @@ App.prototype.getPeerForMode = function(mode)
 					"form" : {
 						"buttons" : {
 							"cancel" : {
-								"title" : "Cancel",
+								"title" : mxResources.get('cancel'),
 								"click" : function() {
 									editorUi.hideDialog();
 								}
 							},
 							"ok" : {
-								"title" : "Save",
+								"title" : mxResources.get('save'),
 								"click" : function() {
 									// transform form object into array
 									delete cells[0].customproperties;
@@ -681,7 +681,6 @@ App.prototype.getPeerForMode = function(mode)
 									}
 									imgs[index].xml = Graph.compress(mxUtils.getXml(editorUi.editor.graph.encodeCells(cells)));
 									editorUi.hideDialog();
-//									editorUi.sidebar.saveLibraryEntries(file.title, imgs, file, file.mode);
 									editorUi.saveLibrary(file.title, imgs, file, file.mode);
 								}
 							}
@@ -781,16 +780,17 @@ App.prototype.getPeerForMode = function(mode)
 							cssclasses.push(cssclass[k].join('').replace(/[ ]/gi,'_')); // replace spaces by underscore
 						}
 					}
-					callback(cssclasses);
+					return callback(cssclasses);
+//					return cssclasses;
 				}; 
 			}
 			xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
 			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 			xhr.send(JSON.stringify(tables));
 		};
-		var div = document.createElement('div');
+/*		var div = document.createElement('div');
 		div.style.overflowY = 'auto';
-/*		div.id = 'alpaca';
+		div.id = 'alpaca';
 		// alpaca
 		if (mxClient.language)
 		{	
@@ -844,8 +844,68 @@ App.prototype.getPeerForMode = function(mode)
 			});
 		});
 	
-*/
+
 		this.container = div;
+*/		var content = document.createElement('div');
+		content.style.overflowY = 'auto';
+
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, cell.customproperties['stencil']);
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
+		content.appendChild(hd);
+
+		var styleList = document.createElement('select');
+		styleList.id = 'style';
+		styleList.style.textOverflow = 'ellipsis';
+		styleList.style.boxSizing = 'border-box';
+		styleList.style.overflow = 'hidden';
+		styleList.style.padding = '4px';
+		styleList.style.width = '100%';
+		content.appendChild(styleList);
+		var listStyles = function(styles)
+		{
+			let styleslen = styles.length;
+			for (var l = 0; l < styleslen; l++)
+			{
+				let option = document.createElement('option');
+				mxUtils.write(option, styles[l]);
+				styleList.appendChild(option);
+			}
+			return styleList;
+		}
+		// build combobox with list of styles from central repository
+		dataSource(listStyles);
+		
+		var bgColorApply = null;
+		var currentBgColor = '#ffffff';
+	
+		var fontColorApply = null;
+		var currentFontColor = '#000000';
+		
+		var bgPanel = new BaseFormatPanel().createColorOption(mxResources.get('backgroundColor'), function()
+		{
+			return currentBgColor;
+		}, function(color)
+		{
+			document.execCommand('backcolor', false, (color != mxConstants.NONE) ? color : 'transparent');
+		}, '#ffffff',
+		{
+			install: function(apply) { bgColorApply = apply; },
+			destroy: function() { bgColorApply = null; }
+		}, null, true);
+		bgPanel.style.fontWeight = 'bold';
+		content.appendChild(bgPanel);
+
+		var data = null;
+        var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
+        {
+			Repository.writeFile('STYLE', styleList.value, data, null, mxUtils.bind(this, function(message)
+			{
+				this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
+			}, isNew));
+//            fn(styleList.value, decodeHTML(libs['param'][styleList.value].value));
+        }, null, mxResources.get('save')));
+        editorUi.showDialog(dlg.container, 420, 620, true, true);
 	};
 
 //	Add popup menus to sidebar's stencils in custom libraries only	

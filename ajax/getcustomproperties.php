@@ -31,7 +31,7 @@ $forbidden_tables = ['glpi_users', 'glpi_authldaps', 'glpi_authmails', 'glpi_cer
 $DB = new DB;
 
 $cells = file_get_contents('php://input');
-Toolbox::logInFile("getcustomproperties", $cells."\n");
+//Toolbox::logInFile("getcustomproperties", $cells."\n");
 if (isset($cells)) {
 	$cells = json_decode($cells);
 } else {
@@ -57,7 +57,7 @@ foreach($cells as $id => $cell) {
 	$jointcriteria = (isset($cell->jointcriteria))? $DB->escape($cell->jointcriteria) : "";
 	if (!in_array(strtolower($table), $forbidden_tables)) {
         $query = "SELECT $table.id as glpi_id $jointcolumns from $table $jointtables \nwhere $table.id = $id $jointcriteria";
-Toolbox::logInFile("getcustomproperties", $query."\n");
+//Toolbox::logInFile("getcustomproperties", $query."\n");
 //var_dump($query);
         if ($result=$DB->query($query)) {
             $data[$key]=$DB->fetchAssoc($result);

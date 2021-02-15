@@ -138,6 +138,7 @@ Draw.loadPlugin(function(editorUi)
 											if (!cells[0].edge && cells[0].customproperties)
 											{
 												name = (cells[0].customproperties.stencil ? cells[0].customproperties.stencil : data[l].title);
+												// add the cell as customstencil in sidebar
 												editorUi.sidebar.customstencils[name] = cells[0];
 												// create an entry starting with "STYLE_" in mxConstants, to accept it in stylesheet xml file (f.i archimap.xml)
 												let styles = {};
@@ -470,7 +471,7 @@ EditorUi.prototype.updateTabContainer = function()
 										var newLabel = '';
 										if (thisCell.customproperties['name'])
 										{
-											newLabel = data[i];
+//											newLabel = data[i];
 											console.log(thisCell.customproperties['name']+' : '+i+' modified :'+thisCell.customproperties[i]+'<-'+data[i]+';');
 										}
 										thisCell.customproperties[i] = data[i];
@@ -496,6 +497,7 @@ EditorUi.prototype.updateTabContainer = function()
 											thisCell.customproperties['autocompleteaddedclass'] = classlist;
 										}
 										// update displayed value (the label), in case of change
+											console.log('autocomplete graph preferences', newLabel, thisEditor.graph.preferences[ipreference]);
 										if (thisEditor.graph.preferences 
 										&& thisEditor.graph.preferences[ipreference]
 										&& thisEditor.graph.preferences[ipreference].values.indexOf(i) >= 0)
@@ -728,6 +730,233 @@ mxGraph.prototype.preferences = [
 mxGraph.prototype.preferences['displayIconOnVertex'] = {'id':'displayIconOnVertex','description':'Display Icons on Nodes','type':'radio','values':['false'],'options':['true','false']}
 mxGraph.prototype.preferences['displayIconOnEdge'] = {'id':'displayIconOnEdge','description':'Display Icons on Links','type':'radio','values':['false'],'options':['true','false']}
 // End of Added EFE 20131218
+// Inspired from Editor.js : Load graph preferences
+/**
+ * Sets the XML node for the current diagram.
+ */
+Editor.prototype.readGraphState = function(node)
+{
+	this.graph.gridEnabled = node.getAttribute('grid') != '0' && (!this.chromeless || urlParams['grid'] == '1');
+	this.graph.gridSize = parseFloat(node.getAttribute('gridSize')) || mxGraph.prototype.gridSize;
+	this.graph.graphHandler.guidesEnabled = node.getAttribute('guides') != '0';
+	this.graph.setTooltips(node.getAttribute('tooltips') != '0');
+	this.graph.setConnectable(node.getAttribute('connect') != '0');
+	this.graph.connectionArrowsEnabled = node.getAttribute('arrows') != '0';
+	this.graph.foldingEnabled = node.getAttribute('fold') != '0';
+
+	if (this.chromeless && this.graph.foldingEnabled)
+	{
+		this.graph.foldingEnabled = urlParams['nav'] == '1';
+		this.graph.cellRenderer.forceControlClickHandler = this.graph.foldingEnabled;
+	}
+	
+	var ps = node.getAttribute('pageScale');
+	
+	if (ps != null)
+	{
+		this.graph.pageScale = ps;
+	}
+	else
+	{
+		this.graph.pageScale = mxGraph.prototype.pageScale;
+	}
+
+	if (!this.graph.lightbox)
+	{
+		var pv = node.getAttribute('page');
+	
+		if (pv != null)
+		{
+			this.graph.pageVisible = (pv != '0');
+		}
+		else
+		{
+			this.graph.pageVisible = this.graph.defaultPageVisible;
+		}
+	}
+	else
+	{
+		this.graph.pageVisible = false;
+	}
+	
+	this.graph.pageBreaksVisible = this.graph.pageVisible; 
+	this.graph.preferPageSize = this.graph.pageBreaksVisible;
+	
+	var pw = node.getAttribute('pageWidth');
+	var ph = node.getAttribute('pageHeight');
+	
+	if (pw != null && ph != null)
+	{
+		this.graph.pageFormat = new mxRectangle(0, 0, parseFloat(pw), parseFloat(ph));
+	}
+
+// Added EFE 20140116
+		// Load saved preferences
+	var thisGraphPreferences = this.graph.preferences || [];
+	var attrlist = node.attributes;
+	var lattr = attrlist.length;
+	[].slice.call(attrlist).forEach(function(attr) {
+		if (attr.name.search('custompreference.drawioconfig') >= 0)
+		{
+				id = mxSettings.key;
+				if (!thisGraphPreferences[id])
+					thisGraphPreferences[id] = new Object();
+				thisGraphPreferences[id] = attr.value;
+		} else
+		if (attr.name.search('custompreference.') >= 0)
+		{
+			var id = attr.name.replace('custompreference.','');
+			if (id.search('multilist') >= 0)
+			{
+				// multilist for labels
+				id = id.replace('multilist.','');
+				id = id.replace('LabelOf','mxgraph.glpi.').toLowerCase();
+				if (!thisGraphPreferences[id])
+					thisGraphPreferences[id] = new Object();
+				thisGraphPreferences[id].type = 'multilist';
+			}
+			else
+			if (id.search('list')>= 0)
+			{
+				id = id.replace('list.','');
+				if (!thisGraphPreferences[id])
+					thisGraphPreferences[id] = new Object();
+				thisGraphPreferences[id].type = 'list';
+			}
+			else
+			if (id.search('radio')>= 0)
+			{
+				id = id.replace('radio.','');
+				if (!thisGraphPreferences[id])
+					thisGraphPreferences[id] = new Object();
+				thisGraphPreferences[id].type = 'radio';
+			}
+			else
+			{
+				id = id.replace('LabelOf','mxgraph.glpi.').toLowerCase();
+				thisGraphPreferences[id] = new Object();
+				thisGraphPreferences[id].type = 'multilist';
+			}
+			thisGraphPreferences[id].id = id;
+			thisGraphPreferences[id].description = (mxResources.get(id)) || ('Label of '+id);
+			thisGraphPreferences[id].values = attr.value.split(",");
+		}
+	});
+	mxSettings.load();
+// end of Added EFE 20140116
+
+	// Loads the persistent state settings
+	var bg = node.getAttribute('background');
+	
+	if (bg != null && bg.length > 0)
+	{
+		this.graph.background = bg;
+	}
+	else
+	{
+		this.graph.background = this.graph.defaultGraphBackground;
+	}
+};
+
+// Inspired by Editor.js : Save the graph
+/**
+ * Returns the XML node that represents the current diagram.
+ */
+Editor.prototype.getGraphXml = function(ignoreSelection)
+{
+	ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+	var node = null;
+	
+	if (ignoreSelection)
+	{
+		var enc = new mxCodec(mxUtils.createXmlDocument());
+		node = enc.encode(this.graph.getModel());
+	}
+	else
+	{
+		node = this.graph.encodeCells(mxUtils.sortCells(this.graph.model.getTopmostCells(
+			this.graph.getSelectionCells())));
+	}
+
+	if (this.graph.view.translate.x != 0 || this.graph.view.translate.y != 0)
+	{
+		node.setAttribute('dx', Math.round(this.graph.view.translate.x * 100) / 100);
+		node.setAttribute('dy', Math.round(this.graph.view.translate.y * 100) / 100);
+	}
+	
+	node.setAttribute('grid', (this.graph.isGridEnabled()) ? '1' : '0');
+	node.setAttribute('gridSize', this.graph.gridSize);
+	node.setAttribute('guides', (this.graph.graphHandler.guidesEnabled) ? '1' : '0');
+	node.setAttribute('tooltips', (this.graph.tooltipHandler.isEnabled()) ? '1' : '0');
+	node.setAttribute('connect', (this.graph.connectionHandler.isEnabled()) ? '1' : '0');
+	node.setAttribute('arrows', (this.graph.connectionArrowsEnabled) ? '1' : '0');
+	node.setAttribute('fold', (this.graph.foldingEnabled) ? '1' : '0');
+	node.setAttribute('page', (this.graph.pageVisible) ? '1' : '0');
+	node.setAttribute('pageScale', this.graph.pageScale);
+	node.setAttribute('pageWidth', this.graph.pageFormat.width);
+	node.setAttribute('pageHeight', this.graph.pageFormat.height);
+// Added EFE 20140116
+	node.setAttribute('viewScale', this.graph.view.scale);
+	// Save diagram's preferences
+	for (var preference in this.graph.preferences)
+	{
+		if (typeof this.graph.preferences[preference].values != "function"
+		&& typeof this.graph.preferences[preference].values != "undefined"
+		&& preference != mxSettings.key)
+		{
+			node.setAttribute('custompreference.'+this.graph.preferences[preference].type+'.'+this.graph.preferences[preference].id, this.graph.preferences[preference].values);
+		} 
+		else 
+		{
+			if (preference == mxSettings.key)
+				node.setAttribute('custompreference.drawioconfig', this.graph.preferences[preference]);
+		}
+	}
+// end of Added EFE 20140116
+
+	if (this.graph.background != null)
+	{
+		node.setAttribute('background', this.graph.background);
+	}
+	
+	return node;
+};
+
+// Inspired from mxClient.js, to paint icon on vertex and edge shapes
+mxLabel.prototype.paintForeground = function(c, x, y, w, h)
+{
+// Added EFE 20141210
+	var displayIcon = this.state.view.graph.preferences.displayIconOnVertex.values[0];
+	if (displayIcon && displayIcon.toLowerCase() == 'true')
+	{
+		this.paintImage(c, x, y, w, h);
+	}
+// End of Added EFE 20141210
+	this.paintIndicator(c, x, y, w, h);
+	
+	mxRectangleShape.prototype.paintForeground.apply(this, arguments);
+};
+
+mxPolyline.prototype.paintEdgeShape = function(c, pts)
+{
+	if (this.style == null || this.style[mxConstants.STYLE_CURVED] != 1)
+	{
+		this.paintLine(c, pts, this.isRounded);
+	}
+	else
+	{
+		this.paintCurvedLine(c, pts);
+	}
+
+// Added EFE 20141210
+	if (c.state && c.state.view && c.state.view.graph && c.state.view.graph.preferences && c.state.view.graph.preferences.displayIconOnEdge)
+		var displayIcon = c.state.view.graph.preferences.displayIconOnEdge.values[0];
+//		var displayIcon = window.grapheditor.editor.graph.preferences.displayIconOnEdge.values[0];
+	if (displayIcon && displayIcon.toLowerCase() == 'true')
+	{
+		this.paintImage(c, pts);
+	}
+};
 
 // Added EFE 20141201
 /**
@@ -972,7 +1201,8 @@ mxForm.prototype.addFieldMove = function(name, input, output)
 				{
 					// get the name of the stencil
 					graph.preferences[stencil].id = stencil;
-					graph.preferences[stencil].description = mxResources.get(stencil) || 'Label of'+mxStencilRegistry.getStencil(stencil).desc.getAttribute('name');
+//					graph.preferences[stencil].description = mxResources.get(stencil) || 'Label of'+mxStencilRegistry.getStencil(stencil).desc.getAttribute('name');
+					graph.preferences[stencil].description = mxResources.get(stencil) || 'Label of'+stencil;
 					graph.preferences[stencil].type = 'multilist';
 					graph.preferences[stencil].values = ['name'];
 				}
