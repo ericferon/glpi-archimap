@@ -31,7 +31,7 @@ Repository = function(ui, data, title, temp)
 	
     this.title = title;
 	this.mode = (temp) ? null : App.MODE_REPOSITORY;
-	this.peer = this.ui.repository;
+	this.peer = (this.ui) ? this.ui.repository : null;
 };
 
 // Extends DrawioClient
@@ -186,7 +186,7 @@ Repository.prototype.writeFile = function(type, key, data, success, error, isNew
 {
 	if (data.length >= this.maxFileSize)
 	{
-		error({message: mxResources.get('drawingTooLarge') + ' (' +
+		error({message: mxResources.get('tooLarge') + ' (' +
 			this.ui.formatFileSize(data.length) + ' / 1 MB)'});
 	}
 	else
@@ -210,10 +210,12 @@ Repository.prototype.writeFile = function(type, key, data, success, error, isNew
 		
 		this.executeRequest(req, mxUtils.bind(this, function(req)
 		{
-			success(req);
+			if (success)
+				success(req);
 		}), mxUtils.bind(this, function(err)
 		{
-			error(err);
+			if (error)
+				error(err);
 		}));
 	}
 };

@@ -696,10 +696,13 @@ App.prototype.getPeerForMode = function(mode)
 	};
 
 // Display dialog to link an appearance modification to a custom property value
-	var Link2CssClassDialog = function (editorUi, cell, file)
+	var Link2CssClassDialog = function (editorUi, cells, index, imgs, file)
 	{
+		var isNewKey = true;
+		var newValueStyle = [];
+		var cell = cells[0];
 		const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat()))); // cartesian product of matrices : see https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
-		var dataSource = function(callback)
+		var dataSource = function(callback, postFn)
         {
 
 			// Get the CSS classes, from customproperties, as constituent parts
@@ -722,7 +725,6 @@ App.prototype.getPeerForMode = function(mode)
 				}
 				i++;
 			}
-//			console.log('classes', classes);
 			// Get the columns names, from customproperties, to build the query and list the available values
 			let columns = cell.customproperties.autocompletejointcolumns.split(',');
 			let tables = {};
@@ -752,14 +754,12 @@ App.prototype.getPeerForMode = function(mode)
 				}
 			}
 			// Get the list of available values from repository
-//			console.log('tables', tables);
-			let cssclasses = [];
+			let cssclasses = [''];
 			var xhr = new XMLHttpRequest();
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-					let 	datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-//					console.log('datas', datas);
-					let cssclass = [''];
+					let datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+					let cssclass = [];
 					// combine the CSS class tokens, replacing column names with real values
 					for (i = 0; i < classes.length; i++)
 					{
@@ -780,7 +780,13 @@ App.prototype.getPeerForMode = function(mode)
 							cssclasses.push(cssclass[k].join('').replace(/[ ]/gi,'_')); // replace spaces by underscore
 						}
 					}
-					return callback(cssclasses);
+					var index = cssclasses.indexOf('');
+					while (index !== -1) 
+					{
+						cssclasses.splice(index, 1);
+						index = cssclasses.indexOf('');
+					}
+					return callback(cssclasses, postFn);
 //					return cssclasses;
 				}; 
 			}
@@ -788,124 +794,250 @@ App.prototype.getPeerForMode = function(mode)
 			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 			xhr.send(JSON.stringify(tables));
 		};
-/*		var div = document.createElement('div');
-		div.style.overflowY = 'auto';
-		div.id = 'alpaca';
-		// alpaca
-		if (mxClient.language)
-		{	
-			$.alpaca.setDefaultLocale(mxClient.language);
-			var language = mxClient.language;
+		var content = document.createElement('div');
+		content.style.overflowY = 'auto';
+
+		var img = imgs[index];
+		var shapeWidth = img.w;
+		var shapeHeight = img.h;
+
+		var hd = document.createElement('h3');
+		let title = img.title || cell.customproperties['stencil'];
+		mxUtils.write(hd, title);
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:6px';
+		content.appendChild(hd);
+		var shape = document.createElement('a');
+		shape.id = title;
+		shape.className = 'geItem';
+		shape.style.overflow = 'hidden';
+		var border = (mxClient.IS_QUIRKS) ? 8 + 2 * 6 : 2 * 6;
+		shape.style.width = (shapeWidth + border) + 'px';
+		shape.style.height = (shapeHeight + border) + 'px';
+		shape.style.padding = '6px';
+	
+		if (mxClient.IS_IE6)
+		{
+			shape.style.border = 'none';
 		}
-		else
-		{	
-			$.alpaca.setDefaultLocale('en-US');
-			var language = 'en-US'
+	
+		// Blocks default click action
+		mxEvent.addListener(shape, 'click', function(evt)
+		{
+			mxEvent.consume(evt);
+		});
+
+		var thumb = editorUi.sidebar.createThumb(cells, shapeWidth, shapeHeight, shape, img.title || '', false, false, shapeWidth, shapeHeight);
+		shape.style.display = 'block';
+		shape.style.margin = 'auto';
+		content.appendChild(shape);
+
+		var cssList = document.createElement('select');
+		cssList.id = 'style';
+		cssList.style.textOverflow = 'ellipsis';
+		cssList.style.boxSizing = 'border-box';
+		cssList.style.overflow = 'hidden';
+		cssList.style.padding = '4px';
+		cssList.style.width = '100%';
+		
+		var repository = new Repository(ui);
+		var displayPanel = function(selectedValue, selectedValueStyle, content)
+		{
+			newValueStyle[selectedValue] = {};
+			console.log('displayPanel', selectedValueStyle);
+			// remove previous panels, if any
+			let previousPanel = document.getElementById('panels');
+			if (previousPanel)
+			{
+				content.removeChild(previousPanel);
+			}
+			// create new panels
+			var panels = document.createElement('div');
+			panels.id = 'panels';
+			content.appendChild(panels);
+
+			// get the tokens of cell's style
+			var shapeStyles = {};
+			for (let entry of cell.style.split(";")) {
+				let [key, value] = entry.split("=");
+					shapeStyles[key] = value;
+			}
+			// initialize newValueStyle with shape 
+			if (shapeStyles.shape)
+				newValueStyle[selectedValue].shape = shapeStyles.shape;
+			var fillColorApply = null;
+			var defaultFillColor = shapeStyles['fillColor'] || '#ffffff';
+			var currentFillColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue].fillColor ? 
+									selectedValueStyle[selectedValue].fillColor : defaultFillColor;
+			var newFillColor = null;
+	
+			var fontColorApply = null;
+			var currentFontColor = '#000000';
+			
+			var updateShapeFillcolor = function(color)
+			{
+				var svg = shape.querySelectorAll('rect[fill], path[fill], circle[fill], ellipse[fill], polygon[fill], line[fill], polyline[fill]');
+				var svgLen = svg.length;
+				for (let i = 0; i < svgLen; i++)
+				{
+					svg[i].setAttribute('fill', color);
+				}
+			}
+		
+			var format = new Format(editorUi, content);
+			var panel = new BaseFormatPanel(format, editorUi, content);
+			var fillPanel = panel.createColorOption(mxResources.get('fillColor'), function()
+			{
+//				console.log('createColorOption get', currentFillColor);
+//				newValueStyle[selectedValue].fillColor = currentFillColor;
+				return currentFillColor;
+			}, function(color)
+			{
+				updateShapeFillcolor((color != mxConstants.NONE) ? color : currentFillColor);
+				document.execCommand('backcolor', false, (color != mxConstants.NONE) ? color : currentFillColor);
+			}, '#ffffff',
+			{
+				install: function(apply) { fillColorApply = apply; },
+				destroy: function() { fillColorApply = null; }
+			}, function(color)
+			{
+//				console.log('createColorOption callback', color);
+				newValueStyle[selectedValue].fillColor = (color != mxConstants.NONE) ? color : null;
+				updateShapeFillcolor(color);
+			}, false);
+			fillPanel.style.height = '30px';
+			fillPanel.style.boxSizing = 'border-box';
+			fillPanel.style.overflow = 'hidden';
+			fillPanel.style.padding = '4px';
+			fillPanel.style.width = '100%';
+			panels.appendChild(fillPanel);
+			// uncheck box if the fill collor is not changed
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue].fillColor)
+			{
+				var cb = fillPanel.querySelectorAll('input[type="checkbox"]');
+				if (cb[0].checked)
+				{
+					cb[0].click();
+				}
+			}
+			else
+			{
+				updateShapeFillcolor(selectedValueStyle[selectedValue].fillColor);
+			}
 		}
 
-		// Add dynamic fields with alpaca.org
-		$(document).ready(function() {
-			$('#alpaca').alpaca( {
-				'schemaSource' : window.DRAWIOINTEGRATION_PATH + '/ext/alpaca/link2cssclass.schema.json',
-				'optionsSource' : window.DRAWIOINTEGRATION_PATH + '/ext/alpaca/link2cssclass_' + language.substring(0,2) + '.options.json',
-				'dataSource' : cell.customproperties,
-				'options' :	{
-					"fields" : {
-						"cssclass" : {
-							"type" : "select",
-							"useDataSourceAsEnum" : true,
-							"removeDefaultNone" : true,
-							"sort" : false,
-							"size" : 1,
-							"dataSource" : dataSource
-						},
-                        "fillColor" : {
-                            "type" : "color"
-                        }
-					},
-					"form" : {
-						"buttons" : {
-							"cancel" : {
-								"title" : "Cancel",
-								"click" : function() {
-									editorUi.hideDialog();
-								}
-							},
-							"ok" : {
-								"title" : "Save",
-								"click" : function() {
+		// fill in a structure with the style information
+		var success = function(req)
+		{
+			var decodeHTML = function (html) {
+				var txt = document.createElement('textarea');
+				txt.innerHTML = html;
+				return txt.value;
+			};
+			var parser = new DOMParser();
+			var styles = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
+			var style = {};
+			if (styles['param'])
+			{
+				isNewKey = true;
+				var arrayLength = styles['param'].length;
+				// decode the style value retrieved from repository
+				for (var i = 0 in styles['param'])
+				{
+					var text = decodeHTML(styles['param'][i].value); // get the "value" field of STYLE 'key'
+					xmlDoc = parser.parseFromString(text,"text/xml"); // parse the "value" field as xml
+					var addStyleSheet = xmlDoc.querySelectorAll("mxStylesheet>add"); // select the leaf "add" nodes 
+					for (var i in addStyleSheet)								// put the "as" value and the "value" value in a structure
+					{
+						if (addStyleSheet.hasOwnProperty(i)) 
+						{
+							isNewKey = false; // key with cssName exists in repository
+							var cssName = addStyleSheet[i].getAttribute('as');
+							style[cssName] = {};
+							var addNodes = addStyleSheet[i].querySelectorAll("add>add"); // select the leaf "add" nodes 
+							for (var j in addNodes)								// put the "as" value and the "value" value in a structure
+							{
+								if (addNodes.hasOwnProperty(j)) 
+								{
+									var styleName = addNodes[j].getAttribute('as');
+									var styleValue = addNodes[j].getAttribute('value');
+									style[cssName][styleName] = styleValue;
 								}
 							}
 						}
-					},
-					"focus" : "cssclass"
-				},
-				'view' : 'bootstrap-edit-horizontal'
-			});
-		});
-	
-
-		this.container = div;
-*/		var content = document.createElement('div');
-		content.style.overflowY = 'auto';
-
-		var hd = document.createElement('h3');
-		mxUtils.write(hd, cell.customproperties['stencil']);
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
-		content.appendChild(hd);
-
-		var styleList = document.createElement('select');
-		styleList.id = 'style';
-		styleList.style.textOverflow = 'ellipsis';
-		styleList.style.boxSizing = 'border-box';
-		styleList.style.overflow = 'hidden';
-		styleList.style.padding = '4px';
-		styleList.style.width = '100%';
-		content.appendChild(styleList);
-		var listStyles = function(styles)
+					}
+				}
+			}
+			else
+				isNewKey = true;
+			// update displayed values
+			displayPanel(cssList.value, style, content);
+		};
+		var error = function(message)
 		{
-			let styleslen = styles.length;
-			for (var l = 0; l < styleslen; l++)
+			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
+		};
+		
+		var getCssStyles = function(evt)
+		{
+			console.log('getCssStyles', cssList.value, (evt ? evt.target.value:'no event'));
+			repository.getStyles("STYLE", (evt ? evt.target.value : cssList.value), success, error);
+		};
+
+		cssList.addEventListener('change', (event) => getCssStyles(event));
+		content.appendChild(cssList);
+		
+		var listCssClasses = function(cssClasses, postFn)
+		{
+			let cssClasseslen = cssClasses.length;
+			for (var l = 0; l < cssClasseslen; l++)
 			{
 				let option = document.createElement('option');
-				mxUtils.write(option, styles[l]);
-				styleList.appendChild(option);
+				option.value = cssClasses[l];
+				mxUtils.write(option, cssClasses[l]);
+				cssList.appendChild(option);
 			}
-			return styleList;
+			if (postFn)
+				postFn();
+			return cssList;
 		}
 		// build combobox with list of styles from central repository
-		dataSource(listStyles);
-		
-		var bgColorApply = null;
-		var currentBgColor = '#ffffff';
-	
-		var fontColorApply = null;
-		var currentFontColor = '#000000';
-		
-		var bgPanel = new BaseFormatPanel().createColorOption(mxResources.get('backgroundColor'), function()
-		{
-			return currentBgColor;
-		}, function(color)
-		{
-			document.execCommand('backcolor', false, (color != mxConstants.NONE) ? color : 'transparent');
-		}, '#ffffff',
-		{
-			install: function(apply) { bgColorApply = apply; },
-			destroy: function() { bgColorApply = null; }
-		}, null, true);
-		bgPanel.style.fontWeight = 'bold';
-		content.appendChild(bgPanel);
-
+		dataSource(listCssClasses, getCssStyles);
 		var data = null;
-        var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
+		var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
         {
-			Repository.writeFile('STYLE', styleList.value, data, null, mxUtils.bind(this, function(message)
+			console.log('OK ', cssList.value, newValueStyle);
+			var key = cssList.value;
+			var doc = mxUtils.createXmlDocument();
+			var library = doc.createElement('mxStylesheet');
+			doc.appendChild(library);
+			var addKey = doc.createElement('add');
+			addKey.setAttribute('as', key);
+			library.appendChild(addKey);
+			var addShape = doc.createElement('add');
+			addShape.setAttribute('as', 'shape');
+			addShape.setAttribute('value', newValueStyle[key]['shape']);
+			addKey.appendChild(addShape);
+			for (attrib in newValueStyle[key])
+			{
+				if (newValueStyle[key].hasOwnProperty(attrib) && attrib != 'shape' && newValueStyle[key][attrib])
+				{
+					var addAttrib = doc.createElement('add');
+					addAttrib.setAttribute('as', attrib);
+					addAttrib.setAttribute('value', newValueStyle[key][attrib]);
+					addKey.appendChild(addAttrib);
+				}
+			}
+			var data = mxUtils.getXml(doc)
+//			console.log('OK xml', data, isNewKey);
+		
+			repository.writeFile('STYLE', cssList.value, data, null, mxUtils.bind(this, function(message)
 			{
 				this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
-			}, isNew));
-//            fn(styleList.value, decodeHTML(libs['param'][styleList.value].value));
-        }, null, mxResources.get('save')));
-        editorUi.showDialog(dlg.container, 420, 620, true, true);
+			}), isNewKey);
+        }), null, mxResources.get('save'), null, null, null, mxResources.get('quit'));
+		if (dlg && dlg.container)
+			editorUi.showDialog(dlg.container, 420, 820, true, true);
+		
 	};
 
 //	Add popup menus to sidebar's stencils in custom libraries only	
@@ -936,9 +1068,12 @@ App.prototype.getPeerForMode = function(mode)
 							menu.addItem(mxResources.get('link2CssClass'), null, mxUtils.bind(this, function()
 							{
 								var div = document.createElement('div');
-								var dlg = new Link2CssClassDialog(ui, cells[0], file);
-								ui.showDialog(dlg.container, 1000, 600, true, true, null, false, false);
-								mxEvent.consume(evt);
+								var dlg = new Link2CssClassDialog(ui, cells, index, imgs, file);
+								if (dlg && dlg.container)
+								{
+									ui.showDialog(dlg.container, 1000, 600, true, true, null, false, false);
+									mxEvent.consume(evt);
+								}
 							}));
 						}
 					}

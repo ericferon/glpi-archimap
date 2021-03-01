@@ -276,7 +276,7 @@
 		<add as="imageAlign" value="left"/>
 		<add as="imageVerticalAlign" value="middle"/>
 	</add>/>
-<add as="Dataflow_SAPPO">
+<add as="Dataflow_SAP_PO">
 		<add as="shape" value="connector"/>
 		<add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
 		<add as="imageWidth" value="48"/>

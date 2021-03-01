@@ -50,4 +50,6 @@ mxgraph.glpi.supplier=Label of Supplier
 mxgraph.glpi.supplier.name=GLPI Name
 nameTooLong=The name is too long
 noStencilTitle=Please, add first a unique title before linking to a repository
+quit=Quit
 repository=Central repository
+tooLarge=Too large !

@@ -468,7 +468,7 @@ EditorUi.prototype.updateTabContainer = function()
 									data[i] = (data[i]) ? data[i] : "";
 									if (thisCell.customproperties[i] == "undefined" || thisCell.customproperties[i] != data[i])
 									{
-										var newLabel = '';
+										var newLabel = (i == 'name') ? data[i] : '';
 										if (thisCell.customproperties['name'])
 										{
 //											newLabel = data[i];
@@ -497,7 +497,6 @@ EditorUi.prototype.updateTabContainer = function()
 											thisCell.customproperties['autocompleteaddedclass'] = classlist;
 										}
 										// update displayed value (the label), in case of change
-											console.log('autocomplete graph preferences', newLabel, thisEditor.graph.preferences[ipreference]);
 										if (thisEditor.graph.preferences 
 										&& thisEditor.graph.preferences[ipreference]
 										&& thisEditor.graph.preferences[ipreference].values.indexOf(i) >= 0)
