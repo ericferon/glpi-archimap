@@ -458,13 +458,11 @@ EditorUi.prototype.updateTabContainer = function()
 								var jointtables = thisCell.customproperties.autocompletejointtables || '';
 								var jointcolumns = thisCell.customproperties.autocompletejointcolumns || tablename+'.id as glpi_id';
 								var jointcriteria = thisCell.customproperties.autocompletejointcriteria || '';
-		console.log('refreshCustomProperties stencil', stencil);
 								if (stencil && stencil.customproperties) {
 									// temporary : to bypass shape inexistence in style
 									if (thisEditor.graph.model.getStyle(thisCell).search('shape=') == -1)
 									{
 										var style = thisEditor.graph.model.getStyle(thisCell);
-										console.log('refreshCustomProperties style', thisCell.customproperties.name, style);
 										thisEditor.graph.model.setStyle(thisCell, 'shape='+stencilName.replace(/ /g,"_")+';'+style);
 										thisEditor.modified = true;
 									}
@@ -475,7 +473,6 @@ EditorUi.prototype.updateTabContainer = function()
 										&& typeof stencil.customproperties[customproperty] != "undefined"
 										&& thisCell.customproperties[customproperty] != stencil.customproperties[customproperty])
 										{
-		console.log('refreshCustomProperties customproperties', thisCell.customproperties['name'], customproperty);
 											thisCell.customproperties[customproperty] = stencil.customproperties[customproperty];
 											thisEditor.modified = true;
 										}
@@ -527,14 +524,12 @@ EditorUi.prototype.updateTabContainer = function()
 								thisCell.customproperties['autocompleteaddedclass'] = classlist;
 							}
 */							// retrieve label displayed as graph's preference
-		console.log('refreshCustomProperties thisCell', thisCell.customproperties );
 							var ipreference = thisCell.customproperties['stencil'];
 							for (var i in data)
 							{
 								if (data.hasOwnProperty(i)) 
 								{
 									data[i] = (data[i]) ? data[i] : "";
-		console.log('refreshCustomProperties data', i, data[i] );
 									if (thisCell.customproperties[i] == "undefined" || thisCell.customproperties[i] != data[i])
 									{
 										var newLabel = (i == 'name') ? data[i] : '';
