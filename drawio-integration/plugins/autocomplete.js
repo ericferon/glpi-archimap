@@ -73,6 +73,7 @@ Draw.loadPlugin(function(editorUi)
 		var repository = new Repository(editorUi);
 		repository.getStyles('STYLE', null, mxUtils.bind(this, function(req)
 		{
+console.log('autocomplete load styles from central repository', editorUi.editor.graph.model.cells);
 			var decodeHTML = function (html) {
 				var txt = document.createElement('textarea');
 				txt.innerHTML = html;
@@ -108,6 +109,7 @@ Draw.loadPlugin(function(editorUi)
 	{
 		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
 		{
+		console.log('refreshCellStyle');
 			for (let i in thisEditor.graph.model.cells)
 			{
 				thisCell = thisEditor.graph.model.cells[i];
@@ -1749,7 +1751,7 @@ mxCellEditor.prototype.installListeners = function(elt)
 					if (tablename == table_parent)
 					{
 						// select only the GLPI objects that are the children of the containing cell
-						othercriteria += " and "+tablename+".completename like '%"+containingCell.customproperties.name+"%'";
+						othercriteria += (othercriteria ? " and " : " ")+tablename+".completename like '%%"+containingCell.customproperties.name+"%'";
 					}
 				}
 				var firstcolumnname = columnname.split(",",1); //firstcolumnname is the 1st column name in the list to be displayed as graph's preference

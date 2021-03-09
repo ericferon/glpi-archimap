@@ -92,6 +92,7 @@ foreach ($columns_arr as $column) {
 	$or = " OR ";
 }
 $query .= ") ".$jointcriteria." ".$othercriteria." ".$ordercriteria;
+$query = preg_replace('/[[:^print:]]/', '', $query); // remove non-printable characters
 //Toolbox::logInFile("autocomplete", $query."\n");
 //var_dump($query);
 if ($result=$DB->query($query)) {
