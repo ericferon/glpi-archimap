@@ -68,37 +68,76 @@ Draw.loadPlugin(function(editorUi)
 	});
 
 // Load CSS classes from central repository
-    var repository = new Repository(editorUi);
-    repository.getStyles('STYLE', null, mxUtils.bind(this, function(req)
+	var loadStylesFromRepository = function(editorUi)
 	{
-        var decodeHTML = function (html) {
-            var txt = document.createElement('textarea');
-            txt.innerHTML = html;
-            return txt.value;
-        };
-		var customstyles = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
-        if (customstyles['param'])
+		var repository = new Repository(editorUi);
+		repository.getStyles('STYLE', null, mxUtils.bind(this, function(req)
 		{
-            var stylesheet = editorUi.editor.graph.getStylesheet()
-            for (var i = 0 in customstyles['param'])
+			var decodeHTML = function (html) {
+				var txt = document.createElement('textarea');
+				txt.innerHTML = html;
+				return txt.value;
+			};
+			var customstyles = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
+			if (customstyles['param'])
 			{
-                var node = mxUtils.parseXml(decodeHTML(customstyles['param'][i].value)).documentElement;
-                var dec = new mxCodec(node.ownerDocument);
-                var customstyle = dec.decode(node);
-				// copy style in stylesheet
-				stylesheet.styles[customstyles['param'][i].key] = customstyle.styles[customstyles['param'][i].key];
-				// mark it as "customstyle"
-				if (stylesheet.styles[customstyles['param'][i].key])
-                    stylesheet.styles[customstyles['param'][i].key].customstyle = true;
+				var stylesheet = editorUi.editor.graph.getStylesheet()
+				for (var i = 0 in customstyles['param'])
+				{
+					var node = mxUtils.parseXml(decodeHTML(customstyles['param'][i].value)).documentElement;
+					var dec = new mxCodec(node.ownerDocument);
+					var customstyle = dec.decode(node);
+					// copy style in stylesheet
+					stylesheet.styles[customstyles['param'][i].key] = customstyle.styles[customstyles['param'][i].key];
+					// mark it as "customstyle"
+					if (stylesheet.styles[customstyles['param'][i].key])
+						stylesheet.styles[customstyles['param'][i].key].customstyle = true;
+				}
 			}
-        }
-	}), 
-    mxUtils.bind(this, function(message)
-    {
-        this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
-    }));
+			console.log('refreshCellStyle stylesheet', stylesheet);
+			refreshCellStyle(editorUi.editor);
+		}), 
+		mxUtils.bind(this, function(message)
+		{
+			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
+		}));
+	}
+	loadStylesFromRepository(editorUi);
 
-// Load custom libraries in sidebar -----------------------------------------------------------------------------------
+	var refreshCellStyle = function(thisEditor)
+	{
+		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
+		{
+			for (let i in thisEditor.graph.model.cells)
+			{
+				thisCell = thisEditor.graph.model.cells[i];
+				var thisState = thisEditor.graph.getView().getState(thisCell);
+				if (thisCell.customproperties && thisCell.customproperties['autocompletecssclass'])
+				{
+					// Build the list of CSS classes and assign them to the cell
+					var cssclassname = thisCell.customproperties['autocompletecssclass'].split("+")
+					var style = thisEditor.graph.model.getStyle(thisCell);
+					// remove old stylenames
+					style = mxUtils.removeAllStylenames(style);
+					var classlist = "";
+					for (j = 0; j < cssclassname.length ; j++)
+					{
+						// If the customproperty "autocompletcssclass" exists, add current value of "autocompletcssclass" to the element's class
+						if (thisCell.customproperties[cssclassname[j]])
+							classlist += (typeof(thisCell.customproperties[cssclassname[j]]) == 'string') ? thisCell.customproperties[cssclassname[j]].replace(/ /g,"_") : thisCell.customproperties[cssclassname[j]];
+						else
+						// Otherwise, add simply the symbol as string
+							classlist += cssclassname[j].replace(/'/g,"");
+					}
+					thisEditor.graph.model.setStyle(thisCell, style + ';;' + classlist);
+					thisCell.customproperties['autocompleteaddedclass'] = classlist;
+				}
+			}
+		}
+	}
+//	refreshCellStyle(editorUi.editor);
+
+	// Load custom libraries in sidebar -----------------------------------------------------------------------------------
 	// Add custom libraries as customstencils in sidebar object. So they can be retrieved in refreshCustomProperties.
 	if (editorUi.sidebar.customEntries != null)
 		{
@@ -216,7 +255,7 @@ Draw.loadPlugin(function(editorUi)
 		}
 
 /**
- * Update the displayed "page".
+ * Update the displayed container.
  */
 EditorUi.prototype.updateTabContainer = function()
 {
@@ -376,7 +415,7 @@ EditorUi.prototype.updateTabContainer = function()
 			}));
 		}
 // Added EFE 20201123
-		refreshCustomProperties(this.editor);
+		loadStylesFromRepository(this);
 // End of Added EFE 20201123
 	}
 };
@@ -384,6 +423,9 @@ EditorUi.prototype.updateTabContainer = function()
 //	Refresh cells customproperties
 	refreshCustomProperties = function (thisEditor)
 	{
+		console.log('refreshCustomProperties', thisEditor);
+		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
+		{
 				var thisCells = thisEditor.graph.model.cells;
 				var glpiCells = {};
 				for (var key in thisCells)
@@ -420,6 +462,7 @@ EditorUi.prototype.updateTabContainer = function()
 									if (thisEditor.graph.model.getStyle(thisCell).search('shape=') == -1)
 									{
 										var style = thisEditor.graph.model.getStyle(thisCell);
+										console.log('refreshCustomProperties style', thisCell.customproperties.name, style);
 										thisEditor.graph.model.setStyle(thisCell, 'shape='+stencilName.replace(/ /g,"_")+';'+style);
 										thisEditor.modified = true;
 									}
@@ -459,7 +502,28 @@ EditorUi.prototype.updateTabContainer = function()
 						{
 							var data = datas[key];
 							thisCell = thisCells[key];
-							// retrieve label displayed as graph's preference
+							var thisState = thisEditor.graph.getView().getState(thisCell);
+/*							// Build the list of CSS classes and assign them to the cell
+							if (thisCell.customproperties['autocompletecssclass'])
+							{
+								var cssclassname = thisCell.customproperties['autocompletecssclass'].split("+")
+								var style = thisEditor.graph.model.getStyle(thisCell);
+								// remove old stylenames
+								style = mxUtils.removeAllStylenames(style);
+								var classlist = "";
+								for (j = 0; j < cssclassname.length ; j++)
+								{
+									// If the customproperty "autocompletcssclass" exists, add current value of "autocompletcssclass" to the element's class
+									if (thisCell.customproperties[cssclassname[j]])
+										classlist += (typeof(thisCell.customproperties[cssclassname[j]]) == 'string') ? thisCell.customproperties[cssclassname[j]].replace(/ /g,"_") : thisCell.customproperties[cssclassname[j]];
+									else
+									// Otherwise, add simply the symbol as string
+										classlist += cssclassname[j].replace(/'/g,"");
+								}
+								thisEditor.graph.model.setStyle(thisCell, style + ';;' + classlist);
+								thisCell.customproperties['autocompleteaddedclass'] = classlist;
+							}
+*/							// retrieve label displayed as graph's preference
 							var ipreference = thisCell.customproperties['stencil'];
 							for (var i in data)
 							{
@@ -476,6 +540,7 @@ EditorUi.prototype.updateTabContainer = function()
 										}
 										thisCell.customproperties[i] = data[i];
 										thisEditor.modified = true;
+										// Build the list of CSS classes and assign them to the cell
 										if (thisCell.customproperties['autocompletecssclass'])
 										{
 											var cssclassname = thisCell.customproperties['autocompletecssclass'].split("+")
@@ -492,8 +557,9 @@ EditorUi.prototype.updateTabContainer = function()
 												// Otherwise, add simply the symbol as string
 													classlist += cssclassname[j].replace(/'/g,"");
 											}
-											thisEditor.graph.model.setStyle(thisCell, style + ';' + classlist);
+											thisEditor.graph.model.setStyle(thisCell, style + ';;' + classlist);
 											thisCell.class = classlist.replace(/;/g," ");
+											thisState.shape.node.className.baseVal = classlist.replace(/;/g," ");
 											thisCell.customproperties['autocompleteaddedclass'] = classlist;
 										}
 										// update displayed value (the label), in case of change
@@ -532,6 +598,7 @@ EditorUi.prototype.updateTabContainer = function()
 				xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getcustomproperties.php", true);
 				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 				xhr.send(JSON.stringify(glpiCells));
+		}
 	}
 
 
