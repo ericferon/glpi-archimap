@@ -455,7 +455,7 @@ EditorUi.prototype.updateTabContainer = function()
 							}
 							if (id) {
 								var stencil = (stencilName) ? editorUi.sidebar.customstencils[stencilName.replace(/ /g,"_").toLowerCase()] : null;
-								var jointtables = thisCell.customproperties.autocompletejointtables || tablename;
+								var jointtables = thisCell.customproperties.autocompletejointtables || '';
 								var jointcolumns = thisCell.customproperties.autocompletejointcolumns || tablename+'.id as glpi_id';
 								var jointcriteria = thisCell.customproperties.autocompletejointcriteria || '';
 		console.log('refreshCustomProperties stencil', stencil);
@@ -527,12 +527,14 @@ EditorUi.prototype.updateTabContainer = function()
 								thisCell.customproperties['autocompleteaddedclass'] = classlist;
 							}
 */							// retrieve label displayed as graph's preference
+		console.log('refreshCustomProperties thisCell', thisCell.customproperties );
 							var ipreference = thisCell.customproperties['stencil'];
 							for (var i in data)
 							{
 								if (data.hasOwnProperty(i)) 
 								{
 									data[i] = (data[i]) ? data[i] : "";
+		console.log('refreshCustomProperties data', i, data[i] );
 									if (thisCell.customproperties[i] == "undefined" || thisCell.customproperties[i] != data[i])
 									{
 										var newLabel = (i == 'name') ? data[i] : '';
