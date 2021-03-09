@@ -682,6 +682,7 @@ App.prototype.getPeerForMode = function(mode)
 									imgs[index].xml = Graph.compress(mxUtils.getXml(editorUi.editor.graph.encodeCells(cells)));
 									editorUi.hideDialog();
 									editorUi.saveLibrary(file.title, imgs, file, file.mode);
+									editorUi.refreshCustomProperties(editorUi.editor);
 								}
 							}
 						}
@@ -1005,7 +1006,7 @@ App.prototype.getPeerForMode = function(mode)
 		var data = null;
 		var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
         {
-			console.log('OK ', cssList.value, newValueStyle);
+			// when hitting "Save", build the xml stylesheet
 			var key = cssList.value;
 			var doc = mxUtils.createXmlDocument();
 			var library = doc.createElement('mxStylesheet');
@@ -1028,12 +1029,13 @@ App.prototype.getPeerForMode = function(mode)
 				}
 			}
 			var data = mxUtils.getXml(doc)
-//			console.log('OK xml', data, isNewKey);
-		
+			// save this xml stylesheet
 			repository.writeFile('STYLE', cssList.value, data, null, mxUtils.bind(this, function(message)
 			{
 				this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
 			}), isNewKey);
+			// refresh the display
+			editorUi.refreshCellStyle(editorUi.editor);
         }), null, mxResources.get('save'), null, null, null, mxResources.get('quit'));
 		if (dlg && dlg.container)
 			editorUi.showDialog(dlg.container, 420, 820, true, true);

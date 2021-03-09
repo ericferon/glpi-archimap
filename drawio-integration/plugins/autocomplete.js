@@ -68,12 +68,11 @@ Draw.loadPlugin(function(editorUi)
 	});
 
 // Load CSS classes from central repository
-	var loadStylesFromRepository = function(editorUi)
+	EditorUi.prototype.loadStylesFromRepository = function()
 	{
-		var repository = new Repository(editorUi);
+		var repository = new Repository(this);
 		repository.getStyles('STYLE', null, mxUtils.bind(this, function(req)
 		{
-console.log('autocomplete load styles from central repository', editorUi.editor.graph.model.cells);
 			var decodeHTML = function (html) {
 				var txt = document.createElement('textarea');
 				txt.innerHTML = html;
@@ -82,7 +81,7 @@ console.log('autocomplete load styles from central repository', editorUi.editor.
 			var customstyles = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
 			if (customstyles['param'])
 			{
-				var stylesheet = editorUi.editor.graph.getStylesheet()
+				var stylesheet = this.editor.graph.getStylesheet()
 				for (var i = 0 in customstyles['param'])
 				{
 					var node = mxUtils.parseXml(decodeHTML(customstyles['param'][i].value)).documentElement;
@@ -96,20 +95,19 @@ console.log('autocomplete load styles from central repository', editorUi.editor.
 				}
 			}
 			console.log('refreshCellStyle stylesheet', stylesheet);
-			refreshCellStyle(editorUi.editor);
+			this.refreshCellStyle(this.editor);
 		}), 
 		mxUtils.bind(this, function(message)
 		{
 			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
 		}));
 	}
-	loadStylesFromRepository(editorUi);
+	editorUi.loadStylesFromRepository();
 
-	var refreshCellStyle = function(thisEditor)
+	EditorUi.prototype.refreshCellStyle = function(thisEditor)
 	{
 		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
 		{
-		console.log('refreshCellStyle');
 			for (let i in thisEditor.graph.model.cells)
 			{
 				thisCell = thisEditor.graph.model.cells[i];
@@ -417,13 +415,14 @@ EditorUi.prototype.updateTabContainer = function()
 			}));
 		}
 // Added EFE 20201123
-		loadStylesFromRepository(this);
+		this.loadStylesFromRepository();
+		this.refreshCustomProperties(this.editor);
 // End of Added EFE 20201123
 	}
 };
 
 //	Refresh cells customproperties
-	refreshCustomProperties = function (thisEditor)
+	EditorUi.prototype.refreshCustomProperties = function (thisEditor)
 	{
 		console.log('refreshCustomProperties', thisEditor);
 		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
@@ -459,6 +458,7 @@ EditorUi.prototype.updateTabContainer = function()
 								var jointtables = thisCell.customproperties.autocompletejointtables || tablename;
 								var jointcolumns = thisCell.customproperties.autocompletejointcolumns || tablename+'.id as glpi_id';
 								var jointcriteria = thisCell.customproperties.autocompletejointcriteria || '';
+		console.log('refreshCustomProperties stencil', stencil);
 								if (stencil && stencil.customproperties) {
 									// temporary : to bypass shape inexistence in style
 									if (thisEditor.graph.model.getStyle(thisCell).search('shape=') == -1)
@@ -475,6 +475,7 @@ EditorUi.prototype.updateTabContainer = function()
 										&& typeof stencil.customproperties[customproperty] != "undefined"
 										&& thisCell.customproperties[customproperty] != stencil.customproperties[customproperty])
 										{
+		console.log('refreshCustomProperties customproperties', thisCell.customproperties['name'], customproperty);
 											thisCell.customproperties[customproperty] = stencil.customproperties[customproperty];
 											thisEditor.modified = true;
 										}
@@ -594,6 +595,11 @@ EditorUi.prototype.updateTabContainer = function()
 									}
 								}
 							}
+						}
+						if (thisEditor.modified)
+						{
+							console.log('saveIt', editorUi.actions)
+							editorUi.actions.get('save').funct();
 						}
 					}
 				}; 
