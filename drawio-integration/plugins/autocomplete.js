@@ -94,7 +94,6 @@ Draw.loadPlugin(function(editorUi)
 						stylesheet.styles[customstyles['param'][i].key].customstyle = true;
 				}
 			}
-			console.log('refreshCellStyle stylesheet', stylesheet);
 			this.refreshCellStyle(this.editor);
 		}), 
 		mxUtils.bind(this, function(message)
@@ -129,7 +128,11 @@ Draw.loadPlugin(function(editorUi)
 						// Otherwise, add simply the symbol as string
 							classlist += cssclassname[j].replace(/'/g,"");
 					}
-					thisEditor.graph.model.setStyle(thisCell, style + ';;' + classlist);
+					if (mxClient.IS_GC)
+						thisEditor.graph.model.setStyle(thisCell, style + ';fake;' + classlist);
+					else
+						thisEditor.graph.model.setStyle(thisCell, style + ';' + classlist);
+//											thisCell.class = classlist.replace(/;/g," ");
 					thisCell.customproperties['autocompleteaddedclass'] = classlist;
 				}
 			}
@@ -424,7 +427,6 @@ EditorUi.prototype.updateTabContainer = function()
 //	Refresh cells customproperties
 	EditorUi.prototype.refreshCustomProperties = function (thisEditor)
 	{
-		console.log('refreshCustomProperties', thisEditor);
 		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
 		{
 				var thisCells = thisEditor.graph.model.cells;
@@ -595,7 +597,6 @@ EditorUi.prototype.updateTabContainer = function()
 						}
 						if (thisEditor.modified)
 						{
-							console.log('saveIt', editorUi.actions)
 							editorUi.actions.get('save').funct();
 						}
 					}

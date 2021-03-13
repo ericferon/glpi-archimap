@@ -373,7 +373,6 @@ App.prototype.getPeerForMode = function(mode)
     // Save library in repository
     App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
     {
-		console.log('Saving library', name, images, file, mode);
         try
         {
             mode = (mode != null) ? mode : this.mode;
@@ -844,7 +843,6 @@ App.prototype.getPeerForMode = function(mode)
 		var displayPanel = function(selectedValue, selectedValueStyle, content)
 		{
 			newValueStyle[selectedValue] = {};
-			console.log('displayPanel', selectedValueStyle);
 			// remove previous panels, if any
 			let previousPanel = document.getElementById('panels');
 			if (previousPanel)
@@ -888,7 +886,6 @@ App.prototype.getPeerForMode = function(mode)
 			var panel = new BaseFormatPanel(format, editorUi, content);
 			var fillPanel = panel.createColorOption(mxResources.get('fillColor'), function()
 			{
-//				console.log('createColorOption get', currentFillColor);
 //				newValueStyle[selectedValue].fillColor = currentFillColor;
 				return currentFillColor;
 			}, function(color)
@@ -901,7 +898,6 @@ App.prototype.getPeerForMode = function(mode)
 				destroy: function() { fillColorApply = null; }
 			}, function(color)
 			{
-//				console.log('createColorOption callback', color);
 				newValueStyle[selectedValue].fillColor = (color != mxConstants.NONE) ? color : null;
 				updateShapeFillcolor(color);
 			}, false);
@@ -980,7 +976,6 @@ App.prototype.getPeerForMode = function(mode)
 		
 		var getCssStyles = function(evt)
 		{
-			console.log('getCssStyles', cssList.value, (evt ? evt.target.value:'no event'));
 			repository.getStyles("STYLE", (evt ? evt.target.value : cssList.value), success, error);
 		};
 
