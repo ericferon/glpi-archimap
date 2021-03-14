@@ -128,8 +128,8 @@ Draw.loadPlugin(function(editorUi)
 						// Otherwise, add simply the symbol as string
 							classlist += cssclassname[j].replace(/'/g,"");
 					}
-					if (mxClient.IS_GC)
-						thisEditor.graph.model.setStyle(thisCell, style + ';fake;' + classlist);
+					if (mxClient.IS_GC || mxClient.IS_SF)
+						thisEditor.graph.model.setStyle(thisCell, style + ';dummy;' + classlist);
 					else
 						thisEditor.graph.model.setStyle(thisCell, style + ';' + classlist);
 //											thisCell.class = classlist.replace(/;/g," ");
