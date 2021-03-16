@@ -78,7 +78,7 @@ Draw.loadPlugin(function(editorUi)
 				txt.innerHTML = html;
 				return txt.value;
 			};
-			var customstyles = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
+			var customstyles = (JSON && JSON.parse(req.request.responseText)) || $.parseJSON(req.request.responseText);
 			if (customstyles['param'])
 			{
 				var stylesheet = this.editor.graph.getStylesheet()

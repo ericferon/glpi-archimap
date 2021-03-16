@@ -41,7 +41,7 @@ foreach($tables as $key => $tablecolumn) {
 	$columns = explode(",", str_replace(' ', '', $tablecolumn->column)); // suppress spaces and split on comma
 	$where = ($tablecolumn->where ? " WHERE ".$tablecolumn->where : "");
 	if (!in_array(strtolower($table), $forbidden_tables)) {
-		$query = "SELECT `".implode($columns, "`, `")."` FROM glpi_plugin_archimap_configs $where ORDER BY `".implode($columns, "`, `")."`";
+		$query = "SELECT `".implode("`, `", $columns)."` FROM glpi_plugin_archimap_configs $where ORDER BY `".implode("`, `", $columns)."`";
 //Toolbox::logInFile("gettables", $query."\n");
 //var_dump($query);
 		if ($result=$DB->query($query)) {

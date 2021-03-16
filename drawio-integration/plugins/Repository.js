@@ -204,7 +204,7 @@ Repository.prototype.writeFile = function(type, key, data, success, error, isNew
 			value: data
 		};
 		var req = new mxXmlRequest(
-            window.DRAWIOINTEGRATION_PATH + (isNew ? '../../ajax/putconfig.php' : '../../ajax/postconfig.php'),
+            window.DRAWIOINTEGRATION_PATH + (isNew ? '/ajax/putconfig.php' : '/ajax/postconfig.php'),
             JSON.stringify(config),
             'POST');
 		
@@ -225,7 +225,7 @@ Repository.prototype.checkInexistence = function(type, key, mustBeInexistent, fn
 	
 	this.getLibraries(type, key, mxUtils.bind(this, function(req)
 	{
-		var libs = JSON && JSON.parse(req.request.responseText) || $.parseJSON(req.request.responseText);
+		var libs = (JSON && JSON.parse(req.request.responseText)) || $.parseJSON(req.request.responseText);
         var found = (libs['param'] && libs['param'][key]);
         if (!found)
 		{
@@ -381,7 +381,7 @@ Repository.prototype.getLibraries = function(type, key, success, error)
     tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
                     'column' : 'key, value', 
                     'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
-	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '../../ajax/getconfig.php', JSON.stringify(tables), 'POST');
+	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '/ajax/getconfig.php', JSON.stringify(tables), 'POST');
 		
 	this.executeRequest(req, mxUtils.bind(this, function(req)
 	{
@@ -398,7 +398,7 @@ Repository.prototype.getStyles = function(type, key, success, error)
     tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
                     'column' : 'key, value', 
                     'where' : 'type = "STYLE"' + (key ? ' and `key` LIKE "'+key+'"' : '')};
-	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '../../ajax/getconfig.php', JSON.stringify(tables), 'POST');
+	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '/ajax/getconfig.php', JSON.stringify(tables), 'POST');
 		
 	this.executeRequest(req, mxUtils.bind(this, function(req)
 	{
