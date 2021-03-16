@@ -61,12 +61,6 @@
 			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs",
 			"helper" : "how the CSS classnames, to be added to the shape, will be composed ; f.i : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
 		},
-		"autocompleteobject": {
-			"size": 20,
-			"label": "Class",
-			"placeholder": "Class name",
-			"helper" : "f.i : PluginArchiswSwcomponent"
-		},
 		"autocompletelink": {
 			"size": 20,
 			"label": "Link",

@@ -62,12 +62,6 @@
 			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
 			"helper" : "comment la classe CSS, à ajouter à la forme, sera composée ; p.ex : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
 		},
-		"autocompleteobject": {
-			"size": 20,
-			"label": "Classe",
-			"placeholder": "Nom de classe",
-			"helper" : "p.ex : PluginArchiswSwcomponent"
-		},
 		"autocompletelink": {
 			"size": 20,
 			"label": "Lien",

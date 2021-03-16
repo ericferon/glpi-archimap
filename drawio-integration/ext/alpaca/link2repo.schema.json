@@ -53,10 +53,6 @@
 			"type": "string",
 			"required": false
 		},
-		"autocompleteobject" : {
-			"title": "Repository object class",
-			"type": "string"
-		},
 		"autocompletelink" : {
 			"title": "Graphical link",
 			"type": "string",
