@@ -559,7 +559,10 @@ EditorUi.prototype.updateTabContainer = function()
 												// Otherwise, add simply the symbol as string
 													classlist += cssclassname[j].replace(/'/g,"");
 											}
-											thisEditor.graph.model.setStyle(thisCell, style + ';;' + classlist);
+											if (mxClient.IS_GC || mxClient.IS_SF)
+												thisEditor.graph.model.setStyle(thisCell, style + ';dummy;' + classlist);
+											else
+												thisEditor.graph.model.setStyle(thisCell, style + ';' + classlist);
 											thisCell.class = classlist.replace(/;/g," ");
 											thisState.shape.node.className.baseVal = classlist.replace(/;/g," ");
 											thisCell.customproperties['autocompleteaddedclass'] = classlist;
