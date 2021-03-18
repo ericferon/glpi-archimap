@@ -64,8 +64,3 @@ else
 //	 End of Modified EFE 20200930
 	}
 }
-//# sourceMappingURL=../drawio/src/main/webapp/js/tmp1.js.map
-//# sourceMappingURL=../drawio/src/main/webapp/js/grapheditor.js.map
-//# sourceMappingURL=../drawio/src/main/webapp/js/sidebar.js.map
-//# sourceMappingURL=../drawio/src/main/webapp/js/client.js.map
-
