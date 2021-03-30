@@ -57,6 +57,12 @@
 			"title": "Graphical link",
 			"type": "string",
 			"required": false
+		},
+		"sql" : {
+			"title": "SQL statement",
+			"type": "string",
+			"required": false,
+			"readonly": true
 		}
 	}
 }

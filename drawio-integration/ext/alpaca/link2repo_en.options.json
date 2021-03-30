@@ -66,6 +66,13 @@
 			"label": "Link",
 			"placeholder": "URL expressed as intermixed column names and single-quoted strings, separated by '+' signs",
 			"helper" : "how the URL to be linked to a shape will be composed ; f.i 'http://sysmon/mrtg/rrd/mom.php?'+'HOST='+name"
+		},
+		"sql": {
+			"size": 20,
+			"label": "SQL results",
+			"type": "textarea",
+			"rows": 3,
+			"helper" : "Results of the SQL statement sent to the repository"
 		}
 	}
 }

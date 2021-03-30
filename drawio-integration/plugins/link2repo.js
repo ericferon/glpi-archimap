@@ -688,7 +688,46 @@ App.prototype.getPeerForMode = function(mode)
 					},
 					"focus" : "autocompletetype"
 				},
-				'view' : 'bootstrap-edit-horizontal'
+				'view' : 'bootstrap-edit-horizontal',
+				'postRender': function(control) {
+					var autocompletetable = control.childrenByPropertyId["autocompletetable"];
+					var autocompletecolumns = control.childrenByPropertyId["autocompletecolumns"];
+					var autocompletejointtables = control.childrenByPropertyId["autocompletejointtables"];
+					var autocompletejointcolumns = control.childrenByPropertyId["autocompletejointcolumns"];
+					var autocompleteotherselectioncriteria = control.childrenByPropertyId["autocompleteotherselectioncriteria"];
+					var autocompleteordercriteria = control.childrenByPropertyId["autocompleteordercriteria"];
+					var sql = control.childrenByPropertyId["sql"];
+					var getsql = function()
+					{
+						var tablevalue = autocompletetable.getValue();
+						var columnsvalue = autocompletecolumns.getValue();
+						var jointtablesvalue = autocompletejointtables.getValue();
+						var jointcolumnsvalue = autocompletejointcolumns.getValue();
+						var otherselectioncriteriavalue = autocompleteotherselectioncriteria.getValue();
+						var ordercriteriavalue = autocompleteordercriteria.getValue();
+						if (tablevalue && columnsvalue)
+						{
+							var xhr = new XMLHttpRequest();
+							xhr.onreadystatechange = function() {
+								if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+									let datas = xhr.responseText;
+									sql.setValue(datas);
+								}; 
+							}
+							var urlparams = 'table=' + tablevalue + '&columns=' + columnsvalue + (otherselectioncriteriavalue ? '&othercriteria=' + encodeURIComponent(otherselectioncriteriavalue) : '') 
+								+ '&jointtables=' + encodeURIComponent(jointtablesvalue) + '&jointcolumns=' + encodeURIComponent(jointcolumnsvalue) + (ordercriteriavalue ? '&ordercriteria=' + encodeURIComponent(ordercriteriavalue) : '')
+								/*+ '&test'*/;
+							xhr.open("GET", window.DRAWIOINTEGRATION_PATH + "/ajax/autocomplete.php?"+urlparams, true);
+							xhr.send(null);
+						}
+					}
+					autocompletetable.on("change", function() {getsql();sql.refresh();});
+					autocompletecolumns.on("change", function() {getsql();sql.refresh();});
+					autocompletejointtables.on("change", function() {getsql();sql.refresh();});
+					autocompletejointcolumns.on("change", function() {getsql();sql.refresh();});
+					autocompleteotherselectioncriteria.on("change", function() {getsql();sql.refresh();});
+					autocompleteordercriteria.on("change", function() {getsql();sql.refresh();});
+				}
 			});
 		});
 	
@@ -842,6 +881,7 @@ App.prototype.getPeerForMode = function(mode)
 		var repository = new Repository(ui);
 		var displayPanel = function(selectedValue, selectedValueStyle, content)
 		{
+			canvas = editorUi.editor.graph.view.canvas;
 			newValueStyle[selectedValue] = {};
 			// remove previous panels, if any
 			let previousPanel = document.getElementById('panels');
@@ -852,6 +892,8 @@ App.prototype.getPeerForMode = function(mode)
 			// create new panels
 			var panels = document.createElement('div');
 			panels.id = 'panels';
+			panels.list = [];
+			panels.list.push(new DiagramStylePanel(this, ui, stylePanel))
 			content.appendChild(panels);
 
 			// get the tokens of cell's style
@@ -864,12 +906,20 @@ App.prototype.getPeerForMode = function(mode)
 			if (shapeStyles.shape)
 				newValueStyle[selectedValue].shape = shapeStyles.shape;
 			var fillColorApply = null;
-			var defaultFillColor = shapeStyles['fillColor'] || '#ffffff';
-			var currentFillColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue].fillColor ? 
-									selectedValueStyle[selectedValue].fillColor : defaultFillColor;
-			var newFillColor = null;
-	
+			var gradientColorApply = null;
+			var strokeColorApply = null;
 			var fontColorApply = null;
+			
+			var defaultFillColor = shapeStyles[mxConstants.STYLE_FILLCOLOR] || '#ffffff';
+			var defaultGradientColor = shapeStyles[mxConstants.STYLE_GRADIENTCOLOR] || '#ffffff';
+			var defaultStrokeColor = shapeStyles[mxConstants.STYLE_STROKECOLOR] || '#000000';
+			
+			var currentFillColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] : defaultFillColor;
+			var currentGradientColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] : defaultGradientColor;
+			var currentStrokeColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] : defaultStrokeColor;	
 			var currentFontColor = '#000000';
 			
 			var updateShapeFillcolor = function(color)
@@ -882,25 +932,60 @@ App.prototype.getPeerForMode = function(mode)
 				}
 			}
 		
+			var updateShapeGradientcolor = function(color, direction)
+			{
+				var svg = shape.querySelectorAll('rect[fill], path[fill], circle[fill], ellipse[fill], polygon[fill], line[fill], polyline[fill]');
+				console.log('updateShapeGradientcolor', thumb, shape, svg, canvas);
+				var svgLen = svg.length;
+				var base = mxSvgCanvas2D.prototype.getBaseUrl().replace(/([\(\)])/g, '\\$1');
+//				var id = mxSvgCanvas2D.prototype.createSvgGradient(selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] || defaultFillColor, color,
+//						1, 1, direction);
+//				console.log('updateShapeGradientcolor',id);
+			
+				for (let i = 0; i < svgLen; i++)
+				{
+					if (!mxClient.IS_CHROMEAPP && !mxClient.IS_IE && !mxClient.IS_IE11 &&
+						!mxClient.IS_EDGE /*&& this.root.ownerDocument == document*/)
+					{
+						// Workaround for potential base tag and brackets must be escaped
+//						svg[i].setAttribute('fill', 'url(' + base + '#' + id + ')');
+					}
+					else
+					{
+//						svg[i].setAttribute('fill', 'url(#' + id + ')');
+					}
+				}
+			}
+		
+			var updateShapeStrokecolor = function(color)
+			{
+				var svg = shape.querySelectorAll('rect[stroke], path[stroke], circle[stroke], ellipse[stroke], polygon[stroke], line[stroke], polyline[stroke]');
+				var svgLen = svg.length;
+				for (let i = 0; i < svgLen; i++)
+				{
+					svg[i].setAttribute('stroke', color);
+				}
+			}
+		
 			var format = new Format(editorUi, content);
 			var panel = new BaseFormatPanel(format, editorUi, content);
 			var fillPanel = panel.createColorOption(mxResources.get('fillColor'), function()
-			{
-//				newValueStyle[selectedValue].fillColor = currentFillColor;
+			{	// getColorFn
+//				newValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] = currentFillColor;
 				return currentFillColor;
 			}, function(color)
-			{
+			{	// setColorFn
 				updateShapeFillcolor((color != mxConstants.NONE) ? color : currentFillColor);
 				document.execCommand('backcolor', false, (color != mxConstants.NONE) ? color : currentFillColor);
-			}, '#ffffff',
-			{
+			}, /* defaultColor */ '#ffffff',
+			{	// listener
 				install: function(apply) { fillColorApply = apply; },
 				destroy: function() { fillColorApply = null; }
 			}, function(color)
-			{
-				newValueStyle[selectedValue].fillColor = (color != mxConstants.NONE) ? color : null;
+			{	// callbackFn
+				newValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] = (color != mxConstants.NONE) ? color : null;
 				updateShapeFillcolor(color);
-			}, false);
+			}, /* hideCheckbox */ false);
 			fillPanel.style.height = '30px';
 			fillPanel.style.boxSizing = 'border-box';
 			fillPanel.style.overflow = 'hidden';
@@ -908,7 +993,7 @@ App.prototype.getPeerForMode = function(mode)
 			fillPanel.style.width = '100%';
 			panels.appendChild(fillPanel);
 			// uncheck box if the fill collor is not changed
-			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue].fillColor)
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR])
 			{
 				var cb = fillPanel.querySelectorAll('input[type="checkbox"]');
 				if (cb[0].checked)
@@ -918,11 +1003,181 @@ App.prototype.getPeerForMode = function(mode)
 			}
 			else
 			{
-				updateShapeFillcolor(selectedValueStyle[selectedValue].fillColor);
+				updateShapeFillcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR]);
 			}
+
+			// Adds gradient direction option
+			var gradientSelect = document.createElement('select');
+			gradientSelect.style.position = 'absolute';
+			gradientSelect.style.marginTop = '-2px';
+			gradientSelect.style.right = (mxClient.IS_QUIRKS) ? '52px' : '72px';
+			gradientSelect.style.width = '70px';
+		
+			// Stops events from bubbling to color option event handler
+			mxEvent.addListener(gradientSelect, 'click', function(evt)
+			{
+				mxEvent.consume(evt);
+			});
+
+			var directions = [mxConstants.DIRECTION_NORTH, mxConstants.DIRECTION_EAST,
+	                  mxConstants.DIRECTION_SOUTH, mxConstants.DIRECTION_WEST];
+
+			for (var i = 0; i < directions.length; i++)
+			{
+				var gradientOption = document.createElement('option');
+				gradientOption.setAttribute('value', directions[i]);
+				mxUtils.write(gradientOption, mxResources.get(directions[i]));
+				gradientSelect.appendChild(gradientOption);
+			}
+
+			var gradientPanel = panel.createColorOption(mxResources.get('gradient'), function()
+			{	// getColorFn
+//				newValueStyle[selectedValue].fillColor = currentGradientColor;
+				return currentGradientColor;
+			}, function(color)
+			{	// setColorFn
+				updateShapeGradientcolor((color != mxConstants.NONE) ? color : currentGradientColor, gradientSelect.value);
+//				editorUi.editor.graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, (color != mxConstants.NONE) ? color : currentGradientColor, shape);
+				document.execCommand('gradientcolor', false, (color != mxConstants.NONE) ? color : currentGradientColor);
+			}, /* defaultColor */ '#ffffff',
+			{	// listener
+				install: function(apply) { gradientColorApply = apply; },
+				destroy: function() { gradientColorApply = null; editorUi.editor.graph.getModel().removeListener(listener);}
+			}, function(color)
+			{	// callbackFn
+				newValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] = (color != mxConstants.NONE) ? color : null;
+//				updateShapeGradientcolor(color, gradientSelect.value);
+//				editorUi.editor.graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, shape);
+				if (color == null || color == mxConstants.NONE)
+				{
+					gradientSelect.style.display = 'none';
+				}
+				else
+				{
+					gradientSelect.style.display = '';
+				}
+			}, /* hideCheckbox */ false);
+			
+			var listener = mxUtils.bind(this, function()
+			{
+				ss = panel.format.getSelectionState();
+				var value = mxUtils.getValue(selectedValueStyle[selectedValue], mxConstants.STYLE_GRADIENT_DIRECTION, mxConstants.DIRECTION_SOUTH);
+//				var fillStyle = mxUtils.getValue(ss.style, 'fillStyle', 'auto');
+		
+				// Handles empty string which is not allowed as a value
+				if (value == '')
+				{
+					value = mxConstants.DIRECTION_SOUTH;
+				}
+		
+				gradientSelect.value = value;
+//				fillStyleSelect.value = fillStyle;
+//				container.style.display = (ss.fill) ? '' : 'none';
+		
+/*				var fillColor = mxUtils.getValue(ss.style, mxConstants.STYLE_FILLCOLOR, null);
+			
+				if (!ss.fill || ss.containsImage || fillColor == null || fillColor == mxConstants.NONE || ss.style.shape == 'filledEdge')
+				{
+//					fillStyleSelect.style.display = 'none';
+					gradientPanel.style.display = 'none';
+				}
+				else
+				{
+//					fillStyleSelect.style.display = (ss.style.sketch == '1') ? '' : 'none';
+					gradientPanel.style.display = (ss.style.sketch != '1' || fillStyle == 'solid' || fillStyle == 'auto') ? '' : 'none';
+				}
+*/			});
+	
+			editorUi.editor.graph.getModel().addListener(mxEvent.CHANGE, listener);
+//			gradientPanel.listeners.push({destroy: function() { editorUi.editor.graph.getModel().removeListener(listener); }});
+			listener();
+
+			mxEvent.addListener(gradientSelect, 'change', function(evt)
+			{
+//				editorUi.editor.graph.setCellStyles(mxConstants.STYLE_GRADIENT_DIRECTION, gradientSelect.value, editorUi.editor.graph.getSelectionCells());
+				updateShapeGradientcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION]);
+				mxEvent.consume(evt);
+			});
+	
+/*			mxEvent.addListener(fillStyleSelect, 'change', function(evt)
+			{
+//				editorUi.editor.graph.setCellStyles('fillStyle', fillStyleSelect.value, editorUi.editor.graph.getSelectionCells());
+				updateShapeGradientcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION]);
+				mxEvent.consume(evt);
+			});
+*/	
+			gradientPanel.style.height = '30px';
+			gradientPanel.style.boxSizing = 'border-box';
+			gradientPanel.style.overflow = 'hidden';
+			gradientPanel.style.padding = '4px';
+			gradientPanel.style.width = '100%';
+			gradientPanel.appendChild(gradientSelect);
+			panels.appendChild(gradientPanel);
+			// uncheck box if the gradient collor is not changed
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR])
+			{
+				var cb = gradientPanel.querySelectorAll('input[type="checkbox"]');
+				if (cb[0].checked)
+				{
+					cb[0].click();
+					gradientSelect.style.display = 'none';
+				}
+			}
+			else
+			{
+				updateShapeGradientcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION]);
+			}
+
+			var opacityPanel = panels.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
+			opacityPanel.style.paddingTop = '8px';
+			opacityPanel.style.paddingBottom = '8px';
+			panels.appendChild(opacityPanel);
+
+		var colorPanel = document.createElement('div');
+	
+			var lineColor = panel.createColorOption(mxResources.get('line'), function()
+			{	// getColorFn
+//				newValueStyle[selectedValue].fillColor = currentStrokeColor;
+				return currentStrokeColor;
+			}, function(color)
+			{	// setColorFn
+				updateShapeStrokecolor((color != mxConstants.NONE) ? color : currentStrokeColor);
+//				editorUi.editor.graph.updateCellStyles(mxConstants.STYLE_STROKECOLOR, (color != mxConstants.NONE) ? color : currentStrokeColor, shape);
+				document.execCommand('stroke', false, (color != mxConstants.NONE) ? color : currentStrokeColor);
+			}, /* defaultColor */ '#000000',
+			{	// listener
+				install: function(apply) { strokeColorApply = apply; },
+				destroy: function() { strokeColorApply = null; }
+			}, function(color)
+			{	// callbackFn
+				newValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] = (color != mxConstants.NONE) ? color : null;
+				updateShapeStrokecolor(color);
+			}, /* hideCheckbox */ false);
+
+			lineColor.style.height = '30px';
+			lineColor.style.boxSizing = 'border-box';
+			lineColor.style.overflow = 'hidden';
+			lineColor.style.padding = '4px';
+			lineColor.style.width = '100%';
+			colorPanel.appendChild(lineColor);
+			panels.appendChild(colorPanel);
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR])
+			{
+				var cb = lineColor.querySelectorAll('input[type="checkbox"]');
+				if (cb[0].checked)
+				{
+					cb[0].click();
+				}
+			}
+			else
+			{
+				updateShapeStrokecolor(selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR]);
+			}
+
 		}
 
-		// fill in a structure with the style information
+
+	// fill in a structure with the style information
 		var success = function(req)
 		{
 			var decodeHTML = function (html) {

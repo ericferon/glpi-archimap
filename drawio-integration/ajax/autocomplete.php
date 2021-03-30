@@ -28,6 +28,12 @@ include ('../../../../inc/includes.php');
 
 $DB = new DB;
 //header("Content-Type: text/html; charset=UTF-8");
+if (isset($_GET['test'])) { // return query string as result
+	$test = TRUE;
+	$test = utf8_decode($_GET['test']) == "" || filter_var(utf8_decode($_GET['test']),FILTER_VALIDATE_BOOLEAN);
+} else {
+	$test = FALSE;
+}
 if (isset($_GET['table'])) {
 	$table = $DB->escape(utf8_decode($_GET['table']));
 } else {
@@ -95,22 +101,20 @@ $query .= ") ".$jointcriteria." ".$othercriteria." ".$ordercriteria;
 $query = preg_replace('/[[:^print:]]/', '', $query); // remove non-printable characters
 //Toolbox::logInFile("autocomplete", $query."\n");
 //var_dump($query);
-if ($result=$DB->query($query)) {
-	while ($data=$DB->fetchAssoc($result)) {
+if (!$test) {
+	if ($result=$DB->query($query)) {
+		while ($data=$DB->fetchAssoc($result)) {
 //var_dump($data);
-		$datas[] = $data;
-/*		$datas[] =
-					array(
-						'id' => $data['id'], 
-						'label' => $data['description'], 
-						'value' => $data['id']
-						)
-						;
-*/	}
-} 
+			$datas[] = $data;
+		}
+	} 
+}
 //var_dump($datas);
-if (isset($datas))
-	echo json_encode($datas);
-else
-	echo json_encode('');
+if (!$test) {
+	if (isset($datas))
+		echo json_encode($datas);
+	else
+		echo json_encode('');
+} else
+		echo json_encode($query);
 ?>
