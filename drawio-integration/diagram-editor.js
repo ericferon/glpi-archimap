@@ -193,6 +193,8 @@ DiagramEditor.prototype.editElement = function(elem)
 								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
 								// load libraries needed by Alpaca
 								'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
+								'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
+								'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.css',
 //								'//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', 
 								'../../../../drawio-integration/ext/alpaca/bootstrap.min.js', 
 								'../../../../drawio-integration/ext/alpaca/bootstrap-3.3.2.min.css', 
@@ -208,7 +210,7 @@ DiagramEditor.prototype.editElement = function(elem)
 								
 		this.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
  								'../../../../drawio-integration/plugins/Repository.js',
-                               '../../../../drawio-integration/ext/jquery/jquery.min.js', 
+								'../../../../drawio-integration/ext/jquery/jquery.min.js', 
 								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
 								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
 								'../../../../drawio-integration/plugins/autocomplete.js'];

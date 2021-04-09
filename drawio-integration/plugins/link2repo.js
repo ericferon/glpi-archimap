@@ -628,6 +628,7 @@ App.prototype.getPeerForMode = function(mode)
 	var Link2RepoDialog = function (editorUi, index, imgs, file)
 	{
 		var div = document.createElement('div');
+		div.style.overflowX = 'visible';
 		div.style.overflowY = 'auto';
 		div.id = 'alpaca';
 		var cells = editorUi.stringToCells(editorUi.editor.graph.decompress(imgs[index].xml));
@@ -710,17 +711,52 @@ App.prototype.getPeerForMode = function(mode)
 							var xhr = new XMLHttpRequest();
 							xhr.onreadystatechange = function() {
 								if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-									let datas = xhr.responseText;
-									sql.setValue(datas);
+									var datastart = xhr.responseText.indexOf('[');
+									if (datastart > 0) // an SQL error occurred
+									{
+										var parser = new DOMParser();
+										xmlDoc = parser.parseFromString(xhr.responseText.substr(0, datastart),"text/xml");
+										sql.setValue(xmlDoc.documentElement.textContent);
+									}
+									else // query and 5 rows returned from repository
+									{
+										let datas = JSON && JSON.parse(xhr.responseText.substr(datastart)) || $.parseJSON(xhr.responseText.substr(datastart));
+										sql.setValue(datas[0]); // display query
+										var datalen = datas.length;
+										if (datalen > 1)
+										{
+											var resultgrid = control.childrenByPropertyId["results"];
+											resultgrid.height = 'auto';
+											datas.splice(0,1); // suppress datas[0] (= the query display)
+											var holder = $(div).find(".alpaca-container-grid-holder"); // get the handsontable's container
+											var hotable = $(holder).handsontable('getInstance'); // get the handsontable object
+											var wtholder = $(holder).find(".ht_master>.wtHolder"); // get the handsontable's container and reset height
+											resultgrid.options.grid.data = datas; // put the query results into the grid
+											var headers = {};
+											for (const column in datas[1]) // loop on columns and get their names
+											{
+												if (datas[1].hasOwnProperty(column))
+												{
+													headers[column] = column;
+												}
+											}
+											resultgrid.options.grid.data.splice(0,0,headers); // insert the headers before the data
+											hotable.loadData(resultgrid.options.grid.data);
+											hotable.render();
+											$(wtholder).css('height','auto');
+										}
+									}
 								}; 
 							}
 							var urlparams = 'table=' + tablevalue + '&columns=' + columnsvalue + (otherselectioncriteriavalue ? '&othercriteria=' + encodeURIComponent(otherselectioncriteriavalue) : '') 
 								+ '&jointtables=' + encodeURIComponent(jointtablesvalue) + '&jointcolumns=' + encodeURIComponent(jointcolumnsvalue) + (ordercriteriavalue ? '&ordercriteria=' + encodeURIComponent(ordercriteriavalue) : '')
-								/*+ '&test'*/;
+								+ '&test';
 							xhr.open("GET", window.DRAWIOINTEGRATION_PATH + "/ajax/autocomplete.php?"+urlparams, true);
 							xhr.send(null);
 						}
 					}
+					getsql(); // display the query and the results for the current "autocomplete" values
+					sql.refresh();
 					autocompletetable.on("change", function() {getsql();sql.refresh();});
 					autocompletecolumns.on("change", function() {getsql();sql.refresh();});
 					autocompletejointtables.on("change", function() {getsql();sql.refresh();});

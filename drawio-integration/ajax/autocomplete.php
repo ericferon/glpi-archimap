@@ -101,20 +101,22 @@ $query .= ") ".$jointcriteria." ".$othercriteria." ".$ordercriteria;
 $query = preg_replace('/[[:^print:]]/', '', $query); // remove non-printable characters
 //Toolbox::logInFile("autocomplete", $query."\n");
 //var_dump($query);
-if (!$test) {
-	if ($result=$DB->query($query)) {
-		while ($data=$DB->fetchAssoc($result)) {
-//var_dump($data);
-			$datas[] = $data;
-		}
-	} 
+if ($test) {
+	$datas[] = $query;
+	$query .= " LIMIT 5";
 }
+if ($result=$DB->query($query)) {
+	while ($data=$DB->fetchAssoc($result)) {
+//var_dump($data);
+		$datas[] = $data;
+	}
+} 
 //var_dump($datas);
-if (!$test) {
+//if (!$test) {
 	if (isset($datas))
 		echo json_encode($datas);
 	else
 		echo json_encode('');
-} else
-		echo json_encode($query);
+//} else
+//		echo json_encode($query);
 ?>

@@ -53,6 +53,11 @@
 			"type": "string",
 			"required": false
 		},
+		"autocompleteobject" : {
+			"title": "Object class",
+			"type": "string",
+			"required": true
+		},
 		"autocompletelink" : {
 			"title": "Graphical link",
 			"type": "string",
@@ -62,6 +67,16 @@
 			"title": "SQL statement",
 			"type": "string",
 			"required": false,
+			"readonly": true
+		},
+		"results" : {
+			"title": "SQL results",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+				}
+            },
 			"readonly": true
 		}
 	}

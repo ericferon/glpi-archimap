@@ -62,6 +62,12 @@
 			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
 			"helper" : "comment la classe CSS, à ajouter à la forme, sera composée ; p.ex : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
 		},
+		"autocompleteobject": {
+			"size": 20,
+			"label": "Classe d'objets",
+			"placeholder": "Classe PHP",
+			"helper" : "A trouver dans le répertoire 'inc' de GLPI ou du plugin, dans un fichier ...class.php : p.ex Computer ou PluginArchiswSwcomponent"
+		},
 		"autocompletelink": {
 			"size": 20,
 			"label": "Lien",
@@ -71,8 +77,26 @@
 		"sql": {
 			"size": 20,
 			"label": "instruction SQL",
-			"rows": 3,
+			"type": "textarea",
+			"rows": 5,
 			"helper" : "Visualisation de l'instruction SQL envoyée au dépôt de données"
+		},
+		"results": {
+			"label": "Résultats SQL",
+			"type": "grid",
+			"helper" : "Resultats de l'instruction SQL envoyée au dépôt de données",
+			"grid": {
+				"rowHeaders": false,
+				"colHeaders": false,
+				"licenseKey": "non-commercial-and-evaluation",
+				"readOnly": true,
+				"contextMenu": false,
+				"disableVisualSelection": true,
+				"manualColumnResize": true,
+				"manualRowResize": true,
+				"comments": false
+			},
+			"readonly": true
 		}
 	}
 }

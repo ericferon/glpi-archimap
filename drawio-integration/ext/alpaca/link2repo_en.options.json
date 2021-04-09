@@ -61,6 +61,12 @@
 			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs",
 			"helper" : "how the CSS classnames, to be added to the shape, will be composed ; f.i : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
 		},
+		"autocompleteobject": {
+			"size": 20,
+			"label": "Object Class",
+			"placeholder": "PHP class",
+			"helper" : "To be found in the 'inc' directory of GLPI or plugin, in a file ...class.php : f.i Computer or PluginArchiswSwcomponent"
+		},
 		"autocompletelink": {
 			"size": 20,
 			"label": "Link",
@@ -69,10 +75,27 @@
 		},
 		"sql": {
 			"size": 20,
-			"label": "SQL results",
+			"label": "SQL statement",
 			"type": "textarea",
-			"rows": 3,
-			"helper" : "Results of the SQL statement sent to the repository"
+			"rows": 5,
+			"helper" : "Vizualisation of the SQL statement sent to the repository"
+		},
+		"results": {
+			"label": "SQL results",
+			"type": "grid",
+			"helper" : "Result of the SQL statement sent to the repository",
+			"grid": {
+				"rowHeaders": false,
+				"colHeaders": false,
+				"licenseKey": "non-commercial-and-evaluation",
+				"readOnly": true,
+				"contextMenu": false,
+				"disableVisualSelection": true,
+				"manualColumnResize": true,
+				"manualRowResize": true,
+				"comments": false
+			},
+			"readonly": true
 		}
 	}
 }
