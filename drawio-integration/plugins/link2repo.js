@@ -1346,7 +1346,7 @@ App.prototype.getPeerForMode = function(mode)
 						ui.showDialog(dlg.container, 1000, 600, true, true, null, false, false);
 						mxEvent.consume(evt);
 					}));
-					var cells = this.editorUi.stringToCells(Graph.decompress(imgs[index].xml));
+/*					var cells = this.editorUi.stringToCells(Graph.decompress(imgs[index].xml));
 					// add a second menu to link shape's appearance to custom properties
 					if (cells[0].customproperties)
 					{
@@ -1365,7 +1365,7 @@ App.prototype.getPeerForMode = function(mode)
 							}));
 						}
 					}
-				} else
+*/				} else
 				{
 					menu.addItem(mxResources.get('noStencilTitle'), null, mxUtils.bind(this, function()
 					{
