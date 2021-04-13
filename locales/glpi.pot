@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Eric Feron
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Archimap 2.0.2\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 16:22+0200\n"
+"POT-Creation-Date: 2021-04-11 15:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: inc/graph_item.class.php:466
+msgctxt "button"
+msgid "Associate a graph"
+msgstr ""
 
 #: hook.php:463
 msgid "Associate to the diagram"
@@ -29,28 +34,18 @@ msgid_plural "Diagrams"
 msgstr[0] ""
 msgstr[1] ""
 
-#: setup.php:90
-msgid "This plugin requires GLPI >= 9.2 and < 9.4"
-msgstr ""
-
 #: inc/diagram.class.php:41
 msgid "Drawing Pane"
 msgid_plural "Drawing Pane"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/graph.class.php:122 inc/graph.class.php:228
-#: inc/graph_item.class.php:495
+#: inc/graph.class.php:122 inc/graph.class.php:228 inc/graph_item.class.php:495
 msgid "Graph Maintainer"
 msgstr ""
 
-#: inc/graph.class.php:129 inc/graph.class.php:224
-#: inc/graph_item.class.php:494
+#: inc/graph.class.php:129 inc/graph.class.php:224 inc/graph_item.class.php:494
 msgid "Graph Owner"
-msgstr ""
-
-#: inc/graph.class.php:215
-msgid "Short description"
 msgstr ""
 
 #: inc/graph.class.php:389
@@ -59,7 +54,10 @@ msgid_plural "Graphs associated"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/graph_item.class.php:466
-msgctxt "button"
-msgid "Associate a graph"
+#: inc/diagram.class.php:107
+msgid "Load diagram"
+msgstr ""
+
+#: inc/graph.class.php:215
+msgid "Short description"
 msgstr ""

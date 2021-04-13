@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Archimap 2.0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 16:22+0200\n"
-"PO-Revision-Date: 2018-08-28 14:20+0200\n"
+"POT-Creation-Date: 2021-04-11 15:43+0200\n"
+"PO-Revision-Date: 2021-04-11 15:48+0200\n"
 "Last-Translator: Eric Feron <ericferon@scarlet.be>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -16,7 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 2.0.8\n"
+"X-Generator: Poedit 2.3\n"
+
+#: inc/graph_item.class.php:466
+msgctxt "button"
+msgid "Associate a graph"
+msgstr "Associer un graphe"
 
 #: hook.php:463
 msgid "Associate to the diagram"
@@ -28,10 +33,6 @@ msgid "Diagram"
 msgid_plural "Diagrams"
 msgstr[0] "Diagramme"
 msgstr[1] "Diagrammes"
-
-#: setup.php:90
-msgid "This plugin requires GLPI >= 9.2 and < 9.4"
-msgstr "Ce plugin nécessite une version GLPI >= 9.2 et < 9.4"
 
 #: inc/diagram.class.php:41
 msgid "Drawing Pane"
@@ -47,17 +48,19 @@ msgstr "Dessinateur"
 msgid "Graph Owner"
 msgstr "Responsable"
 
-#: inc/graph.class.php:215
-msgid "Short description"
-msgstr "Description courte"
-
 #: inc/graph.class.php:389
 msgid "Graph associated"
 msgid_plural "Graphs associated"
 msgstr[0] "Graphe associé"
 msgstr[1] "Graphes associés"
 
-#: inc/graph_item.class.php:466
-msgctxt "button"
-msgid "Associate a graph"
-msgstr "Associer un graphe"
+#: inc/diagram.class.php:107
+msgid "Load diagram"
+msgstr "Charger le diagramme"
+
+#: inc/graph.class.php:215
+msgid "Short description"
+msgstr "Description courte"
+
+#~ msgid "This plugin requires GLPI >= 9.2 and < 9.4"
+#~ msgstr "Ce plugin nécessite une version GLPI >= 9.2 et < 9.4"

@@ -533,7 +533,8 @@ DiagramEditor.prototype.handleMessage = function(msg)
 		if (footer && footer.style) footer.style.display = 'inline';
 		var page = document.getElementById('page');
 		if (page) page.style.display = 'inline';
-		$('a[title="Diagram"]')[0].click();	
+		var diagramtab = $('a[title="Diagram"]');
+		if (diagramtab.length > 0)	diagramtab[0].click();	
 		// add event on 2nd tab to show full screen drawing pane
 		document.querySelector('a[title="Drawing Pane"]').addEventListener("click",(function() {hideGlpi();showDrawio()}));
 // End of Added EFE 20200512

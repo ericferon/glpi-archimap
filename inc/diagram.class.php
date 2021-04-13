@@ -104,7 +104,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"../drawio/src/main/webapp/styles/grapheditor.css\">\n";
 
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorhead.js\"></script>\n";
-		echo "<div><h2 id=\"geStatus\">loading local draw.io ...</h2><p>Please ensure JavaScript is enabled.</p></div>\n";
+		echo "<div><p>Please ensure JavaScript is enabled.</p><button type=\"button\" onclick=\"hideGlpi();showDrawio()\">".__('Load diagram', 'archimap')."</button></div>\n";
 //		echo "<script type=\"text/javascript\" src=\"../drawio/src/main/webapp/js/log4javascript/log4javascript.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"../drawio-integration/diagram-editor.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorbody.js\"></script>\n";
