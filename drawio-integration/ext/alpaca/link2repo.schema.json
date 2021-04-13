@@ -63,13 +63,13 @@
 			"type": "string",
 			"required": false
 		},
-		"sql" : {
+		"displaysql" : {
 			"title": "SQL statement",
 			"type": "string",
 			"required": false,
 			"readonly": true
 		},
-		"results" : {
+		"displayresults" : {
 			"title": "SQL results",
 			"type": "array",
 			"items": {

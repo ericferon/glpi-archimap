@@ -74,14 +74,14 @@
 			"placeholder": "URL exprimée sous forme d'un mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
 			"helper" : "comment l'URL associée à la forme sera composée ; p.ex 'http://sysmon/mrtg/rrd/mom.php?'+'HOST='+name"
 		},
-		"sql": {
+		"displaysql": {
 			"size": 20,
 			"label": "instruction SQL",
 			"type": "textarea",
 			"rows": 5,
 			"helper" : "Visualisation de l'instruction SQL envoyée au dépôt de données"
 		},
-		"results": {
+		"displayresults": {
 			"label": "Résultats SQL",
 			"type": "grid",
 			"helper" : "Resultats de l'instruction SQL envoyée au dépôt de données",

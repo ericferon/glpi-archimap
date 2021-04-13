@@ -666,7 +666,10 @@ App.prototype.getPeerForMode = function(mode)
 									cells[0].customproperties = [];
 									var customproperties = this.getValue();
 									for(var p in customproperties) {
-										cells[0].customproperties[p] = customproperties[p];
+										if (p.substring(0,7) != 'display')
+										{
+											cells[0].customproperties[p] = customproperties[p];
+										}
 									}
 									if (!cells[0].customproperties['stencil'])
 									{
@@ -697,7 +700,7 @@ App.prototype.getPeerForMode = function(mode)
 					var autocompletejointcolumns = control.childrenByPropertyId["autocompletejointcolumns"];
 					var autocompleteotherselectioncriteria = control.childrenByPropertyId["autocompleteotherselectioncriteria"];
 					var autocompleteordercriteria = control.childrenByPropertyId["autocompleteordercriteria"];
-					var sql = control.childrenByPropertyId["sql"];
+					var sql = control.childrenByPropertyId["displaysql"];
 					var getsql = function()
 					{
 						var tablevalue = autocompletetable.getValue();
@@ -725,7 +728,7 @@ App.prototype.getPeerForMode = function(mode)
 										var datalen = datas.length;
 										if (datalen > 1)
 										{
-											var resultgrid = control.childrenByPropertyId["results"];
+											var resultgrid = control.childrenByPropertyId["displayresults"];
 											resultgrid.height = 'auto';
 											datas.splice(0,1); // suppress datas[0] (= the query display)
 											var holder = $(div).find(".alpaca-container-grid-holder"); // get the handsontable's container
