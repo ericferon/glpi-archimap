@@ -75,7 +75,7 @@
 							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
 	
 	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Blockchain', 
-							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Customer Enablement', 'Customer Engagement',
+							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Containers', 'Customer Enablement', 'Customer Engagement',
 							  'Database', 'End User Computing', 'Developer Tools', 'Game Tech', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Governance',
 							  'Media Services', 'Migration Transfer', 'Mobile', 'Network Content Delivery', 'Quantum Technologies', 'Robotics', 'Satellite', 'Security Identity Compliance', 'Storage'];
 
@@ -89,7 +89,7 @@
 	Sidebar.prototype.electrical = ['LogicGates', 'Resistors', 'Capacitors', 'Inductors', 'SwitchesRelays', 'Diodes', 'Sources', 'Transistors', 'Misc', 'Audio', 'PlcLadder', 'Abstract', 'Optical', 'VacuumTubes', 'Waveforms', 'Instruments', 'RotMech', 'Transmission'];
 
 	/**
-	 * Description of custom libraries, see https://desk.draw.io/a/solutions/articles/16000058316
+	 * Description of custom libraries, see https://www.diagrams.net/doc/faq/configure-diagram-editor
 	 */
 	Sidebar.prototype.customEntries = null;
 	
@@ -97,7 +97,7 @@
 	 * Array of strings for the built-in libraries to be enabled in the more shapes dialog. Null means all,
 	 * empty array means none, possible keys are listed for the libs parameter at
 	 * 
-	 * https://desk.draw.io/support/solutions/articles/16000042546
+	 * https://www.diagrams.net/doc/faq/supported-url-parameters
 	 */
 	Sidebar.prototype.enabledLibraries = null;
 	
@@ -109,7 +109,8 @@
 	/**
 	 *
 	 */
-	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']}, {id: 'uml'}, {id: 'search'}, {id: 'er'},
+	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']},
+									   {id: 'uml'}, {id: 'uml25'}, {id: 'search'}, {id: 'er'},
 									   {id: 'azure2', prefix: 'azure2', libs: ['AI Machine Learning', 'Analytics', 'App Services', 'Azure Stack', 'Azure VMware Solution', 'Blockchain', 'Compute', 'Containers', 'CXP', 'Databases', 'DevOps', 'General', 'Identity', 'Integration', 'Internet of Things', 'Intune', 'IoT', 'Management Governance', 'Migrate', 'Mixed Reality', 'Monitor', 'Networking', 'Other', 'Preview', 'Security', 'Storage', 'Web']},
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
@@ -470,6 +471,7 @@
             			          {title: mxResources.get('ios'), id: 'ios', image: IMAGE_PATH + '/sidebar-ios.png'},
             			          {title: mxResources.get('mockups'), id: 'mockups', image: IMAGE_PATH + '/sidebar-mockups.png'},
             			          {title: 'Sitemap', id: 'sitemap', image: IMAGE_PATH + '/sidebar-sitemap.png'},
+            			          {title: mxResources.get('uml') + ' 2.5', id: 'uml25', image: IMAGE_PATH + '/sidebar-uml25.png'},
             			          {title: mxResources.get('uml'), id: 'uml', image: IMAGE_PATH + '/sidebar-uml.png'}]},
             			{title: mxResources.get('networking'),
             			entries: [{title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
@@ -1031,7 +1033,7 @@
 		}
 		
 		this.addGeneralPalette(this.customEntries == null);
-		this.addMiscPalette(false);
+		this.addMiscPalette(false);	
 		this.addAdvancedPalette(false);
 		this.addBasicPalette();
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
@@ -1152,6 +1154,7 @@
 		this.addKubernetesPalette();
 		this.addMockupPalette();
 		this.addSitemapPalette();
+		this.addUml25Palette();
 		this.addUmlPalette(false);
 		this.addAlliedTelesisPalette();
 		this.addAWS3Palette();
@@ -1401,6 +1404,15 @@
 					
 					graph.addCell(target);
 					graph.getModel().setTerminal(graph.getSelectionCell(), target, false);
+					
+					if (evt == null || !mxEvent.isShiftDown(evt))
+					{
+						graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [target]));
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
 				}
 				finally
 				{

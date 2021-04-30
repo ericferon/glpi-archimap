@@ -1,4 +1,5 @@
 const fs = require('fs')
+const os = require('os');
 const path = require('path')
 const url = require('url')
 const electron = require('electron')
@@ -12,6 +13,7 @@ const zlib = require('zlib');
 const log = require('electron-log')
 const program = require('commander')
 const {autoUpdater} = require("electron-updater")
+const PDFDocument = require('pdf-lib').PDFDocument;
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
@@ -42,7 +44,7 @@ var queryObj = {
 	'browser': 0,
 	'picker': 0,
 	'mode': 'device',
-	'export': 'https://exp.draw.io/ImageExport4/export'
+	'export': 'https://convert.diagrams.net/node/export'
 };
 
 try
@@ -74,7 +76,9 @@ function createWindow (opt = {})
 			// preload: path.resolve('./preload.js'),
 			nodeIntegration: true,
 			enableRemoteModule: true,
-			nodeIntegrationInWorker: true
+			nodeIntegrationInWorker: true,
+			spellcheck: (os.platform() == "darwin" ? true : false),
+			contextIsolation: false
 		}
 	}, opt)
 
@@ -233,7 +237,7 @@ app.on('ready', e =>
 			.option('-t, --transparent',
 				'set transparent background for PNG')
 			.option('-e, --embed-diagram',
-				'includes a copy of the diagram (for PNG format only)')
+				'includes a copy of the diagram (for PNG and PDF formats only)')
 			.option('-b, --border <border>',
 				'sets the border width around the diagram (default: 0)', parseInt)
 			.option('-s, --scale <scale>',
@@ -260,13 +264,16 @@ app.on('ready', e =>
 		return;
 	}
 	
+	var options = program.opts();
+	
     //Start export mode?
-    if (program.export)
+    if (options.export)
 	{
     	var dummyWin = new BrowserWindow({
 			show : false,
 			webPreferences: {
-				nodeIntegration: true
+				nodeIntegration: true,
+				contextIsolation: false
 			}
 		});
     	
@@ -279,11 +286,11 @@ app.on('ready', e =>
 	    	var outType = null;
 	    	
 	    	//Format & Output
-	    	if (program.output)
+	    	if (options.output)
 			{
 	    		try
 	    		{
-	    			var outStat = fs.statSync(program.output);
+	    			var outStat = fs.statSync(options.output);
 	    			
 	    			if (outStat.isDirectory())
 					{
@@ -298,7 +305,7 @@ app.on('ready', e =>
 	    		{
 	    			outType = {isFile: true};
 	    			
-	    			format = path.extname(program.output).substr(1);
+	    			format = path.extname(options.output).substr(1);
 					
 					if (!validFormatRegExp.test(format))
 					{
@@ -309,34 +316,34 @@ app.on('ready', e =>
 	    	
 	    	if (format == null)
 			{
-	    		format = program.format;
+	    		format = options.format;
 			}
 	    	
 	    	var from = null, to = null;
 	    	
-	    	if (program.pageIndex != null && program.pageIndex >= 0)
+	    	if (options.pageIndex != null && options.pageIndex >= 0)
 			{
-	    		from = program.pageIndex;
+	    		from = options.pageIndex;
 			}
-	    	else if (program.pageRage && program.pageRage.length == 2)
+	    	else if (options.pageRage && options.pageRage.length == 2)
 			{
-	    		from = program.pageRage[0] >= 0 ? program.pageRage[0] : null;
-	    		to = program.pageRage[1] >= 0 ? program.pageRage[1] : null;
+	    		from = options.pageRage[0] >= 0 ? options.pageRage[0] : null;
+	    		to = options.pageRage[1] >= 0 ? options.pageRage[1] : null;
 			}
 
 			var expArgs = {
 				format: format,
-				w: program.width > 0 ? program.width : null,
-				h: program.height > 0 ? program.height : null,
-				border: program.border > 0 ? program.border : 0,
-				bg: program.transparent ? 'none' : '#ffffff',
+				w: options.width > 0 ? options.width : null,
+				h: options.height > 0 ? options.height : null,
+				border: options.border > 0 ? options.border : 0,
+				bg: options.transparent ? 'none' : '#ffffff',
 				from: from,
 				to: to,
-				allPages: format == 'pdf' && program.allPages,
-				scale: (program.crop && (program.scale == null || program.scale == 1)) ? 1.00001: (program.scale || 1), //any value other than 1 crops the pdf
-				embedXml: program.embedDiagram? '1' : '0',
-				jpegQuality: program.quality,
-				uncompressed: program.uncompressed
+				allPages: format == 'pdf' && options.allPages,
+				scale: (options.crop && (options.scale == null || options.scale == 1)) ? 1.00001: (options.scale || 1), //any value other than 1 crops the pdf
+				embedXml: options.embedDiagram? '1' : '0',
+				jpegQuality: options.quality,
+				uncompressed: options.uncompressed
 			};
 
 			var paths = program.args;
@@ -381,7 +388,7 @@ app.on('ready', e =>
 				}
 				else if (inStat.isDirectory())
 				{
-					addDirectoryFiles(paths[0], program.recursive);
+					addDirectoryFiles(paths[0], options.recursive);
 				}
 
 				if (files.length > 0)
@@ -465,11 +472,11 @@ app.on('ready', e =>
 												{
 													if (outType.isDir)
 													{
-														outFileName = path.join(program.output, path.basename(curFile)) + '.' + format;
+														outFileName = path.join(options.output, path.basename(curFile)) + '.' + format;
 													}
 													else
 													{
-														outFileName = program.output;
+														outFileName = options.output;
 													}
 												}
 												else if (inStat.isFile())
@@ -570,11 +577,15 @@ app.on('ready', e =>
     	app.on('second-instance', (event, commandLine, workingDirectory) => {
     		//Create another window
     		let win = createWindow()
-    	    
-    	    win.webContents.on('did-finish-load', function()
-    	    {
-    	    	ipcMain.once('app-load-finished', (evt, data) =>
-    			{
+
+			let loadEvtCount = 0;
+			
+			function loadFinished()
+			{
+				loadEvtCount++;
+				
+				if (loadEvtCount == 2)
+				{
 	    	    	//Open the file if new app request is from opening a file
 	    	    	var potFile = commandLine.pop();
 	    	    	
@@ -582,16 +593,41 @@ app.on('ready', e =>
 	    	    	{
 	    	    		win.webContents.send('args-obj', {args: [potFile]});
 	    	    	}
-    			});
-    			
+				}
+			}
+			
+			//Order of these two events is not guaranteed, so wait for them async.
+			//TOOD There is still a chance we catch another window 'app-load-finished' if user created multiple windows quickly 
+	    	ipcMain.once('app-load-finished', loadFinished);
+    	    
+    	    win.webContents.on('did-finish-load', function()
+    	    {    			
     	        win.webContents.zoomFactor = 1;
     	        win.webContents.setVisualZoomLevelLimits(1, 1);
+				loadFinished();
     	    });
     	})
     }
 
     let win = createWindow()
     
+	let loadEvtCount = 0;
+			
+	function loadFinished()
+	{
+		loadEvtCount++;
+		
+		if (loadEvtCount == 2)
+		{
+			//Sending entire program is not allowed in Electron 9 as it is not native JS object
+			win.webContents.send('args-obj', {args: program.args, create: options.create});
+		}
+	}
+	
+	//Order of these two events is not guaranteed, so wait for them async.
+	//TOOD There is still a chance we catch another window 'app-load-finished' if user created multiple windows quickly 
+	ipcMain.once('app-load-finished', loadFinished);
+
     win.webContents.on('did-finish-load', function()
     {
     	if (firstWinFilePath != null)
@@ -608,14 +644,9 @@ app.on('ready', e =>
     	
     	firstWinLoaded = true;
     	
-    	ipcMain.once('app-load-finished', (evt, data) =>
-		{
-			//Sending entire program is not allowed in Electron 9 as it is not native JS object
-			win.webContents.send('args-obj', {args: program.args, create: program.create});
-		});
-    	
         win.webContents.zoomFactor = 1;
         win.webContents.setVisualZoomLevelLimits(1, 1);
+		loadFinished();
     });
 	
     let updateNoAvailAdded = false;
@@ -777,15 +808,27 @@ app.on('will-finish-launching', function()
 	    {
 		    let win = createWindow();
 		    
+			let loadEvtCount = 0;
+			
+			function loadFinished()
+			{
+				loadEvtCount++;
+				
+				if (loadEvtCount == 2)
+				{
+	    	    	win.webContents.send('args-obj', {args: [path]});
+				}
+			}
+			
+			//Order of these two events is not guaranteed, so wait for them async.
+			//TOOD There is still a chance we catch another window 'app-load-finished' if user created multiple windows quickly 
+	    	ipcMain.once('app-load-finished', loadFinished);
+    	    
 		    win.webContents.on('did-finish-load', function()
 		    {
-		    	ipcMain.once('app-load-finished', (evt, data) =>
-		    	{
-		    		win.webContents.send('args-obj', {args: [path]});
-		    	});
-		    	
 		        win.webContents.zoomFactor = 1;
 		        win.webContents.setVisualZoomLevelLimits(1, 1);
+				loadFinished();
 		    });
 	    }
 	    else
@@ -816,17 +859,12 @@ autoUpdater.on('update-available', (a, b) =>
 			
 			var progressBar = new ProgressBar({
 				title: 'draw.io Update',
-			    text: 'Downloading draw.io update...',
-				browserWindow: {
-					webPreferences: {
-						nodeIntegration: true
-					}
-				}
+			    text: 'Downloading draw.io update...'
 			});
 			
 			function reportUpdateError(e)
 			{
-				progressBar.detail = 'Error occured while fetching updates. ' + e
+				progressBar.detail = 'Error occured while fetching updates. ' + (e && e.message? e.message : e)
 				progressBar._window.setClosable(true);
 			}
 
@@ -849,6 +887,13 @@ autoUpdater.on('update-available', (a, b) =>
 				//On mac, download-progress event is not called, so the indeterminate progress will continue until download is finished
 				log.info('@update-progress@\n', d);
 				
+				var percent = d.percent;
+				
+				if (percent)
+				{
+					percent = Math.round(percent * 100)/100;
+				}
+				
 				if (firstTimeProg)
 				{
 					firstTimeProg = false;
@@ -858,13 +903,8 @@ autoUpdater.on('update-available', (a, b) =>
 						indeterminate: false,
 						title: 'draw.io Update',
 						text: 'Downloading draw.io update...',
-						detail: `${d.percent}% ...`,
-						initialValue: d.percent,
-						browserWindow: {
-							webPreferences: {
-								nodeIntegration: true
-							}
-						}
+						detail: `${percent}% ...`,
+						initialValue: percent
 					});
 				
 					progressBar
@@ -879,12 +919,12 @@ autoUpdater.on('update-available', (a, b) =>
 							})
 							.on('ready', function() {
 								//InitialValue doesn't set the UI! so this is needed to render it correctly
-								progressBar.value = d.percent;
+								progressBar.value = percent;
 							});
 				}
 				else 
 				{
-					progressBar.value = d.percent;
+					progressBar.value = percent;
 				}
 			});
 
@@ -1067,9 +1107,13 @@ function exportVsdx(event, args, directFinalize)
 		show : false
 	});
 
-    win.webContents.on('did-finish-load', function()
-    {
-    	ipcMain.once('app-load-finished', (evt, data) =>
+	let loadEvtCount = 0;
+			
+	function loadFinished()
+	{
+		loadEvtCount++;
+		
+		if (loadEvtCount == 2)
 		{
 	    	win.webContents.send('export-vsdx', args);
 	    	
@@ -1107,9 +1151,52 @@ function exportVsdx(event, args, directFinalize)
 					event.reply('export-success', data);
 				}
 			});
-		});
-    });
+		}
+	}
+	
+	//Order of these two events is not guaranteed, so wait for them async.
+	//TOOD There is still a chance we catch another window 'app-load-finished' if user created multiple windows quickly 
+	ipcMain.once('app-load-finished', loadFinished);
+    win.webContents.on('did-finish-load', loadFinished);
 };
+
+async function mergePdfs(pdfFiles, xml)
+{
+	//Pass throgh single files
+	if (pdfFiles.length == 1 && xml == null)
+	{
+		return pdfFiles[0];
+	}
+
+	try 
+	{
+		const pdfDoc = await PDFDocument.create();
+		pdfDoc.setCreator('diagrams.net');
+
+		if (xml != null)
+		{	
+			//Embed diagram XML as file attachment
+			await pdfDoc.attach(Buffer.from(xml).toString('base64'), 'diagram.xml', {
+				mimeType: 'application/vnd.jgraph.mxfile',
+				description: 'Diagram Content'
+			  });
+		}
+
+		for (var i = 0; i < pdfFiles.length; i++)
+		{
+			const pdfFile = await PDFDocument.load(pdfFiles[i].buffer);
+			const pages = await pdfDoc.copyPages(pdfFile, pdfFile.getPageIndices());
+			pages.forEach(p => pdfDoc.addPage(p));
+		}
+
+		const pdfBytes = await pdfDoc.save();
+        return Buffer.from(pdfBytes);
+    }
+	catch(e)
+	{
+        throw new Error('Error during PDF combination: ' + e.message);
+    }
+}
 
 //TODO Use canvas to export images if math is not used to speedup export (no capturePage). Requires change to export3.html also
 function exportDiagram(event, args, directFinalize)
@@ -1127,7 +1214,8 @@ function exportDiagram(event, args, directFinalize)
 		browser = new BrowserWindow({
 			webPreferences: {
 				backgroundThrottling: false,
-				nodeIntegration: true
+				nodeIntegration: true,
+				contextIsolation: false
 			},
 			show : false,
 			frame: false,
@@ -1139,7 +1227,19 @@ function exportDiagram(event, args, directFinalize)
 		browser.loadURL(`file://${__dirname}/export3.html`);
 
 		const contents = browser.webContents;
+		var pageByPage = (args.format == 'pdf' && !args.print), from, pdfs;
 
+		if (pageByPage)
+		{
+			from = args.allPages? 0 : parseInt(args.from || 0);
+			to = args.allPages? 1000 : parseInt(args.to || 1000) + 1; //The 'to' will be corrected later
+			pdfs = [];
+
+			args.from = from;
+			args.to = from;
+			args.allPages = false;
+		}
+			
 		contents.on('did-finish-load', function()
 	    {
 			//Set finalize here since it is call in the reply below
@@ -1158,12 +1258,13 @@ function exportDiagram(event, args, directFinalize)
 				ipcMain.once('export-finalize', finalize);
 			}
 
-			ipcMain.once('render-finished', (evt, bounds) =>
+			function renderingFinishHandler(evt, renderInfo)
 			{
+				var pageCount = renderInfo.pageCount, bounds = null;
 				//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
 				try
 				{
-					bounds = JSON.parse(bounds.bounds);
+					bounds = JSON.parse(renderInfo.bounds);
 				}
 				catch(e)
 				{
@@ -1281,9 +1382,24 @@ function exportDiagram(event, args, directFinalize)
 					}
 					else
 					{
-						contents.printToPDF(pdfOptions).then((data) => 
+						contents.printToPDF(pdfOptions).then(async (data) => 
 						{
-							event.reply('export-success', data);
+							pdfs.push(data);
+							to = to > pageCount? pageCount : to;
+							from++;
+							
+							if (from < to)
+							{
+								args.from = from;
+								args.to = from;
+								ipcMain.once('render-finished', renderingFinishHandler);
+								contents.send('render', args);
+							}
+							else
+							{
+								data = await mergePdfs(pdfs, args.embedXml == '1' ? args.xml : null);
+								event.reply('export-success', data);
+							}
 						})
 						.catch((error) => 
 						{
@@ -1304,7 +1420,9 @@ function exportDiagram(event, args, directFinalize)
 				{
 					event.reply('export-error', 'Error: Unsupported format');
 				}
-			});
+			};
+			
+			ipcMain.once('render-finished', renderingFinishHandler);
 
 			if (args.format == 'xml')
 			{

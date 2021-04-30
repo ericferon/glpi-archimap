@@ -711,7 +711,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 	{
 		this.view.currentRoot = null;
 		this.view.scale = 1;
-		this.gridEnabled = true;
+		this.gridEnabled = this.defaultGridEnabled;
 		this.gridSize = mxGraph.prototype.gridSize;
 		this.pageScale = mxGraph.prototype.pageScale;
 		this.pageFormat = (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat());
@@ -1162,7 +1162,7 @@ EditorUi.prototype.updateTabContainer = function()
 		var graph = this.editor.graph;
 		var wrapper = document.createElement('div');
 		wrapper.style.position = 'relative';
-		wrapper.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+		wrapper.style.display = 'inline-block';
 		wrapper.style.verticalAlign = 'top';
 		wrapper.style.height = this.tabContainer.style.height;
 		wrapper.style.whiteSpace = 'nowrap';
@@ -1330,7 +1330,7 @@ EditorUi.prototype.isPageInsertTabVisible = function()
 EditorUi.prototype.createTab = function(hoverEnabled)
 {
 	var tab = document.createElement('div');
-	tab.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+	tab.style.display = 'inline-block';
 	tab.style.whiteSpace = 'nowrap';
 	tab.style.boxSizing = 'border-box';
 	tab.style.position = 'relative';
@@ -1435,20 +1435,21 @@ EditorUi.prototype.createPageMenuTab = function()
 				if (page != null)
 				{
 					menu.addSeparator(parent);
+					var pageName = page.getName();
 	
-					menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
+					menu.addItem(mxResources.get('removeIt', [pageName]), null, mxUtils.bind(this, function()
 					{
 						this.removePage(page);
 					}), parent);
 					
-					menu.addItem(mxResources.get('rename'), null, mxUtils.bind(this, function()
+					menu.addItem(mxResources.get('renameIt', [pageName]), null, mxUtils.bind(this, function()
 					{
 						this.renamePage(page, page.getName());
 					}), parent);
 
 					menu.addSeparator(parent);
 					
-					menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
+					menu.addItem(mxResources.get('duplicateIt', [pageName]), null, mxUtils.bind(this, function()
 					{
 						this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
 					}), parent);

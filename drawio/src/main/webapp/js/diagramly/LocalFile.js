@@ -29,7 +29,7 @@ mxUtils.extend(LocalFile, DrawioFile);
  */
 LocalFile.prototype.isAutosave = function()
 {
-	return this.fileHandle != null && DrawioFile.prototype.isAutosave.apply(this, arguments);
+	return this.fileHandle != null && !this.invalidFileHandle && DrawioFile.prototype.isAutosave.apply(this, arguments);
 };
 
 /**
@@ -71,7 +71,7 @@ LocalFile.prototype.getTitle = function()
  */
 LocalFile.prototype.isRenamable = function()
 {
-	return this.fileHandle == null;
+	return true;
 };
 
 /**
@@ -165,7 +165,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 	
 	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
 	this.setShadowModified(false);
-	var data = this.getData();
+	var savedData = this.getData();
 	
 	var done = mxUtils.bind(this, function()
 	{
@@ -203,6 +203,8 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 				{
 					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
 					{
+						this.invalidFileHandle = null;
+						
 						if (this.desc.lastModified == newDesc.lastModified)
 						{
 							writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
@@ -211,9 +213,10 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 								{
 									this.fileHandle.getFile().then(mxUtils.bind(this, function(desc)
 									{
+										var lastDesc = this.desc;
 										this.savingFile = false;
 										this.desc = desc;
-										done();
+										this.fileSaved(savedData, lastDesc, done, errorWrapper);
 									}), errorWrapper);
 								}), errorWrapper);
 							}), errorWrapper);
@@ -223,7 +226,11 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 							this.inConflictState = true;
 							errorWrapper();
 						}
-					}), errorWrapper);
+					}), mxUtils.bind(this, function(e)
+					{
+						this.invalidFileHandle = true;
+						errorWrapper(e);
+					}));
 				}), errorWrapper);
 			}
 		}
@@ -269,11 +276,11 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 		{
 			doSave(imageData);
 		}), error, (this.ui.getCurrentFile() != this) ?
-			data : null, p.scale, p.border);
+			savedData : null, p.scale, p.border);
 	}
 	else
 	{
-		doSave(data);
+		doSave(savedData);
 	}
 };
 

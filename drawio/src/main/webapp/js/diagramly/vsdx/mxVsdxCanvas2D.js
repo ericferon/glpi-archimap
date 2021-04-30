@@ -205,10 +205,10 @@ mxVsdxCanvas2D.prototype.createRowRel = function(type, index, x, y, a, b, c , d,
 	row.appendChild(this.createCellElem("X", x, xF));
 	row.appendChild(this.createCellElem("Y", y, yF));
 	
-	if (a != null) row.appendChild(this.createCellElem("A", a, aF));
-	if (b != null) row.appendChild(this.createCellElem("B", b, bF));
-	if (c != null) row.appendChild(this.createCellElem("C", c, cF));
-	if (d != null) row.appendChild(this.createCellElem("D", d, dF));
+	if (a != null && isFinite(a)) row.appendChild(this.createCellElem("A", a, aF));
+	if (b != null && isFinite(b)) row.appendChild(this.createCellElem("B", b, bF));
+	if (c != null && isFinite(c)) row.appendChild(this.createCellElem("C", c, cF));
+	if (d != null && isFinite(d)) row.appendChild(this.createCellElem("D", d, dF));
 	
 	return row;
 };
@@ -699,8 +699,7 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
  * Function: text
  * 
  * Paints the given text. Possible values for format are empty string for
- * plain text and html for HTML markup. Background and border color as well
- * as clipping is not available in plain text labels for VML. HTML labels
+ * plain text and html for HTML markup. HTML labels
  * are not available as part of shapes with no foreignObject support in SVG
  * (eg. IE9, IE10).
  * 

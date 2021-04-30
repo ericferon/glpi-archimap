@@ -48,11 +48,7 @@ public class SaveServlet extends HttpServlet
 	}
 
 	/**
-	 * 
-	 * @param request
-	 * @param response
-	 * @throws ServletException
-	 * @throws IOException
+	 * Validates the given filename.
 	 */
 	protected static String validateFilename(String filename)
 	{
@@ -70,7 +66,7 @@ public class SaveServlet extends HttpServlet
 		
 		if (filename.length() == 0)
 		{
-			filename = "export.xml";
+			filename = "export.txt";
 		}
 		else if (!filename.toLowerCase().endsWith(".svg") &&
 			!filename.toLowerCase().endsWith(".html") &&
@@ -81,7 +77,7 @@ public class SaveServlet extends HttpServlet
 			!filename.toLowerCase().endsWith(".vsdx") &&
 			!filename.toLowerCase().endsWith(".txt"))
 		{
-			filename = filename + ".xml";
+			filename = filename + ".txt";
 		}
 		
 		filename = Utils.encodeURIComponent(filename, "UTF-8");
@@ -95,7 +91,6 @@ public class SaveServlet extends HttpServlet
 		if (request.getContentLength() < Constants.MAX_REQUEST_SIZE)
 		{
 			long t0 = System.currentTimeMillis();
-			String mime = request.getParameter("mime");
 			String filename = request.getParameter("filename");
 			byte[] data = null;
 
@@ -120,82 +115,58 @@ public class SaveServlet extends HttpServlet
 				// Decoding is optional (no plain text values allowed here so %3C means encoded)
 				if (xml != null && xml.startsWith("%3C"))
 				{
-					xml = URLDecoder.decode(xml,
-							Utils.CHARSET_FOR_URL_ENCODING);
+					xml = URLDecoder.decode(xml, Utils.CHARSET_FOR_URL_ENCODING);
 				}
 
 				String binary = request.getParameter("binary");
 
-				if (binary != null && binary.equals("1") && xml != null
-						&& (mime != null || filename != null))
+				if (binary != null && binary.equals("1") && xml != null && filename != null)
 				{
 					response.setStatus(HttpServletResponse.SC_OK);
-
-					if (filename != null)
-					{
-						filename = validateFilename(filename);
-
-						response.setContentType("application/x-unknown");
-						response.setHeader("Content-Disposition",
-								"attachment; filename=\"" + filename
-										+ "\"; filename*=UTF-8''" + filename);
-					}
-					else if (mime != null)
-					{
-						response.setContentType(mime);
-					}
-
-					response.getOutputStream()
-							.write(mxBase64.decodeFast(URLDecoder.decode(xml,
-									Utils.CHARSET_FOR_URL_ENCODING)));
+					response.setContentType("application/octet-stream");
+					filename = validateFilename(filename);
+					response.setHeader("Content-Disposition",
+						"attachment; filename=\"" + filename +
+						"\"; filename*=UTF-8''" + filename);
+					response.getOutputStream().write(
+						mxBase64.decodeFast(URLDecoder.decode(xml,
+						Utils.CHARSET_FOR_URL_ENCODING)));
 				}
 				else if (xml != null)
 				{
 					data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
 					String format = request.getParameter("format");
-
-					if (format == null)
-					{
-						format = "xml";
-					}
-
-					if (filename != null && filename.length() > 0
-							&& !filename.toLowerCase().endsWith(".svg")
-							&& !filename.toLowerCase().endsWith(".html")
-							&& !filename.toLowerCase().endsWith(".png")
-							&& !filename.toLowerCase().endsWith("." + format))
-					{
-						filename += "." + format;
-					}
-
 					response.setStatus(HttpServletResponse.SC_OK);
 
 					if (filename != null)
 					{
+						if (format == null)
+						{
+							format = "xml";
+						}
+	
+						if (filename.length() > 0  &&
+							!filename.toLowerCase().endsWith(".svg") &&
+							!filename.toLowerCase().endsWith(".html") &&
+							!filename.toLowerCase().endsWith(".png") &&
+							!filename.toLowerCase().endsWith("." + format))
+						{
+							filename += "." + format;
+						}
+
 						filename = validateFilename(filename);
-
-						if (mime != null)
-						{
-							response.setContentType(mime);
-						}
-						else
-						{
-							response.setContentType("application/x-unknown");
-						}
-
-						response.setHeader("Content-Disposition",
-								"attachment; filename=\"" + filename
-										+ "\"; filename*=UTF-8''" + filename);
-					}
-					else if (mime != null && mime.equals("image/svg+xml"))
-					{
-						response.setContentType("image/svg+xml");
 					}
 					else
 					{
-						// Required to avoid download of file
-						response.setContentType("text/plain");
+						filename = validateFilename((format != null) ?
+							"export." + format.toLowerCase() :
+							"export.txt");
 					}
+
+					response.setContentType("application/octet-stream");
+					response.setHeader("Content-Disposition",
+						"attachment; filename=\"" + filename +
+						"\"; filename*=UTF-8''" + filename);
 
 					OutputStream out = response.getOutputStream();
 					out.write(data);

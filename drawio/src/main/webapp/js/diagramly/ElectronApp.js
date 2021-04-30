@@ -114,6 +114,10 @@ mxStencilRegistry.allowEval = false;
 					{
 						plugins[i] = '.' + plugins[i];
 					}
+					else if (plugins[i].startsWith('plugins/'))
+					{
+						plugins[i] = './' + plugins[i];
+					}
 					//Support old plugins added using file:// workaround
 					else if (!plugins[i].startsWith('file://'))
 					{
@@ -525,52 +529,113 @@ mxStencilRegistry.allowEval = false;
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
-		
-		var copyAsImage = this.actions.addAction('copyAsImage', mxUtils.bind(this, function()
+
+		function createGraph()
 		{
-			const electron = require('electron');
-			var remote = electron.remote;
-			var clipboard = remote.clipboard;
-			var nativeImage = remote.nativeImage;
+			var graph = new Graph();
+	        graph.setExtendParents(false);
+	        graph.setExtendParentsOnAdd(false);
+	        graph.setConstrainChildren(false);
+	        graph.setHtmlLabels(true);
+	        graph.getModel().maintainEdgeParent = false;
+	        return graph;
+		};
+		
+		function cloneMxCLipboardToSys()
+		{
+			var cells = mxClipboard.getCells();
 			
-			if (editorUi.spinner.spin(document.body, mxResources.get('exporting')))
+			if (cells && cells.length > 0)
 			{
-				editorUi.exportToCanvas(function(canvas)
+				try
 				{
-			   		try
-			   		{
-			   			var img = nativeImage.createFromDataURL(editorUi.createImageDataUri(canvas, null, 'png'));
-			   			clipboard.writeImage(img);
-		   				editorUi.spinner.stop();
-			   		}
-			   		catch (e)
-			   		{
-			   			editorUi.handleError(e);
-			   		}
-				}, null, null, null, function(e)
+					var tmpGraph = createGraph();
+					tmpGraph.importCells(cells, 0, 0, tmpGraph.getDefaultParent());
+					const electron = require('electron');
+					var remote = electron.remote;
+					var clipboard = remote.clipboard;
+					var codec = new mxCodec();
+		            var node = codec.encode(tmpGraph.getModel());
+		            var modelString = mxUtils.getXml(node);
+					clipboard.writeText(encodeURIComponent(modelString));
+				}
+				catch(e)
 				{
-					editorUi.spinner.stop();
-					editorUi.handleError(e);
-			   	}, null, false, 1, true);
+					//Ignore
+				} 
 			}
-		}));
+		};
 		
-		copyAsImage.isEnabled = function()
+		function cloneSysCLipboardToMx()
 		{
-			return editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty();
-		}
+			try
+			{
+				const electron = require('electron');
+				var remote = electron.remote;
+				var clipboard = remote.clipboard;
+				var modelString = clipboard.readText(); 
+				
+				if (modelString)
+				{
+					modelString = decodeURIComponent(modelString);
+					var xmlDoc = mxUtils.parseXml(modelString);
+					var tmpGraph = createGraph();
+					var codec = new mxCodec(xmlDoc);
+					var model = tmpGraph.getModel();
+					codec.decode(xmlDoc.documentElement, model);
+					mxClipboard.setCells(model.root.children[0].children);
+				}
+			}
+			catch(e)
+			{
+				//Ignore, the contents of mxClipboard will be used
+			}
+		};
+		
+		//Set system clipboard on menu copy/cut
+		var origCut = this.actions.get('cut').funct;
+		
+		editorUi.actions.addAction('cut', function()
+		{
+			origCut();
+			cloneMxCLipboardToSys();
+		}, null, 'sprite-cut', Editor.ctrlKey + '+X');
+		
+		var origCopy = this.actions.get('copy').funct;
+		
+		editorUi.actions.addAction('copy', function()
+		{
+			origCopy();
+			cloneMxCLipboardToSys();
+		}, null, 'sprite-copy', Editor.ctrlKey + '+C');
+		
+		//Get data from system clipboard for pase/pasteHere
+		var origPaste = this.actions.get('paste').funct;
+		
+		editorUi.actions.addAction('paste', function()
+		{
+			cloneSysCLipboardToMx();
+			origPaste();
+		}, false, 'sprite-paste', Editor.ctrlKey + '+V');
 	
-		// Inserts copyAsImage into popup menu
-		editorUi.menus.addPopupMenuEditItems = function(menu, cell, evt)
+		var origPasteHere = this.actions.get('pasteHere').funct;
+
+		editorUi.actions.addAction('pasteHere', function()
 		{
-			if (editorUi.editor.graph.isSelectionEmpty())
-			{
-				this.addMenuItems(menu, ['pasteHere'], null, evt);
-			}
-			else
-			{
-				this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', 'copyAsImage', '-', 'duplicate'], null, evt);
-			}
+			cloneSysCLipboardToMx();
+			origPasteHere();
+		});
+		
+		//Enable paste action even if mxClipboard is empty! TODO Is this OK?
+		editorUi.updatePasteActionStates = function()
+		{
+			var graph = this.editor.graph;
+			var paste = this.actions.get('paste');
+			var pasteHere = this.actions.get('pasteHere');
+			
+			paste.setEnabled(this.editor.graph.cellEditor.isContentEditing() || 
+					(graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent())));
+			pasteHere.setEnabled(paste.isEnabled());
 		};
 		
 		editorUi.actions.addAction('plugins...', function()
@@ -1250,6 +1315,17 @@ mxStencilRegistry.allowEval = false;
 	
 	LocalFile.prototype.saveFile = function(revision, success, error, unloading, overwrite)
 	{
+		//Safeguard in case saveFile is called from online code in the future
+		if (typeof success !== 'function')
+		{
+			if (typeof unloading === 'function')
+			{
+				//Call error
+				unloading({message: 'This is a bug, please report!'}); //Original draw.io function parameters are (title, revision, success, error, useCurrentData)
+			}
+			return;
+		}
+		
 		if (!this.savingFile)
 		{
 			var fn = mxUtils.bind(this, function()
@@ -1568,8 +1644,26 @@ mxStencilRegistry.allowEval = false;
 			}
 		}
 	};
-	
-	
+		
+	/**
+	 * Copies the given cells and XML to the clipboard as an embedded image.
+	 */
+	EditorUi.prototype.writeImageToClipboard = function(dataUrl, w, h, error)
+	{
+		try
+		{
+			const electron = require('electron');
+			
+			electron.remote.clipboard.write({image: electron.remote.
+				nativeImage.createFromDataURL(dataUrl), html: '<img src="' +
+				dataUrl + '" width="' + w + '" height="' + h + '">'});
+		}
+		catch (e)
+		{
+			error(e);
+		}
+	};
+
 	/**
 	 * Updates action states depending on the selection.
 	 */
@@ -1654,7 +1748,8 @@ mxStencilRegistry.allowEval = false;
 	}
 	
 		//Direct export to pdf
-		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
+		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, 
+			currentPage, scale, border, grid, includeXml)
 		{
 			var graph = this.editor.graph;
 			var bounds = graph.getGraphBounds();
@@ -1666,7 +1761,7 @@ mxStencilRegistry.allowEval = false;
 			var range = null;
 			var allPages = null;
 			
-			var embed = '0';
+			var embed = (includeXml) ? '1' : '0';
 			
 			if (format == 'pdf' && currentPage == false)
 			{

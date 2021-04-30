@@ -4,11 +4,9 @@ About
 -----
 [diagrams.net](https://app.diagrams.net), [previously draw.io](https://www.diagrams.net/blog/move-diagrams-net), is an online diagramming web site that delivers the source in this project.
 
-diagrams.net uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the base of the stack, with the [GraphEditor example](https://github.com/jgraph/mxgraph/tree/master/javascript/examples/grapheditor) from mxGraph as the base of the application part. The mxGraph library build used is stored under /etc/mxgraph/mxClient.js.
-
 License
 -------
-diagrams.net is licensed under the Apache v2.
+The source code in this repo is licensed under the Apache v2.
 
 Development
 -----------
@@ -28,3 +26,19 @@ The full packaged .war of the client and servlets is built when the project is t
 Supported Browsers
 ------------------
 diagrams.net supports IE 11, Chrome 70+, Firefox 70+, Safari 11+, Opera 50+, Native Android browser 7x+, the default browser in the current and previous major iOS versions (e.g. 11.2.x and 10.3.x) and Edge 79+.
+
+Open-source, not open-contribution
+----------------------------------
+
+[Similar to SQLite](https://www.sqlite.org/copyright.html), diagrams.net is open
+source but closed to contributions.
+
+The level of complexity of this project means that even simple changes 
+can break a _lot_ of other moving parts. The amount of testing required 
+is far more than it first seems. If we were to receive a PR, we'd have 
+to basically throw it away and write it how we want it to be implemented.
+
+We are grateful for community involvement, bug reports, & feature requests. We do
+not wish to come off as anything but welcoming, however, we've
+made the decision to keep this project closed to contributions for 
+the long term viability of the project.

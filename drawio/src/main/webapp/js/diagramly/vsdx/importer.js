@@ -153,8 +153,8 @@ var com;
                 
                 mxVsdxCodec.incorrectXMLReqExp = [
                 	{
-                		regExp: /(\>[^&<]*)\&([^&<;]*\<)/g,
-                		repl: '$1&amp;$2'
+                		regExp: /\&(?!amp;|lt;|gt;|quot;|#)/g,
+                		repl: '&amp;'
                 	}
                 ];
                 
@@ -904,6 +904,14 @@ var com;
                             	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
                         	}
                             
+							// Add Shape properties
+							var props = shape.getProperties();
+							
+							for (var i = 0; i < props.length; i++)
+							{
+								graph.setAttributeForCell(v1, props[i].key, props[i].val);
+							}
+							
                             return v1;
                         }
                         else {
@@ -1429,7 +1437,7 @@ var com;
                         var child = model.getChildAt(cell, i);
                         var remove = this.sanitiseCell(graph, child);
                         if (remove) {
-                            /* add */ (removeList.push(child) > 0);
+                            /* add */ (removeList.push(child));
                         }
                     }
                     ;
@@ -2508,7 +2516,7 @@ var com;
                         if (this.rows == null) {
                             this.rows = ([]);
                             for (var i = 0; i < rowElems.length; i++) {
-                                /* add */ (this.rows.push(null) > 0);
+                                /* add */ (this.rows.push(null));
                             }
                             ;
                         }
@@ -2568,7 +2576,7 @@ var com;
                             {
                                 var row = com.mxgraph.io.vsdx.geometry.RowFactory.getRowObj(rowElem, this.rows);
                                 if (row.getIndex() > rowsLen) {
-                                    /* add */ (this.rows.push(row) > 0);
+                                    /* add */ (this.rows.push(row));
                                     sortNeeded = true;
                                 }
                                 else {
@@ -2688,7 +2696,7 @@ var com;
                             /* set */ (this.geomList[geo.getIndex()] = geo);
                         }
                         else {
-                            /* add */ (this.geomList.push(geo) > 0);
+                            /* add */ (this.geomList.push(geo));
                             this.sortNeeded = true;
                         }
                     };
@@ -2762,7 +2770,7 @@ var com;
                     mxVsdxGeometryList.prototype.getRoutingPoints = function (parentHeight, startPoint, rotation) {
                         this.sort();
                         var points = ([]);
-                        /* add */ (points.push(startPoint.clone()) > 0);
+                        /* add */ (points.push(startPoint.clone()));
                         var offsetX = 0;
                         var offsetY = 0;
                         for (var index128 = 0; index128 < this.geomList.length; index128++) {
@@ -2794,7 +2802,7 @@ var com;
                                                 y = Math.round(y * 100.0) / 100.0;
                                                 p.x = (x);
                                                 p.y = (y);
-                                                /* add */ (points.push(p) > 0);
+                                                /* add */ (points.push(p));
                                             }
                                         }
                                     }
@@ -4125,7 +4133,7 @@ var com;
                                                         for (var index136 = 0; index136 < fillStyleElems.length; index136++) {
                                                             var fillStyle = fillStyleElems[index136];
                                                             {
-                                                                /* add */ (this.connFillStyles.push(com.mxgraph.io.vsdx.theme.FillStyleFactory.getFillStyle(fillStyle)) > 0);
+                                                                /* add */ (this.connFillStyles.push(com.mxgraph.io.vsdx.theme.FillStyleFactory.getFillStyle(fillStyle)));
                                                             }
                                                         }
                                                         break;
@@ -4134,7 +4142,7 @@ var com;
                                                         for (var index137 = 0; index137 < lineStyleElems.length; index137++) {
                                                             var lineStyle = lineStyleElems[index137];
                                                             {
-                                                                /* add */ (this.connLineStyles.push(new com.mxgraph.io.vsdx.theme.LineStyle(lineStyle)) > 0);
+                                                                /* add */ (this.connLineStyles.push(new com.mxgraph.io.vsdx.theme.LineStyle(lineStyle)));
                                                             }
                                                         }
                                                         break;
@@ -4154,7 +4162,7 @@ var com;
                                                         for (var index139 = 0; index139 < connStylesElems.length; index139++) {
                                                             var connStyle = connStylesElems[index139];
                                                             {
-                                                                /* add */ (this.connLineStylesExt.push(new com.mxgraph.io.vsdx.theme.LineStyleExt(connStyle)) > 0);
+                                                                /* add */ (this.connLineStylesExt.push(new com.mxgraph.io.vsdx.theme.LineStyleExt(connStyle)));
                                                             }
                                                         }
                                                         break;
@@ -4163,7 +4171,7 @@ var com;
                                                         for (var index140 = 0; index140 < schemeStyleElems.length; index140++) {
                                                             var schemeStyle = schemeStyleElems[index140];
                                                             {
-                                                                /* add */ (this.lineStylesExt.push(new com.mxgraph.io.vsdx.theme.LineStyleExt(schemeStyle)) > 0);
+                                                                /* add */ (this.lineStylesExt.push(new com.mxgraph.io.vsdx.theme.LineStyleExt(schemeStyle)));
                                                             }
                                                         }
                                                         break;
@@ -4220,10 +4228,10 @@ var com;
                         for (var index144 = 0; index144 < fontProps.length; index144++) {
                             var fontProp = fontProps[index144];
                             {
-                                /* add */ (fontStyles.push(com.mxgraph.io.vsdx.mxVsdxUtils.getIntAttr$org_w3c_dom_Element$java_lang_String(fontProp, "style")) > 0);
+                                /* add */ (fontStyles.push(com.mxgraph.io.vsdx.mxVsdxUtils.getIntAttr$org_w3c_dom_Element$java_lang_String(fontProp, "style")));
                                 var color = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectFirstChildElement(fontProp);
                                 if (color != null)
-                                    (fontColors.push(com.mxgraph.io.vsdx.theme.OoxmlColorFactory.getOoxmlColor(com.mxgraph.io.vsdx.mxVsdxUtils.getDirectFirstChildElement(color))) > 0);
+                                    (fontColors.push(com.mxgraph.io.vsdx.theme.OoxmlColorFactory.getOoxmlColor(com.mxgraph.io.vsdx.mxVsdxUtils.getDirectFirstChildElement(color))));
                             }
                         }
                     };
@@ -4239,7 +4247,7 @@ var com;
                                         for (var index146 = 0; index146 < fillStyleElems.length; index146++) {
                                             var fillStyle = fillStyleElems[index146];
                                             {
-                                                /* add */ (this.fillStyles.push(com.mxgraph.io.vsdx.theme.FillStyleFactory.getFillStyle(fillStyle)) > 0);
+                                                /* add */ (this.fillStyles.push(com.mxgraph.io.vsdx.theme.FillStyleFactory.getFillStyle(fillStyle)));
                                             }
                                         }
                                         break;
@@ -4248,7 +4256,7 @@ var com;
                                         for (var index147 = 0; index147 < lineStyleElems.length; index147++) {
                                             var lineStyle = lineStyleElems[index147];
                                             {
-                                                /* add */ (this.lineStyles.push(new com.mxgraph.io.vsdx.theme.LineStyle(lineStyle)) > 0);
+                                                /* add */ (this.lineStyles.push(new com.mxgraph.io.vsdx.theme.LineStyle(lineStyle)));
                                             }
                                         }
                                         break;
@@ -4826,7 +4834,7 @@ var com;
                             else {
                                 return o1 === o2;
                             } })(name, child.nodeName)) {
-                                /* add */ (result.push(child) > 0);
+                                /* add */ (result.push(child));
                             }
                         }
                         ;
@@ -4841,7 +4849,7 @@ var com;
                         var result = ([]);
                         for (var child = parent.firstChild; child != null; child = child.nextSibling) {
                             if (child != null && (child.nodeType == 1)) {
-                                /* add */ (result.push(child) > 0);
+                                /* add */ (result.push(child));
                             }
                         }
                         ;
@@ -5027,20 +5035,19 @@ var com;
                         return styleMap;
                     };
                     mxVsdxUtils.isInsideTriangle = function (x, y, ax, ay, bx, by, cx, cy) {
-                        bx = bx - ax;
-                        by = by - ay;
-                        cx = cx - ax;
-                        cy = cy - ay;
-                        ax = 0;
-                        ay = 0;
-                        var d = bx * cy - cx * by;
-                        var wa = (x * (by - cy) + y * (cx - bx) + bx * cy - cx * by) / d;
-                        var wb = (x * cy - y * cx) / d;
-                        var wc = (y * bx - x * by) / d;
-                        if (wa > 0 && wa < 1 && wb > 0 && wb < 1 && wc > 0 && wc < 1) {
-                            return true;
-                        }
-                        return false;
+						function sign (p1x, p1y, p2x, p2y, p3x, p3y)
+						{
+						    return (p1x - p3x) * (p2y - p3y) - (p2x - p3x) * (p1y - p3y);
+						}
+
+					    var d1 = sign(x, y, ax, ay, bx, by);
+					    var d2 = sign(x, y, bx, by, cx, cy);
+					    var d3 = sign(x, y, cx, cy, ax, ay);
+					
+					    var has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+					    var has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+					
+					    return !(has_neg && has_pos);
                     };
                     return mxVsdxUtils;
                 }());
@@ -5074,17 +5081,17 @@ var com;
                         this.fields = null;
                         this.paraIndex = null;
                         this.values = ([]);
-                        /* add */ (this.values.push(val) > 0);
+                        /* add */ (this.values.push(val));
                         this.charIndices = ([]);
-                        /* add */ (this.charIndices.push(ch) > 0);
+                        /* add */ (this.charIndices.push(ch));
                         this.fields = ([]);
-                        /* add */ (this.fields.push(field) > 0);
+                        /* add */ (this.fields.push(field));
                         this.paraIndex = pg;
                     }
                     Paragraph.prototype.addText = function (val, ch, field) {
-                        /* add */ (this.values.push(val) > 0);
-                        /* add */ (this.charIndices.push(ch) > 0);
-                        /* add */ (this.fields.push(field) > 0);
+                        /* add */ (this.values.push(val));
+                        /* add */ (this.charIndices.push(ch));
+                        /* add */ (this.fields.push(field));
                     };
                     Paragraph.prototype.getParagraphIndex = function () {
                         return this.paraIndex;
@@ -5716,37 +5723,37 @@ var com;
                                                             break;
                                                         case "sysDot":
                                                         case "dot":
-                                                            /* add */ (_this.lineDashPattern.push(1.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
+                                                            /* add */ (_this.lineDashPattern.push(1.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
                                                             break;
                                                         case "sysDash":
                                                         case "dash":
                                                             break;
                                                         case "lgDash":
-                                                            /* add */ (_this.lineDashPattern.push(12.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
+                                                            /* add */ (_this.lineDashPattern.push(12.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
                                                             break;
                                                         case "sysDashDot":
                                                         case "dashDot":
-                                                            /* add */ (_this.lineDashPattern.push(8.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(1.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
+                                                            /* add */ (_this.lineDashPattern.push(8.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
+                                                            /* add */ (_this.lineDashPattern.push(1.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
                                                             break;
                                                         case "lgDashDot":
-                                                            /* add */ (_this.lineDashPattern.push(12.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(1.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
+                                                            /* add */ (_this.lineDashPattern.push(12.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
+                                                            /* add */ (_this.lineDashPattern.push(1.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
                                                             break;
                                                         case "sysDashDotDot":
                                                         case "lgDashDotDot":
-                                                            /* add */ (_this.lineDashPattern.push(12.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(1.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(1.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(4.0) > 0);
+                                                            /* add */ (_this.lineDashPattern.push(12.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
+                                                            /* add */ (_this.lineDashPattern.push(1.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
+                                                            /* add */ (_this.lineDashPattern.push(1.0));
+                                                            /* add */ (_this.lineDashPattern.push(4.0));
                                                             break;
                                                     }
                                                     break;
@@ -5758,8 +5765,8 @@ var com;
                                                         {
                                                             var dashLen = com.mxgraph.io.vsdx.mxVsdxUtils.getIntAttr$org_w3c_dom_Element$java_lang_String(dsElem, "d");
                                                             var spaceLen = com.mxgraph.io.vsdx.mxVsdxUtils.getIntAttr$org_w3c_dom_Element$java_lang_String(dsElem, "sp");
-                                                            /* add */ (_this.lineDashPattern.push(dashLen / 10000.0) > 0);
-                                                            /* add */ (_this.lineDashPattern.push(spaceLen / 10000.0) > 0);
+                                                            /* add */ (_this.lineDashPattern.push(dashLen / 10000.0));
+                                                            /* add */ (_this.lineDashPattern.push(spaceLen / 10000.0));
                                                         }
                                                     }
                                                     break;
@@ -6724,7 +6731,8 @@ var com;
                                 var sweep = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
                                 var sf = (sweep > 0) ? "0" : "1";
                                 var laf = "0";
-                                if (com.mxgraph.io.vsdx.mxVsdxUtils.isInsideTriangle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) && this.isReflexAngle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) {
+                                if (com.mxgraph.io.vsdx.mxVsdxUtils.isInsideTriangle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) // && this.isReflexAngle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) { //Inside triangle works alone in all test cases so far 
+								{
                                     laf = "1";
                                 }
                                 shape.setLastX(x);
@@ -6978,13 +6986,13 @@ var com;
                                         var nut = ([]);
                                         var nurbsize = nurbs.getSize();
                                         for (var i = 0; i < nurbsize - 1; i = i + 3) {
-                                            /* add */ (cp1.push(new mxPoint(nurbs.getX(i), nurbs.getY(i))) > 0);
-                                            /* add */ (cp2.push(new mxPoint(nurbs.getX(i + 1), nurbs.getY(i + 1))) > 0);
+                                            /* add */ (cp1.push(new mxPoint(nurbs.getX(i), nurbs.getY(i))));
+                                            /* add */ (cp2.push(new mxPoint(nurbs.getX(i + 1), nurbs.getY(i + 1))));
                                             if (i < nurbsize - 2) {
-                                                /* add */ (nut.push(new mxPoint(nurbs.getX(i + 2), nurbs.getY(i + 2))) > 0);
+                                                /* add */ (nut.push(new mxPoint(nurbs.getX(i + 2), nurbs.getY(i + 2))));
                                             }
                                             else {
-                                                /* add */ (nut.push(new mxPoint(x, y)) > 0);
+                                                /* add */ (nut.push(new mxPoint(x, y)));
                                             }
                                         }
                                         ;
@@ -7021,13 +7029,13 @@ var com;
                                 var n = s.split(/\s*,\s*/).slice(0);
                                 for (var i = 0; i < n.length; i++) {
                                     if ((i > 3) && (i % 4 === 0)) {
-                                        /* add */ (this.nurbsValues.push(/* parseDouble */ parseFloat(/* get */ n[i]) * 100.0) > 0);
+                                        /* add */ (this.nurbsValues.push(/* parseDouble */ parseFloat(/* get */ n[i]) * 100.0));
                                     }
                                     else if ((i > 3) && (i % 4 === 1)) {
-                                        /* add */ (this.nurbsValues.push(100 - parseFloat(/* get */ n[i]) * 100.0) > 0);
+                                        /* add */ (this.nurbsValues.push(100 - parseFloat(/* get */ n[i]) * 100.0));
                                     }
                                     else {
-                                        /* add */ (this.nurbsValues.push(/* parseDouble */ parseFloat(/* get */ n[i])) > 0);
+                                        /* add */ (this.nurbsValues.push(/* parseDouble */ parseFloat(/* get */ n[i])));
                                     }
                                 }
                                 ;
@@ -8381,141 +8389,141 @@ var com;
                         Style.lineDashPatterns = ([]); return Style.lineDashPatterns; };
                     ;
                     Style.__static_initializer_1 = function () {
-                        /* add */ (Style.lineDashPatterns_$LI$().push([]) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push([]) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push([]) > 0);
+                        /* add */ (Style.lineDashPatterns_$LI$().push([]));
+                        /* add */ (Style.lineDashPatterns_$LI$().push([]));
+                        /* add */ (Style.lineDashPatterns_$LI$().push([]));
                         var lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (lineDashPattern.push(Style.SHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DOT) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.LONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DOT));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.XLONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.XLONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.XLONG_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (lineDashPattern.push(Style.DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.LONG_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.XLONG_DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (lineDashPattern.push(Style.DASH));
+                        /* add */ (lineDashPattern.push(Style.LONG_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                         lineDashPattern = ([]);
-                        /* add */ (lineDashPattern.push(Style.XSHORT_DASH) > 0);
-                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE) > 0);
-                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern) > 0);
+                        /* add */ (lineDashPattern.push(Style.XSHORT_DASH));
+                        /* add */ (lineDashPattern.push(Style.SHORT_SPACE));
+                        /* add */ (Style.lineDashPatterns_$LI$().push(lineDashPattern));
                     };
                     Style.getLineDashPattern = function (pattern) {
                         if (pattern >= 0 && pattern <= 23)
@@ -9084,7 +9092,7 @@ var com;
                             if (this.geom == null) {
                                 this.geom = ([]);
                             }
-                            /* add */ (this.geom.push(elem) > 0);
+                            /* add */ (this.geom.push(elem));
                         }
                         else if ((function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
@@ -10677,6 +10685,39 @@ var com;
 
                     	return {extLink: extLink, pageLink: pageLink};
                     };
+
+                    VsdxShape.prototype.getProperties = function () 
+                    {
+						var props = [];
+
+                    	if (this.sections && this.sections['Property'])
+                    	{
+	                    	var rows = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(this.sections['Property'].elem, "Row");
+
+	                    	for (var i = 0; i < rows.length; i++)
+	                    	{
+			                    var row = rows[i];
+                            	var n = row.getAttribute("N");
+                            	
+								var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildElements(row);
+
+                        		for (var j = 0; j < cells.length; j++)
+                    			{
+                            		var cell = cells[j];
+									var cn = cell.getAttribute("N");
+                        			 
+                        			if (cn == 'Value')
+                        			{
+                            			props.push({key: n, val: cell.getAttribute("V")});
+                            			break;
+                        			}
+                        		}
+		                    }
+                    	}
+
+						return props;
+                    };
+
                     /**
                      * Analyzes the shape and returns a string with the style.
                      * @return {*} style read from the shape.
@@ -11701,7 +11742,7 @@ var com;
                                         finalX = startXY.x + widthFixed * rawX;
                                         currPoint.x = (Math.floor(Math.round(finalX * 100) / 100));
                                         currPoint.y = (Math.floor(Math.round((startXY.y - heightFixed * rawY) * 100) / 100));
-                                        /* add */ (pointList.push(currPoint) > 0);
+                                        /* add */ (pointList.push(currPoint));
                                     }
                                     ;
                                     return pointList;
