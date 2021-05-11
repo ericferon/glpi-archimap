@@ -77,6 +77,7 @@ DiagramEditor.prototype.config = null;
  */
 // Modified EFE 20200930 - Build drawDomain dynamically
 DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio/src/main/webapp/';
+//DiagramEditor.prototype.drawDomain = 'https://embed.diagrams.net/';
 // End of Modified EFE 20200930 - Build drawDomain dynamically
 
 /**
@@ -415,8 +416,30 @@ DiagramEditor.prototype.getFrameStyle = function()
 DiagramEditor.prototype.getFrameUrl = function()
 {
 // Added EFE 20200715 - Set url parameters to configure drawio (see https://www.diagrams.net/doc/faq/supported-url-parameters.html)
-//	cors=http://localhost
-	var url = this.drawDomain + '?embed=1&proto=json&spin=1&libs=archimate3;bpmn;uml&math=0&splash=0';
+/*    var getDefLibs = function(type, key)
+    {
+        let tables = {};
+        tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
+                    'column' : 'key, value', 
+                    'where' : 'type = "LIBS"'};
+        var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+				datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+	console.log('datas', datas['param'][''].value);
+				if (datas && datas['param'] && datas['param'][''])
+					return datas['param'][''].value;
+				else
+					return 'archimate3;bpmn;uml';
+			}
+		};
+		xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.send(JSON.stringify(tables));
+    }
+    var defLibs = getDefLibs() || 'archimate3;bpmn;uml';
+	console.log('defLibs', defLibs);
+*/	var url = this.drawDomain + '?embed=1&proto=json&spin=1&libs=archimate3;bpmn;uml&math=0&splash=0';
     var cors = encodeURIComponent(document.location.protocol + '//' + document.location.hostname);
     url += '&cors=' + cors;
 	if (this.config.user && this.config.user.language)

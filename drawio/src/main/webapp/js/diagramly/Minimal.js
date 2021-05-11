@@ -1779,7 +1779,9 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;border-bottom:1px solid lightgray;background-color:#ffffff;text-align:left;white-space:nowrap;';
+// Modified EFE 20210711 : height changed from 30px to 45px
+				menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:45px;padding:8px;border-bottom:1px solid lightgray;background-color:#ffffff;text-align:left;white-space:nowrap;';
+// End of Modified EFE 20210511
 				this.tabContainer.style.right = '70px';
 				var elt = menuObj.addMenu('100%', viewZoomMenu.funct);
 				elt.setAttribute('title', mxResources.get('zoom') + ' (Alt+Mousewheel)');
