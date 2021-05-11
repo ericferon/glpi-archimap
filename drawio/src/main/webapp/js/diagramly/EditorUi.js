@@ -3076,7 +3076,10 @@
 			}
 			else
 			{
-				this.addLibraryEntries(imgs, content);
+// Modified EFE 20201013
+//				this.addLibraryEntries(imgs, content);
+				this.addLibraryEntries(imgs, content, file);
+// End of Modified EFE 20201013
 			}
 		});
 
