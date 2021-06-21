@@ -412,7 +412,7 @@ class PluginArchimapGraph extends CommonDBTM {
                         'used'   => $p['used']];
 
       $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
-                                            $CFG_GLPI["root_doc"]."/plugins/archimap/ajax/dropdownTypeGraphs.php",
+                                            $CFG_GLPI["root_doc"]."/plugins/archimap/ajax/dropdownTypeArchimap.php",
                                             $params, false);
       $out .= "<span id='show_".$p['name']."$rand'>";
       $out .= "</span>\n";

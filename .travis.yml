@@ -20,7 +20,7 @@ env:
 install: true
 script: true
 after_success:
-    - tar --transform "s%^%$GLPI_PLUGIN_NAME/%" --show-transformed -zcvf $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz ajax drawio drawio-integration front inc locales sql *.png *.xml *.php  LICENSE README.md
+    - tar --transform "s%^%$GLPI_PLUGIN_NAME/%" --show-transformed -zcvf $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz ajax drawio drawio-integration front inc locales sql graph.png *.xml *.php  LICENSE README.md
 deploy:
   provider: releases
   token:
