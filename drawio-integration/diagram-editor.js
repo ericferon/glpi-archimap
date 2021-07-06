@@ -77,6 +77,7 @@ DiagramEditor.prototype.config = null;
  */
 // Modified EFE 20200930 - Build drawDomain dynamically
 DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio/src/main/webapp/';
+DiagramEditor.prototype.rootDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,2).join('/');
 //DiagramEditor.prototype.drawDomain = 'https://embed.diagrams.net/';
 // End of Modified EFE 20200930 - Build drawDomain dynamically
 
@@ -106,6 +107,36 @@ DiagramEditor.prototype.frameStyle = 'position:absolute;border:0;top:0;left:0;ri
 // Added EFE 20200515 - Get (admin) role as parameter and configure custom libraries and plugins accordingly
 DiagramEditor.prototype.editElement = function(elem)
 {
+    var getSessionToken = function()
+    {
+        let tables = {};
+        tables['app_token'] = {'table' : 'glpi_plugin_archimap_configs', 
+                    'column' : 'key, value', 
+                    'where' : 'type = "APP_TOKEN"'};
+        var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+				app_token = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+				user.app_token = app_token['app_token'][''].value;
+				var xhr2 = new XMLHttpRequest();
+				xhr2.onreadystatechange = function() {
+					if (xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 0)) {
+						session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
+						user.session_token = session_token.session_token;
+					}
+				};
+				xhr2.open("GET", DiagramEditor.prototype.rootDomain + "/apirest.php/initSession/", true);
+				xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+				xhr2.setRequestHeader("App-Token", user.app_token);
+				xhr2.setRequestHeader("Authorization", 'user_token '+user.user_token);
+				xhr2.send();
+			}
+		};
+		xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.send(JSON.stringify(tables));
+    }
+	getSessionToken();
 	// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
 	this.config = {'libraries' : [ {
 									"title": { "main": "Custom"},
