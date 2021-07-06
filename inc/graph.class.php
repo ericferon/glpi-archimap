@@ -38,6 +38,8 @@ class PluginArchimapGraph extends CommonDBTM {
    static $types = ['Computer',
                     'NetworkEquipment',
 					'Software',
+					'Group',
+					'Entity',
 					'PluginDatabasesDatabase',
                     'PluginDataflowsDataflow',
                     'PluginArchiswSwcomponent',
@@ -419,7 +421,7 @@ class PluginArchimapGraph extends CommonDBTM {
 
       $params['graphtype'] = 0;
       $out .= Ajax::updateItem("show_".$p['name'].$rand,
-                               $CFG_GLPI["root_doc"]. "/plugins/archimap/ajax/dropdownTypeGraphs.php",
+                               $CFG_GLPI["root_doc"]. "/plugins/archimap/ajax/dropdownTypeArchimap.php",
                                $params, false);
       if ($p['display']) {
          echo $out;
