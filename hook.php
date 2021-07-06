@@ -37,13 +37,15 @@ function plugin_archimap_install() {
    }
    if (!$DB->TableExists("glpi_plugin_archimap_graphs")) {
 
-		$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/empty-3.0.0.sql");
+		$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/empty-3.1.0.sql");
 	}
 	else {
 		if ($DB->TableExists("glpi_plugin_archimap_graphs") && !$DB->TableExists("glpi_plugin_archimap_configs")) {
 			$update=true;
 			$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/update-3.0.0.sql");
 		}
+		if ($DB->TableExists("glpi_plugin_archimap_configs"))
+			$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/update-3.1.0.sql");
 	}
 
    

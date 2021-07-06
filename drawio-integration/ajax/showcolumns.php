@@ -27,30 +27,28 @@
 define('GLPI_ROOT', '../../../..');
 include (GLPI_ROOT . "/inc/includes.php");
 
-$forbidden_tables = ['glpi_users', 'glpi_authldaps', 'glpi_authmails', 'glpi_certificates'];
 $DB = new DB;
-$tables = file_get_contents('php://input');
-if (isset($tables)) {
-	$tables = json_decode($tables);
+$tablefields = file_get_contents('php://input');
+if (isset($tablefields)) {
+	$tablefields = json_decode($tablefields);
 } else {
-    die("No 'tables' contained in body of POST request 'gettables'");
+    die("No 'tablefields' contained in body of POST request 'showcolumns'");
 }
 $datas = [];
-foreach($tables as $key => $tablecolumn) {
-	$table = $tablecolumn->table;
-	$column = $tablecolumn->column;
-	if (!in_array(strtolower($table), $forbidden_tables)) {
-		$query = "SELECT DISTINCT $column FROM $table";
-//Toolbox::logInFile("gettables", $query."\n");
-//var_dump($query);
-		if ($result=$DB->query($query)) {
-			while ($data=$DB->fetchAssoc($result)) {
-				$datas[$key][]=$data;
-			}
+foreach($tablefields as $id => $criteria) {
+	$table = $criteria->table;
+	$where = $criteria->where;
+	$query = "SHOW COLUMNS FROM $table";
+	if ($where)
+		$query .= " WHERE ".$where;
+//Toolbox::logInFile("showcolumns", $query."\n");
+//echo $query;
+	if ($result=$DB->query($query)) {
+		while ($data=$DB->fetchAssoc($result)) {
+			$datas[$id]=$data;
 		}
-	} 
+	}
 }
-//Toolbox::logInFile("gettables", print_r($datas,TRUE)."\n");
 //var_dump($datas);
 echo json_encode($datas);
 ?>

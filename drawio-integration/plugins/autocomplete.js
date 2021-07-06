@@ -23,9 +23,10 @@
  --------------------------------------------------------------------------
  */
 window.DRAWIOINTEGRATION_PATH = '../../../../drawio-integration';
+window.ROOT_PATH = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,2).join('/');
 Draw.loadPlugin(function(editorUi)
 {
-	console.log('entering autocomplete plugin', editorUi);
+//	console.log('entering autocomplete plugin', editorUi);
 	window.appUi = editorUi;
 // Adds resource for plugin
 	mxResources.add(window.DRAWIOINTEGRATION_PATH + '/resources/archi');
@@ -138,7 +139,275 @@ Draw.loadPlugin(function(editorUi)
 			}
 		}
 	}
-//	refreshCellStyle(editorUi.editor);
+
+// Add "New inventory entry" menu to cell
+	EditorUi.prototype.addNewInventoryEntry = function()
+	{
+		var uiCreatePopupMenu = editorUi.menus.createPopupMenu;
+		editorUi.menus.createPopupMenu = function(menu, cell, evt)
+		{
+			
+			if (editorUi.editor.graph.getSelectionCount() == 1)
+			{
+				var cell = editorUi.editor.graph.getSelectionCell();
+				// add the menu 'inventory' if the cell can be linked to a repository and the current user is authorized to use the API
+				if (cell.customproperties && window.config.user.app_token && window.config.user.session_token)
+				{
+		
+					menu.addItem((cell.customproperties.glpi_id ? mxResources.get('inventoryUpdate') : mxResources.get('inventoryCreate')), null, mxUtils.bind(this, function()
+						{
+							var div = document.createElement('div');
+							var count = (cell.customproperties.autocompletejointcolumns.match(/,/g) || []).length + 1; // count the number of comma in autocompletecolumns : this number (+ 1) is the number of lines in the form
+							var dlg = new NewInventoryDialog(editorUi, cell);
+							editorUi.showDialog(dlg.container, 1000, (count+1)*50+25, true, true, null, false, false);  // the form's height is the number of lines * 50 pixels + the line for form's buttons
+							mxEvent.consume(evt);
+						}));
+					menu.addSeparator();
+				}
+				uiCreatePopupMenu.apply(this, arguments);
+			}
+		};
+	}
+	editorUi.addNewInventoryEntry();
+
+	//	Display custom properties with alpacajs, based on configuration files located in drawio-integration/ext/alpaca
+	function indexOfArrayWithObjectAttribute(arr, key, searchKey) {
+		var found = -1
+		arr.forEach((obj, index) => {if (obj[key].includes(searchKey)) {found = index}});
+		return found;
+	}
+	
+	var NewInventoryDialog = function (editorUi, cell)
+	{
+		var div = document.createElement('div');
+		div.style.overflowX = 'visible';
+		div.style.overflowY = 'auto';
+		div.id = 'alpaca';
+		// alpaca
+		if (mxClient.language)
+		{	
+			$.alpaca.setDefaultLocale(mxClient.language);
+			var language = mxClient.language;
+		}
+		else
+		{	
+			$.alpaca.setDefaultLocale('en-US');
+			var language = 'en-US'
+		}
+		// Add dynamic fields with alpaca.org
+		var schema = {	"type" : "object",
+						"properties" : []
+					};
+		var options = {	"fields" : [],
+						"form" : {},
+						"view" : 'bootstrap-edit-horizontal'}
+		// create a form field for each element of the "autocompletejointcolumns" customproperty, if filled, or the autocompletecolumns property otherwise
+		var columns = cell.customproperties.autocompletejointcolumns ? cell.customproperties.autocompletejointcolumns.split(',') : cell.customproperties.autocompletecolumns.split(',');
+		columns.forEach((column, index) => {columns[index] = column.trim()}); // trim
+		var tablefields = {};
+		for (var i = 0; i < columns.length; i++)
+		{
+			var asarray = columns[i].split(' as '); // asarray contains the full column name at index 0 and the "as" name at index 1 (if it exists)
+			var tablecolumnarray = asarray[0].split('.'); // tablecolumnarray contains the table name at index 0 and the column name at index 1, if the table name exists ; otherwise, the column name is at index 0
+			columns[i] = {	"table" : tablecolumnarray.length == 2 ? tablecolumnarray[0].trim() : cell.customproperties.autocompletetable,
+							"column" : tablecolumnarray.length == 2 ? tablecolumnarray[1].trim() : tablecolumnarray[0].trim(),
+							"as" : asarray[1] ? asarray[1].trim() : (tablecolumnarray.length == 2 ? tablecolumnarray[1].trim() : tablecolumnarray[0].trim())
+						};
+			tablefields[i] = {	"table" : cell.customproperties.autocompletetable,
+								"where" : columns[i].table == cell.customproperties.autocompletetable ? // if table is the main one
+											"Field = '" + columns[i].column + "'" // look for the field properties
+											: 
+											"Field = '" + columns[i].table.replace('glpi_','') + "_id'" // otherwise, look for the foreign key field properties
+							}
+		}
+		console.log('columns', columns, 'tablefields', tablefields);
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
+				datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
+				for (var key in datas)
+				{
+					var data = datas[key];
+					schema.properties[key] = {	"title" : columns[key].as ? columns[key].as : columns[key].column, // the "as" name, otherwise the column name
+												"type" : (data['Key'] == 'MUL' && data['Type'].includes('int') ? "select" : // identify dropdown elements
+														data['Type'].includes('int') ? "number" :
+														(data['Type'].includes('date') ? "date" :
+															"string")
+														)
+												};
+				}
+				// get list of values for foreign keys
+				var foreigntables = {};
+				schema.properties.forEach( (element, index) => {if (element.type == 'select') 
+																{
+																	foreigntables[index] = {"table" : columns[index].table,
+																							"column" : 'id, ' + columns[index].column
+																	};
+																	element.type = 'number'; // change 'select' type into 'number' (to see only 1 list element)
+																}
+																options.fields[index] = {};
+															}
+										);
+				var xhr2 = new XMLHttpRequest();
+				xhr2.onreadystatechange = function() {
+					if (xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 0)) {
+						// for each foreign key ...
+						datas = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
+						// fill in schema with enumeration keys and options with enumeration labels
+						for (var key in datas)
+						{
+							var data = datas[key];
+							schema.properties[key].enum = [];
+							options.fields[key] = {"type" : 'select',
+											"optionLabels" : []};
+							for (var i = 0; i < data.length; i++)
+							{
+								schema.properties[key].enum[i] = data[i].id/*.toString()*/;
+								options.fields[key].optionLabels[i] = data[i][columns[key].column];
+							}
+						}
+						// fill in  form data with current customproperties
+						var formdata = {};
+						for (var i = 0; i < schema.properties.length; i++) {
+							options.fields[i]["optionLabels"] ? // if a dropdown list exists
+															formdata[i] = schema.properties[i].enum[options.fields[i].optionLabels.indexOf(cell.customproperties[schema.properties[i].title])] // find index of this value in the list optionLabels and take the "enum" at this index
+															:
+															formdata[i] = cell.customproperties[schema.properties[i].title];
+						}
+						// get value typed in cell and fill form with it
+						var currentdata = typeof cell.value === 'string' ? cell.value.split('\n') : cell.value.attributes.getNamedItem('label').nodeValue.split('\n');
+						for (var i = 0; i < currentdata.length; i++)
+						{
+							// get property displayed from graph display preferences
+							custompropertyname = editorUi.editor.graph.preferences[cell.customproperties.stencil] ? editorUi.editor.graph.preferences[cell.customproperties.stencil].values[i] : 'name';
+							// find position in form field sequence
+							var j = indexOfArrayWithObjectAttribute(columns, 'as', custompropertyname);
+							options.fields[j]["optionLabels"] ? // if a dropdown list exists
+															formdata[j] = schema.properties[j].enum[options.fields[j].optionLabels.indexOf(currentdata[i])] // find index of this value in the list optionLabels and take the "enum" at this index
+															:
+															formdata[j] = currentdata[i];
+						}
+						options.form = {
+								"buttons" : {
+									"cancel" : {
+										"title" : mxResources.get('cancel'),
+										"click" : function() {
+											editorUi.hideDialog();
+										}
+									},
+									"ok" : {
+										"title" : mxResources.get('save'),
+										"click" : function() {
+											// save form values to cell's customproperties and to xhr3 body
+											let formvalues = this.getValue();
+											var items = {"input" : {} };
+											for (let i in formvalues) {
+												if (options.fields[i]["optionLabels"]) { // if a dropdown list exists
+													items.input[columns[i].table.replace('glpi_','') + "_id"] = formvalues[i];
+													cell.customproperties[columns[i].as] = options.fields[i].optionLabels[schema.properties[i].enum.indexOf(formvalues[i])] // find index of this value in the list "enum"" and take the "optionLabels" at this index;
+												} else { // if plain text
+													items.input[columns[i].column] = formvalues[i];
+													cell.customproperties[columns[i].as] = formvalues[i];
+												}
+											}
+											var xhr3 = new XMLHttpRequest();
+											xhr3.onreadystatechange = function() {
+												if (xhr3.readyState == 4 && (xhr3.status == 200 || xhr3.status == 201 || xhr3.status == 0)) {
+													datas = JSON && JSON.parse(xhr3.responseText) || $.parseJSON(xhr3.responseText);
+													if (!cell.customproperties.glpi_id)  // if glpi_id does not exist, get it from the "POST" response
+														cell.customproperties.glpi_id = datas.id;
+													// update cell's label'
+													var newLabel = '';
+													if (editorUi.editor.graph.preferences[cell.customproperties.stencil])
+													{
+														for (ivalue in editorUi.editor.graph.preferences[cell.customproperties.stencil].values)
+														{
+															var customproperty = editorUi.editor.graph.preferences[cell.customproperties.stencil].values[ivalue];
+															// compose the new label from each customproperty, separated by a newline
+															if (cell.customproperties[customproperty])
+															{
+																if (newLabel != '')
+																	newLabel += '\n';
+																newLabel += cell.customproperties[customproperty];
+															}
+														}
+													}
+													else
+														newLabel = cell.customproperties['name'];
+													editorUi.editor.graph.cellLabelChanged(cell, newLabel, false);
+													editorUi.hideDialog();
+													// Build the list of CSS classes and assign them to the cell
+													if (cell.customproperties['autocompletecssclass'])
+													{
+														var cssclassname = cell.customproperties['autocompletecssclass'].split("+")
+														var style = editorUi.editor.graph.model.getStyle(cell);
+														// remove old stylenames
+														style = mxUtils.removeAllStylenames(style);
+														var classlist = "";
+														for (j = 0; j < cssclassname.length ; j++)
+														{
+															// If the customproperty "autocompletcssclass" exists, add current value of "autocompletcssclass" to the element's class
+															if (cell.customproperties[cssclassname[j]])
+																classlist += (typeof(cell.customproperties[cssclassname[j]]) == 'string') ? cell.customproperties[cssclassname[j]].replace(/ /g,"_") : cell.customproperties[cssclassname[j]];
+															else
+															// Otherwise, add simply the symbol as string
+																classlist += cssclassname[j].replace(/'/g,"");
+														}
+														if (mxClient.IS_GC || mxClient.IS_SF)
+															editorUi.editor.graph.model.setStyle(cell, style + ';dummy;' + classlist);
+														else
+															editorUi.editor.graph.model.setStyle(cell, style + ';' + classlist);
+														cell.class = classlist.replace(/;/g," ");
+														var thisState = editorUi.editor.graph.getView().getState(cell);
+														thisState.shape.node.className.baseVal = classlist.replace(/;/g," ");
+														cell.customproperties['autocompleteaddedclass'] = classlist;
+													}
+												}
+												else if (xhr3.readyState == 4 && (xhr3.status == 400 || xhr3.status == 401))
+												{
+													datas = JSON && JSON.parse(xhr3.responseText) || $.parseJSON(xhr3.responseText);
+													// no authorization
+													editorUi.hideDialog();
+//													editorUi.showError(mxResources.get('error'), datas.message);
+													editorUi.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' + mxUtils.htmlEntities(mxResources.get('error') + ' : ' + (datas.message || datas.join(' '))) + '</span>');
+												}
+											};
+											if (cell.customproperties.glpi_id)
+												// update
+												xhr3.open("PUT", window.ROOT_PATH + "/apirest.php/" + cell.customproperties.autocompleteobject + "/" + cell.customproperties.glpi_id, true);
+											else
+												// create
+												xhr3.open("POST", window.ROOT_PATH + "/apirest.php/" + cell.customproperties.autocompleteobject + "/", true);
+											xhr3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+											xhr3.setRequestHeader("Session-Token", window.config.user.session_token);
+											xhr3.setRequestHeader("App-Token", window.config.user.app_token);
+											xhr3.send(JSON.stringify(items));
+ 										}
+									}
+								}
+						}
+						console.log('schema', schema, 'options', options, 'data', formdata);
+						$(document).ready(function() {
+							$('#alpaca').alpaca( {
+								'schema' : schema,
+								'data' : formdata,
+								'options' : options,
+							});
+						});
+					}
+				}
+				xhr2.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
+				xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+				xhr2.send(JSON.stringify(foreigntables));
+			}
+		}; 
+		xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/showcolumns.php", true);
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.send(JSON.stringify(tablefields));
+	
+		this.container = div;
+	};
+
 
 	// Load custom libraries in sidebar -----------------------------------------------------------------------------------
 	// Add custom libraries as customstencils in sidebar object. So they can be retrieved in refreshCustomProperties.
