@@ -23,7 +23,7 @@
  --------------------------------------------------------------------------
  */
 window.DRAWIOINTEGRATION_PATH = '../../../../drawio-integration';
-window.ROOT_PATH = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,2).join('/');
+window.ROOT_PATH = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/plugins'));
 Draw.loadPlugin(function(editorUi)
 {
 //	console.log('entering autocomplete plugin', editorUi);
@@ -220,7 +220,6 @@ Draw.loadPlugin(function(editorUi)
 											"Field = '" + columns[i].table.replace('glpi_','') + "_id'" // otherwise, look for the foreign key field properties
 							}
 		}
-		console.log('columns', columns, 'tablefields', tablefields);
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
@@ -386,7 +385,6 @@ Draw.loadPlugin(function(editorUi)
 									}
 								}
 						}
-						console.log('schema', schema, 'options', options, 'data', formdata);
 						$(document).ready(function() {
 							$('#alpaca').alpaca( {
 								'schema' : schema,

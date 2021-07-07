@@ -76,8 +76,8 @@ DiagramEditor.prototype.config = null;
  * Protocol and domain to use.
  */
 // Modified EFE 20200930 - Build drawDomain dynamically
-DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio/src/main/webapp/';
-DiagramEditor.prototype.rootDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,2).join('/');
+DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/front')) + '/drawio/src/main/webapp/';
+DiagramEditor.prototype.rootDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/plugins'));
 //DiagramEditor.prototype.drawDomain = 'https://embed.diagrams.net/';
 // End of Modified EFE 20200930 - Build drawDomain dynamically
 
