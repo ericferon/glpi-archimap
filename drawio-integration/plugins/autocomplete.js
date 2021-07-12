@@ -99,7 +99,7 @@ Draw.loadPlugin(function(editorUi)
 		}), 
 		mxUtils.bind(this, function(message)
 		{
-			this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
+			editorUi.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
 		}));
 	}
 	editorUi.loadStylesFromRepository();
