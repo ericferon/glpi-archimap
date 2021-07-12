@@ -324,7 +324,7 @@ class PluginArchimapGraph extends CommonDBTM {
       echo "<td>".__('Short description', 'archimap')."</td>";
       echo "<td colspan='3'>";
 //      echo "<textarea cols='100' rows='1' name='shortdescription'>".$this->fields["shortdescription"]."</textarea>";
-      Html::autocompletionTextField($this,"shortdescription",array('size' => 130, 'attrs' => ['size' => 130]));
+      Html::autocompletionTextField($this,"shortdescription",['option' => 'style="width:100%"']);
       echo "</td>";
 	  echo "</tr>";
 	  
