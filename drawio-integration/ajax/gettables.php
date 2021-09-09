@@ -39,13 +39,14 @@ $datas = [];
 foreach($tables as $key => $tablecolumn) {
 	$table = $tablecolumn->table;
 	$column = $tablecolumn->column;
+	$columncount = substr_count($column, ",") + 1;
 	if (!in_array(strtolower($table), $forbidden_tables)) {
 		$query = "SELECT DISTINCT $column FROM $table";
 //Toolbox::logInFile("gettables", $query."\n");
 //var_dump($query);
 		if ($result=$DB->query($query)) {
 			while ($data=$DB->fetchAssoc($result)) {
-				$datas[$key][]=$data;
+				$datas[$key][]=$columncount == 1 ? $data[$column]: $data;
 			}
 		}
 	} 
