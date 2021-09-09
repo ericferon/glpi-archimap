@@ -712,7 +712,9 @@ class PluginArchimapGraph extends CommonDBTM {
 				  for ($i = 1 ; $i <= $input['repeat'] ; $i++) {
 					$values["name"] = $name . " (Copy $i)";
 
-					if ($item->add($values)) {
+					$newid = $item->add($values); // copy and save the (new) id
+					if ($newid) { 
+						$item->link($newid, $values["graph"], " "); // link the new diagram with graph elements
 						$success[] = $key;
 					} else {
 						$failure[] = $key;
@@ -731,7 +733,7 @@ class PluginArchimapGraph extends CommonDBTM {
       }
       parent::processMassiveActionsForOneItemtype($ma, $item, $ids);
    }
-   function link($ID, $newgraph) {
+   function link($ID, $newgraph, $oldgraph=NULL) {
 		global $DB;
 		// analyze new version
 		libxml_use_internal_errors(true);
@@ -750,34 +752,38 @@ class PluginArchimapGraph extends CommonDBTM {
 			}
 		}
 		// analyze previous version (still present in DB)
-		$oldgraph = $this->fields['graph'];
+		if (!$oldgraph)
+			$oldgraph = $this->fields['graph'];
 		$oldxml=simplexml_load_string(htmlspecialchars_decode(stripslashes(rawurldecode($oldgraph)))); //parse the decoded and stripped xml representing a graph
 		foreach( libxml_get_errors() as $error ) {
 			Toolbox::logInFile('graph', 'error='.print_r($error));
 		}
 		$oldelements = [];
-		foreach($oldxml->diagram as $olddiagram) {
-			$diagram = urldecode(zlib_decode(base64_decode($olddiagram, TRUE))); // decode the base64, decompress (inflate) and url-decode the diagram
-			$diagramxml = simplexml_load_string($diagram); // load the xml into a structure
-			foreach($diagramxml->xpath('//Array[@autocompleteobject]') as $customelement) { // find elements with 'autocompleteobject' in customproperties
-				$itemtype = (string)$customelement['autocompleteobject']; // get the 'autocompleteobject' attribute
-				$item_id = (string)$customelement['glpi_id']; // get the 'glpi_id' attribute
-				$oldelements[$itemtype][$item_id] += 1;
-			}
-		}
-		// look for deleted elements and delete them in table glpi_plugin_archimap_graphs_items
-		foreach($oldelements as $itemtype => $arr_id) { // loop through oldelements
-			$itemlist = "";
-			$query = "delete from glpi_plugin_archimap_graphs_items where plugin_archimap_graphs_id = ".$this->fields['id']." and itemtype = '".$itemtype."' and items_id in (" ;
-			foreach($arr_id as $item_id => $count) {
-				if (!isset($newelements[$itemtype][$item_id])) { // if it doesn't exist in newelement
-					$itemlist .= $item_id.","; // it is added to the list of elements to be suppressed
+		if ($oldxml)
+		{
+			foreach($oldxml->diagram as $olddiagram) {
+				$diagram = urldecode(zlib_decode(base64_decode($olddiagram, TRUE))); // decode the base64, decompress (inflate) and url-decode the diagram
+				$diagramxml = simplexml_load_string($diagram); // load the xml into a structure
+				foreach($diagramxml->xpath('//Array[@autocompleteobject]') as $customelement) { // find elements with 'autocompleteobject' in customproperties
+					$itemtype = (string)$customelement['autocompleteobject']; // get the 'autocompleteobject' attribute
+					$item_id = (string)$customelement['glpi_id']; // get the 'glpi_id' attribute
+					$oldelements[$itemtype][$item_id] += 1;
 				}
 			}
-			if (strlen($itemlist) > 1) {
-				$itemlist = substr($itemlist, 0, -1); // remove last comma
-				$query .= $itemlist.")";
-				$result=$DB->query($query);
+			// look for deleted elements and delete them in table glpi_plugin_archimap_graphs_items
+			foreach($oldelements as $itemtype => $arr_id) { // loop through oldelements
+				$itemlist = "";
+				$query = "delete from glpi_plugin_archimap_graphs_items where plugin_archimap_graphs_id = ".$ID/*$this->fields['id']*/." and itemtype = '".$itemtype."' and items_id in (" ;
+					foreach($arr_id as $item_id => $count) {
+					if (!isset($newelements[$itemtype][$item_id])) { // if it doesn't exist in newelement
+						$itemlist .= $item_id.","; // it is added to the list of elements to be suppressed
+					}
+				}
+				if (strlen($itemlist) > 1) {
+					$itemlist = substr($itemlist, 0, -1); // remove last comma
+					$query .= $itemlist.")";
+					$result=$DB->query($query);
+				}
 			}
 		}
 		// look for new elements and add them in table glpi_plugin_archimap_graphs_items
@@ -786,7 +792,8 @@ class PluginArchimapGraph extends CommonDBTM {
 			$query = "INSERT IGNORE glpi_plugin_archimap_graphs_items (plugin_archimap_graphs_id,items_id,itemtype) values ";
 			foreach($arr_id as $item_id => $count) {
 				if (!isset($oldelements[$itemtype][$item_id])) { // if it doesn't exist in oldelement
-					$itemlist .= "(".$this->fields['id'].",".$item_id.",'".$itemtype."'),"; // add it to the list of elements to be inserted
+					if ($item_id)
+						$itemlist .= "(".$ID/*$this->fields['id']*/.",".$item_id.",'".$itemtype."'),"; // add it to the list of elements to be inserted
 				}
 			}
 			if (strlen($itemlist) > 1) {
