@@ -311,8 +311,8 @@ function plugin_archimap_getDropdown() {
 
    $plugin = new Plugin();
    if ($plugin->isActivated("archimap"))
-		return array(//'PluginArchimapGraphstate'=>PluginArchimapGraphstate::getTypeName(2),
-//                'PluginArchimapGraphtype'=>PluginArchimapGraphtype::getTypeName(1) getTypeName(2) does not work
+		return array('PluginArchimapGraphstate'=>PluginArchimapGraphstate::getTypeName(2),
+                'PluginArchimapGraphtype'=>PluginArchimapGraphtype::getTypeName(2) //getTypeName(2) does not work
                 );
    else
       return [];
