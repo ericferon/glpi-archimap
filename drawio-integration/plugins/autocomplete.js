@@ -23,10 +23,11 @@
  --------------------------------------------------------------------------
  */
 window.DRAWIOINTEGRATION_PATH = '../../../../drawio-integration';
+window.EXPORT_URL = 'https://convert.diagrams.net/node/export';
 window.ROOT_PATH = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/plugins'));
 Draw.loadPlugin(function(editorUi)
 {
-//	console.log('entering autocomplete plugin', editorUi);
+	console.log('entering autocomplete plugin', editorUi);
 	window.appUi = editorUi;
 // Adds resource for plugin
 	mxResources.add(window.DRAWIOINTEGRATION_PATH + '/resources/archi');
@@ -146,7 +147,6 @@ Draw.loadPlugin(function(editorUi)
 		var uiCreatePopupMenu = editorUi.menus.createPopupMenu;
 		editorUi.menus.createPopupMenu = function(menu, cell, evt)
 		{
-			
 			if (editorUi.editor.graph.getSelectionCount() == 1)
 			{
 				var cell = editorUi.editor.graph.getSelectionCell();
@@ -265,23 +265,26 @@ Draw.loadPlugin(function(editorUi)
 								options.fields[key].optionLabels[i] = data[i][columns[key].column];
 							}
 						}
-						// fill in  form data with current customproperties
+						// fill in  form data with current customproperties (if there are)
 						var formdata = {};
-						for (var i = 0; i < schema.properties.length; i++) {
-							options.fields[i]["optionLabels"] ? // if a dropdown list exists
+						if (cell.customproperties['glpi_id'])
+						{
+							for (var i in schema.properties) {
+								options.fields[i] && options.fields[i]["optionLabels"] ? // if a dropdown list exists
 															formdata[i] = schema.properties[i].enum[options.fields[i].optionLabels.indexOf(cell.customproperties[schema.properties[i].title])] // find index of this value in the list optionLabels and take the "enum" at this index
 															:
 															formdata[i] = cell.customproperties[schema.properties[i].title];
+							}
 						}
 						// get value typed in cell and fill form with it
-						var currentdata = typeof cell.value === 'string' ? cell.value.split('\n') : cell.value.attributes.getNamedItem('label').nodeValue.split('\n');
+						var currentdata = typeof cell.value === 'string' ? cell.value.split(/<br>|\n+/) : cell.value.attributes.getNamedItem('label').nodeValue.split('\n');
 						for (var i = 0; i < currentdata.length; i++)
 						{
 							// get property displayed from graph display preferences
 							custompropertyname = editorUi.editor.graph.preferences[cell.customproperties.stencil] ? editorUi.editor.graph.preferences[cell.customproperties.stencil].values[i] : 'name';
 							// find position in form field sequence
 							var j = indexOfArrayWithObjectAttribute(columns, 'as', custompropertyname);
-							options.fields[j]["optionLabels"] ? // if a dropdown list exists
+							options.fields[j] && options.fields[j]["optionLabels"] ? // if a dropdown list exists
 															formdata[j] = schema.properties[j].enum[options.fields[j].optionLabels.indexOf(currentdata[i])] // find index of this value in the list optionLabels and take the "enum" at this index
 															:
 															formdata[j] = currentdata[i];
@@ -444,7 +447,7 @@ Draw.loadPlugin(function(editorUi)
 										{
 											cells = editorUi.stringToCells(Graph.decompress(data[l].xml));
 											// only for vertices (not edges) with customproperties
-											if (!cells[0].edge && cells[0].customproperties)
+											if (/*!cells[0].edge &&*/ cells[0].customproperties)
 											{
 												name = (cells[0].customproperties.stencil ? cells[0].customproperties.stencil : data[l].title);
 												// add the cell as customstencil in sidebar
@@ -691,7 +694,7 @@ EditorUi.prototype.updateTabContainer = function()
 	}
 };
 
-//	Refresh cells customproperties
+//	Refresh cells customproperties from the stencil
 	EditorUi.prototype.refreshCustomProperties = function (thisEditor)
 	{
 		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
@@ -1791,42 +1794,45 @@ mxForm.prototype.addFieldMove = function(name, input, output)
 				
 			// change every cell labels according to choice
 			var c = graph.view.canvas;
+//			console.log('preferences', graph.preferences);
 			for (var icell in graph.model.cells)
 			{
 				var ishape = graph.model.cells[icell].mxObjectId;
 				var shape = graph.view.states.map[ishape].shape;
 				var displayIcon = null;
-				if (graph.model.cells[icell].vertex)
+//				console.log('change label', graph.model.cells[icell]);
+				if (graph.model.cells[icell].customproperties)
 				{
-					if (graph.model.cells[icell].customproperties)
+					var newLabel = '';
+					// look for a label preference according to the cell's stencil
+					for (ifield in graph.preferences)
 					{
-						var newLabel = '';
-						// look for a label preference according to the cell's stencil
-						for (ifield in graph.preferences)
+						if (graph.preferences[ifield].description
+						&& graph.preferences[ifield].description.substring(0,5).toLowerCase() == 'label'
+						&& graph.model.cells[icell].customproperties['stencil'] == ifield)
 						{
-							if (graph.preferences[ifield].description
-							&& graph.preferences[ifield].description.substring(0,5).toLowerCase() == 'label'
-							&& graph.model.cells[icell].customproperties['stencil'] == ifield)
+							for (ivalue in graph.preferences[ifield].values)
 							{
-								for (ivalue in graph.preferences[ifield].values)
+								var customproperty = graph.preferences[ifield].values[ivalue];
+								// compose the new label from each customproperty, separated by a newline
+								if (graph.model.cells[icell].customproperties[customproperty])
 								{
-									var customproperty = graph.preferences[ifield].values[ivalue];
-									// compose the new label from each customproperty, separated by a newline
-									if (graph.model.cells[icell].customproperties[customproperty])
-									{
-										if (newLabel != '')
-											newLabel += '\n';
-										newLabel += graph.model.cells[icell].customproperties[customproperty];
-									}
+									if (newLabel != '')
+										newLabel += '\n';
+									newLabel += graph.model.cells[icell].customproperties[customproperty];
 								}
 							}
 						}
-						if (newLabel)
-						{
-							graph.cellLabelChanged(graph.model.cells[icell], newLabel,false);
-						}
 					}
-					if (graph.preferences && graph.preferences.displayIconOnEdge)
+					if (newLabel)
+					{
+						graph.cellLabelChanged(graph.model.cells[icell], newLabel,false);
+					}
+				}
+				
+				if (graph.model.cells[icell].vertex)
+				{
+					if (graph.preferences && graph.preferences.displayIconOnVertex)
 						displayIcon = graph.preferences.displayIconOnVertex.values[0];
 				} else
 				if (graph.model.cells[icell].edge)
