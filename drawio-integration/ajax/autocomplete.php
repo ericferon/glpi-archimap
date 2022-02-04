@@ -98,8 +98,8 @@ foreach ($columns_arr as $column) {
 	$or = " OR ";
 }
 $query .= ") ".$jointcriteria." ".$othercriteria." ".$ordercriteria;
-$query = preg_replace('/[[:^print:]]/', '', $query); // remove non-printable characters
-//Toolbox::logInFile("autocomplete", $query."\n");
+//$query = preg_replace('/[[:^print:]]/', '', $query); // remove non-printable characters
+$query = preg_replace('/;/', '', $query); // remove ';' to mitigate sql injection
 //var_dump($query);
 if ($test) {
 	$datas[] = $query;
