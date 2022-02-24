@@ -35,6 +35,7 @@ if (isset($keys)) {
     die("No 'keys' contained in body of POST request 'getconfig'");
 }
 $datas = [];
+$nbstyles = 0;
 foreach($keys as $key => $typevalue) {
 	$type = $typevalue->type;
 	$value = $typevalue->value;
@@ -43,8 +44,12 @@ foreach($keys as $key => $typevalue) {
 //var_dump($query);
     $result=$DB->query($query);
     $datas[$key] = $DB->affectedRows();
+    if ($type == 'STYLE') $nbstyles++;
 }
 //var_dump($datas);
-//Toolbox::logInFile("postconfig", "postconfig ".print_r($datas,TRUE)."\n");
 echo json_encode($result);
+if ($nbstyles)
+{
+	include (GLPI_ROOT . "/plugins/archimap/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
+}
 ?>

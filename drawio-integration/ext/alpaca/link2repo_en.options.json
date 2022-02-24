@@ -52,13 +52,13 @@
 		"autocompletelabel": {
 			"size": 20,
 			"label": "Display as",
-			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs",
+			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs only (no spaces!)",
 			"helper" : "how the list of suggested names will be composed (after the name itself) ; f.i : '/'+manufacturer+' (level '+level+' - '+type+' : '+state+')'"
 		},
 		"autocompletecssclass": {
 			"size": 20,
 			"label": "CSS Class",
-			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs",
+			"placeholder": "Intermixed column names and single-quoted strings, separated by '+' signs only (no spaces!)",
 			"helper" : "how the CSS classnames, to be added to the shape, will be composed ; f.i : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
 		},
 		"autocompleteobject": {

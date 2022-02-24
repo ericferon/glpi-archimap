@@ -44,7 +44,8 @@ function plugin_archimap_install() {
 			$update=true;
 			$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/update-3.0.0.sql");
 		}
-		if ($DB->TableExists("glpi_plugin_archimap_configs"))
+		if ($DB->TableExists("glpi_plugin_archimap_configs")
+		&& ($DB->numrows($DB->query("SELECT * from glpi_plugin_archimap_configs where type = 'APP_TOKEN'")) == 0))
 			$DB->runFile(GLPI_ROOT ."/plugins/archimap/sql/update-3.1.0.sql");
 	}
 
@@ -73,6 +74,10 @@ function plugin_archimap_install() {
       }
    }
    
+	if ($DB->TableExists("glpi_plugin_archimap_configs")) {
+		include (GLPI_ROOT . "/plugins/archimap/scripts/copystylestodb.php");
+	}
+
    if ($update) {
       $query_="SELECT *
             FROM `glpi_plugin_archimap_profiles` ";

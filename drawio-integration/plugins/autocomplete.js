@@ -89,11 +89,13 @@ Draw.loadPlugin(function(editorUi)
 					var node = mxUtils.parseXml(decodeHTML(customstyles['param'][i].value)).documentElement;
 					var dec = new mxCodec(node.ownerDocument);
 					var customstyle = dec.decode(node);
-					// copy style in stylesheet
-					stylesheet.styles[customstyles['param'][i].key] = customstyle.styles[customstyles['param'][i].key];
-					// mark it as "customstyle"
-					if (stylesheet.styles[customstyles['param'][i].key])
-						stylesheet.styles[customstyles['param'][i].key].customstyle = true;
+					if (customstyle && customstyle.styles)
+					{	// copy style in stylesheet
+						stylesheet.styles[customstyles['param'][i].key] = customstyle.styles[customstyles['param'][i].key];
+						// mark it as "customstyle"
+						if (stylesheet.styles[customstyles['param'][i].key])
+							stylesheet.styles[customstyles['param'][i].key].customstyle = true;
+					}
 				}
 			}
 			this.refreshCellStyle(this.editor);
@@ -1268,7 +1270,268 @@ Editor.prototype.getGraphXml = function(ignoreSelection)
 };
 
 // Inspired from mxClient.js, to paint icon on vertex and edge shapes
-mxLabel.prototype.paintForeground = function(c, x, y, w, h)
+/**
+ * Function: paint
+ * 
+ * Generic rendering code.
+ */
+mxShape.prototype.paint = function(c)
+{
+	var strokeDrawn = false;
+	
+	if (c != null && this.outline)
+	{
+		var stroke = c.stroke;
+		
+		c.stroke = function()
+		{
+			strokeDrawn = true;
+			stroke.apply(this, arguments);
+		};
+
+		var fillAndStroke = c.fillAndStroke;
+		
+		c.fillAndStroke = function()
+		{
+			strokeDrawn = true;
+			fillAndStroke.apply(this, arguments);
+		};
+	}
+
+	// Scale is passed-through to canvas
+	var s = this.scale;
+	var x = this.bounds.x / s;
+	var y = this.bounds.y / s;
+	var w = this.bounds.width / s;
+	var h = this.bounds.height / s;
+
+	if (this.isPaintBoundsInverted())
+	{
+		var t = (w - h) / 2;
+		x += t;
+		y -= t;
+		var tmp = w;
+		w = h;
+		h = tmp;
+	}
+	
+	this.updateTransform(c, x, y, w, h);
+	this.configureCanvas(c, x, y, w, h);
+
+	// Adds background rectangle to capture events
+	var bg = null;
+	
+	if ((this.stencil == null && this.points == null && this.shapePointerEvents) ||
+		(this.stencil != null && this.stencilPointerEvents))
+	{
+		var bb = this.createBoundingBox();
+		
+		if (this.dialect == mxConstants.DIALECT_SVG)
+		{
+			bg = this.createTransparentSvgRectangle(bb.x, bb.y, bb.width, bb.height);
+			this.node.appendChild(bg);
+		}
+		else
+		{
+			var rect = c.createRect('rect', bb.x / s, bb.y / s, bb.width / s, bb.height / s);
+			rect.appendChild(c.createTransparentFill());
+			rect.stroked = 'false';
+			c.root.appendChild(rect);
+		}
+	}
+
+	if (this.stencil != null)
+	{
+		this.stencil.drawShape(c, this, x, y, w, h);
+	}
+	else
+	{
+		// Stencils have separate strokewidth
+		c.setStrokeWidth(this.strokewidth);
+		
+		if (this.points != null)
+		{
+			// Paints edge shape
+			var pts = [];
+			
+			for (var i = 0; i < this.points.length; i++)
+			{
+				if (this.points[i] != null)
+				{
+					pts.push(new mxPoint(this.points[i].x / s, this.points[i].y / s));
+				}
+			}
+
+			this.paintEdgeShape(c, pts);
+// Added EFE 20141210
+			var displayIcon = 'true';
+			if (c.state && c.state.view && c.state.view.graph && c.state.view.graph.preferences && c.state.view.graph.preferences.displayIconOnEdge)
+				displayIcon = c.state.view.graph.preferences.displayIconOnEdge.values[0];
+			if (displayIcon && displayIcon.toLowerCase() == 'true')
+			{
+					if (this.image != null)
+					{
+						var cellBounds = this.state.getCellBounds(x, y, w, h);
+						var bounds = this.getImageBounds(cellBounds.x, cellBounds.y, cellBounds.width, cellBounds.height);
+						c.state.dx = x - cellBounds.x;	// position image at the right place by changing canvas dx & dy (modified by mxAbstractCanvas2D.prototype.translate in some calls to paintEdgeShape)
+						c.state.dy = y - cellBounds.y;
+						c.image(bounds.x, bounds.y, bounds.width, bounds.height, this.image, false, false, false);
+					}
+			}
+// End of Added EFE 20141210
+		}
+		else
+		{
+			// Paints vertex shape
+			this.paintVertexShape(c, x, y, w, h);
+// Added EFE 20141210
+			if (this.state)
+			{	
+				var displayIcon = this.state.view.graph.preferences.displayIconOnVertex.values[0];
+				if (displayIcon && displayIcon.toLowerCase() == 'true')
+				{
+					if (this.image != null)
+					{
+						var cellBounds = this.state.getCellBounds(x, y, w, h);
+						var bounds = this.getImageBounds(cellBounds.x, cellBounds.y, cellBounds.width, cellBounds.height);
+						c.state.dx = x - cellBounds.x;	// position image at the right place by changing canvas dx & dy (modified by mxAbstractCanvas2D.prototype.translate in some calls to paintVertexShape)
+						c.state.dy = y - cellBounds.y;
+						c.image(bounds.x, bounds.y, bounds.width, bounds.height, this.image, false, false, false);
+					}
+				}
+			}
+// End of Added EFE 20141210
+		}
+	}
+	
+	if (bg != null && c.state != null && c.state.transform != null)
+	{
+		bg.setAttribute('transform', c.state.transform);
+	}
+	
+	// Draws highlight rectangle if no stroke was used
+	if (c != null && this.outline && !strokeDrawn)
+	{
+		c.rect(x, y, w, h);
+		c.stroke();
+	}
+};
+
+mxShape.prototype.getImageBounds = function(x, y, w, h)
+{
+	var align = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_ALIGN, mxConstants.ALIGN_LEFT);
+	var valign = mxUtils.getValue(this.style, mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+	var width = mxUtils.getNumber(this.style, mxConstants.STYLE_IMAGE_WIDTH, mxConstants.DEFAULT_IMAGESIZE);
+	var height = mxUtils.getNumber(this.style, mxConstants.STYLE_IMAGE_HEIGHT, mxConstants.DEFAULT_IMAGESIZE);
+	var spacing = mxUtils.getNumber(this.style, mxConstants.STYLE_SPACING, this.spacing) + 5;
+
+	if (align == mxConstants.ALIGN_CENTER)
+	{
+		x += (w - width) / 2;
+	}
+	else if (align == mxConstants.ALIGN_RIGHT)
+	{
+		x += w - width - spacing;
+	}
+	else // default is left
+	{
+		x += spacing;
+	}
+
+	if (valign == mxConstants.ALIGN_TOP)
+	{
+		y += spacing;
+	}
+	else if (valign == mxConstants.ALIGN_BOTTOM)
+	{
+		y += h - height - spacing;
+	}
+	else // default is middle
+	{
+		y += (h - height) / 2;
+	}
+	
+	return new mxRectangle(x, y, width, height);
+};
+
+mxSvgCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
+{
+	src = this.converter.convert(src);
+	
+	// LATER: Add option for embedding images as base64.
+	aspect = (aspect != null) ? aspect : true;
+	flipH = (flipH != null) ? flipH : false;
+	flipV = (flipV != null) ? flipV : false;
+	
+	var s = this.state;
+	x += s.dx;
+	y += s.dy;
+	
+	var node = this.createElement('image');
+	node.setAttribute('x', this.format(x * s.scale) + this.imageOffset);
+	node.setAttribute('y', this.format(y * s.scale) + this.imageOffset);
+	node.setAttribute('width', this.format(w * s.scale));
+	node.setAttribute('height', this.format(h * s.scale));
+	
+	// Workaround for missing namespace support
+	if (node.setAttributeNS == null)
+	{
+		node.setAttribute('xlink:href', src);
+	}
+	else
+	{
+		node.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', src);
+	}
+	
+	if (!aspect)
+	{
+		node.setAttribute('preserveAspectRatio', 'none');
+	}
+
+	if (s.alpha < 1 || s.fillAlpha < 1)
+	{
+		node.setAttribute('opacity', s.alpha * s.fillAlpha);
+	}
+	
+	var tr = this.state.transform || '';
+	
+	if (flipH || flipV)
+	{
+		var sx = 1;
+		var sy = 1;
+		var dx = 0;
+		var dy = 0;
+		
+		if (flipH)
+		{
+			sx = -1;
+			dx = -w - 2 * x;
+		}
+		
+		if (flipV)
+		{
+			sy = -1;
+			dy = -h - 2 * y;
+		}
+		
+		// Adds image tansformation to existing transform
+		tr += 'scale(' + sx + ',' + sy + ')translate(' + (dx * s.scale) + ',' + (dy * s.scale) + ')';
+	}
+
+	if (tr.length > 0)
+	{
+		node.setAttribute('transform', tr);
+	}
+	
+	if (!this.pointerEvents)
+	{
+		node.setAttribute('pointer-events', 'none');
+	}
+	
+	this.root.appendChild(node);
+};
+
+/*mxLabel.prototype.paintForeground = function(c, x, y, w, h)
 {
 // Added EFE 20141210
 	var displayIcon = this.state.view.graph.preferences.displayIconOnVertex.values[0];
@@ -1302,7 +1565,7 @@ mxPolyline.prototype.paintEdgeShape = function(c, pts)
 		this.paintImage(c, pts);
 	}
 };
-
+*/
 // Added EFE 20141201
 /**
  * Function: addRadioInput
@@ -1800,7 +2063,6 @@ mxForm.prototype.addFieldMove = function(name, input, output)
 				var ishape = graph.model.cells[icell].mxObjectId;
 				var shape = graph.view.states.map[ishape].shape;
 				var displayIcon = null;
-//				console.log('change label', graph.model.cells[icell]);
 				if (graph.model.cells[icell].customproperties)
 				{
 					var newLabel = '';

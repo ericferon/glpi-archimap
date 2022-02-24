@@ -32,6 +32,7 @@ Draw.loadPlugin(function(ui)
 	App.MODE_REPOSITORY = 'repository';
 // Adds resource for plugin
 	mxResources.add(window.DRAWIOINTEGRATION_PATH + '/resources/archi');
+	var pluginDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/drawio'));
 //--- Manage libraries in central repository --------------------------------------------------------------------------------------------------
 // Add 'repository' to 'newLibrary' and 'openLibraryFrom' menu (inspired from diagramly/Menu.js)
     if (Editor.enableCustomLibraries)
@@ -879,35 +880,38 @@ App.prototype.getPeerForMode = function(mode)
 		var shapeWidth = img.w;
 		var shapeHeight = img.h;
 
-		var hd = document.createElement('h3');
 		let title = img.title || cell.customproperties['stencil'];
+/*		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
 		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:6px';
 		content.appendChild(hd);
-		var shape = document.createElement('a');
-		shape.id = title;
-		shape.className = 'geItem';
-		shape.style.overflow = 'hidden';
+*/		var shapecontainer = document.createElement('a');
+		shapecontainer.id = title;
+		shapecontainer.className = 'geItem';
+		shapecontainer.style.overflow = 'hidden';
 		var border = (mxClient.IS_QUIRKS) ? 8 + 2 * 6 : 2 * 6;
-		shape.style.width = (shapeWidth + border) + 'px';
-		shape.style.height = (shapeHeight + border) + 'px';
-		shape.style.padding = '6px';
+		shapecontainer.style.width = (shapeWidth + border) + 'px';
+		shapecontainer.style.height = (shapeHeight + border) + 'px';
+		shapecontainer.style.padding = '6px';
 	
 		if (mxClient.IS_IE6)
 		{
-			shape.style.border = 'none';
+			shapecontainer.style.border = 'none';
 		}
 	
-		// Blocks default click action
-		mxEvent.addListener(shape, 'click', function(evt)
-		{
-			mxEvent.consume(evt);
-		});
+		var thumbgraph = new Graph(shapecontainer);
+		var clone = editorUi.editor.graph.cloneCell(cell);
+		clone.value = title;
+		thumbgraph.addCells([clone]);
+		var thumbstate = thumbgraph.view.getState(clone, true);
+		var thumbshape = thumbstate.shape;
+		var isVertex = editorUi.editor.graph.getModel().isVertex(cell);
+		// disable all clicks on cloned cell
+		mxEvent.release(shapecontainer);
 
-		var thumb = editorUi.sidebar.createThumb(cells, shapeWidth, shapeHeight, shape, img.title || '', false, false, shapeWidth, shapeHeight);
-		shape.style.display = 'block';
-		shape.style.margin = 'auto';
-		content.appendChild(shape);
+		shapecontainer.style.display = 'block';
+		shapecontainer.style.margin = 'auto';
+		content.appendChild(shapecontainer);
 
 		var cssList = document.createElement('select');
 		cssList.id = 'style';
@@ -920,7 +924,6 @@ App.prototype.getPeerForMode = function(mode)
 		var repository = new Repository(ui);
 		var displayPanel = function(selectedValue, selectedValueStyle, content)
 		{
-			canvas = editorUi.editor.graph.view.canvas;
 			newValueStyle[selectedValue] = {};
 			// remove previous panels, if any
 			let previousPanel = document.getElementById('panels');
@@ -931,8 +934,11 @@ App.prototype.getPeerForMode = function(mode)
 			// create new panels
 			var panels = document.createElement('div');
 			panels.id = 'panels';
+			panels.style.display = 'table';
+			panels.style.width	= '100%';
+			panels.style.padding = '8px 0px 8px 0px';
 			panels.list = [];
-			panels.list.push(new DiagramStylePanel(this, ui, stylePanel))
+//			panels.list.push(new DiagramStylePanel(this, ui, stylePanel))
 			content.appendChild(panels);
 
 			// get the tokens of cell's style
@@ -944,6 +950,10 @@ App.prototype.getPeerForMode = function(mode)
 			// initialize newValueStyle with shape 
 			if (shapeStyles.shape)
 				newValueStyle[selectedValue].shape = shapeStyles.shape;
+			else if (shapeStyles.image)
+				newValueStyle[selectedValue].shape = mxConstants.SHAPE_IMAGE;
+			else 
+				newValueStyle[selectedValue].shape = mxConstants.SHAPE_CONNECTOR;
 			var fillColorApply = null;
 			var gradientColorApply = null;
 			var strokeColorApply = null;
@@ -952,6 +962,18 @@ App.prototype.getPeerForMode = function(mode)
 			var defaultFillColor = shapeStyles[mxConstants.STYLE_FILLCOLOR] || '#ffffff';
 			var defaultGradientColor = shapeStyles[mxConstants.STYLE_GRADIENTCOLOR] || '#ffffff';
 			var defaultStrokeColor = shapeStyles[mxConstants.STYLE_STROKECOLOR] || '#000000';
+			var defaultOpacity = shapeStyles[mxConstants.STYLE_OPACITY] || (isVertex ? shapeStyles[mxConstants.STYLE_FILL_OPACITY] : shapeStyles[mxConstants.STYLE_STROKE_OPACITY]) || '100';
+			var defaultLineWidth = shapeStyles[mxConstants.STYLE_STROKEWIDTH] || '1';
+			var defaultLineDash = shapeStyles[mxConstants.STYLE_DASHED] || '0';
+			var defaultLineDashPattern = shapeStyles[mxConstants.STYLE_DASH_PATTERN] || null;
+			var defaultFontColor = shapeStyles[mxConstants.STYLE_FONTCOLOR] || '#000000';
+			var defaultFontSize = shapeStyles[mxConstants.STYLE_FONTSIZE] || '12';
+			var defaultFontStyle = shapeStyles[mxConstants.STYLE_FONTSTYLE] || '0';
+			var defaultImage = shapeStyles[mxConstants.STYLE_IMAGE] || null;
+			var defaultImageAlign = shapeStyles[mxConstants.STYLE_IMAGE_ALIGN] || mxConstants.ALIGN_RIGHT;
+			var defaultImageVerticalAlign = shapeStyles[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] || mxConstants.ALIGN_BOTTOM;
+			var defaultImageWidth = shapeStyles[mxConstants.STYLE_IMAGE_WIDTH] || '25';
+			var defaultImageHeight = shapeStyles[mxConstants.STYLE_IMAGE_HEIGHT] || '25';
 			
 			var currentFillColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] ? 
 									selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] : defaultFillColor;
@@ -959,238 +981,269 @@ App.prototype.getPeerForMode = function(mode)
 									selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] : defaultGradientColor;
 			var currentStrokeColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] ? 
 									selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] : defaultStrokeColor;	
-			var currentFontColor = '#000000';
+			var currentOpacity = selectedValueStyle && selectedValueStyle[selectedValue] && 
+									(selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY] 
+									|| (isVertex ? selectedValueStyle[selectedValue][mxConstants.STYLE_FILL_OPACITY] : selectedValueStyle[selectedValue][mxConstants.STYLE_STROKE_OPACITY])) ? 
+									(selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY]
+									|| (isVertex ? selectedValueStyle[selectedValue][mxConstants.STYLE_FILL_OPACITY] : selectedValueStyle[selectedValue][mxConstants.STYLE_STROKE_OPACITY])) : defaultOpacity;	
+			var currentLineWidth = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH] : defaultLineWidth;	
+			var currentLineDash = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED] : defaultLineDash;	
+			var currentLineDashPattern = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] : defaultLineDashPattern;	
+			var currentFontColor = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FONTCOLOR] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_FONTCOLOR] : defaultFontColor;
+			var currentFontSize = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE] : defaultFontSize;
+			var currentFontStyle = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] : defaultFontStyle;
+			var currentImage = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE] : defaultImage;
+			var currentImageAlign = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] : defaultImageAlign;
+			var currentImageVerticalAlign = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] : defaultImageVerticalAlign;
+			var currentImageWidth = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] : defaultImageWidth;
+			var currentImageHeight = selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] ? 
+									selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] : defaultImageHeight;
 			
-			var updateShapeFillcolor = function(color)
-			{
-				var svg = shape.querySelectorAll('rect[fill], path[fill], circle[fill], ellipse[fill], polygon[fill], line[fill], polyline[fill]');
-				var svgLen = svg.length;
-				for (let i = 0; i < svgLen; i++)
-				{
-					svg[i].setAttribute('fill', color);
+			var format = new Format(editorUi, content);
+			var panel = new BaseFormatPanel(format, editorUi, content);
+			
+			// Display - or not - the value field, according to checkbox
+			var changeDisplay = function(panel, cb)
+			{	
+				let ielem = 0;
+				for(var child=panel.firstElementChild; child!==null; child=child.nextElementSibling) {
+					if (ielem>1)
+					{
+						child.style.display = (cb.checked) ? '' : 'none';
+					}
+					ielem++;
 				}
 			}
-		
-			var updateShapeGradientcolor = function(color, direction)
+
+			if (isVertex)
 			{
-				var svg = shape.querySelectorAll('rect[fill], path[fill], circle[fill], ellipse[fill], polygon[fill], line[fill], polyline[fill]');
-				console.log('updateShapeGradientcolor', thumb, shape, svg, canvas);
-				var svgLen = svg.length;
-				var base = mxSvgCanvas2D.prototype.getBaseUrl().replace(/([\(\)])/g, '\\$1');
-//				var id = mxSvgCanvas2D.prototype.createSvgGradient(selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] || defaultFillColor, color,
-//						1, 1, direction);
-//				console.log('updateShapeGradientcolor',id);
-			
-				for (let i = 0; i < svgLen; i++)
+				var fillPanel = panel.createColorOption(mxResources.get('fillColor'), function()
+				{	// getColorFn
+					return currentFillColor;
+				}, function(color)
+				{	// setColorFn
+					thumbgraph.updateCellStyles(mxConstants.STYLE_FILLCOLOR, (color != mxConstants.NONE) ? color : defaultFillColor, [clone]);
+				}, /* defaultColor */ '#ffffff',
+				{	// listener
+					install: function(apply) { fillColorApply = apply; },
+					destroy: function() { fillColorApply = null; }
+				}, function(color)
+				{	// callbackFn
+//					newValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] = (color != mxConstants.NONE) ? color : defaultFillColor;
+					newValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] = color;
+					thumbgraph.updateCellStyles(mxConstants.STYLE_FILLCOLOR, (color != mxConstants.NONE) ? color : defaultFillColor, [clone]);
+				}, /* hideCheckbox */ false);
+				fillPanel.style.height = '30px';
+				fillPanel.style.boxSizing = 'border-box';
+				fillPanel.style.overflow = 'hidden';
+				fillPanel.style.padding = '4px';
+				fillPanel.style.width = '100%';
+				fillPanel.style.display = 'table-row';
+				fillPanel.style.right = '30px';
+				panels.appendChild(fillPanel);
+				// uncheck box if the fill collor is not changed
+				var cbFill = fillPanel.firstElementChild;
+				if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR])
 				{
-					if (!mxClient.IS_CHROMEAPP && !mxClient.IS_IE && !mxClient.IS_IE11 &&
-						!mxClient.IS_EDGE /*&& this.root.ownerDocument == document*/)
+					if (cbFill.checked)
 					{
-						// Workaround for potential base tag and brackets must be escaped
-//						svg[i].setAttribute('fill', 'url(' + base + '#' + id + ')');
+						cbFill.click();
+					}
+					else
+						changeDisplay(fillPanel, cbFill);
+				}
+				else
+				{
+					thumbgraph.updateCellStyles(mxConstants.STYLE_FILLCOLOR, selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR], [clone]);
+					changeDisplay(fillPanel, cbFill);
+				}
+
+				// Adds gradient direction option
+				var gradientSelect = document.createElement('select');
+				gradientSelect.style.position = 'absolute';
+				gradientSelect.style.marginTop = '-2px';
+				gradientSelect.style.right = (mxClient.IS_QUIRKS) ? '52px' : '72px';
+				gradientSelect.style.width = '70px';
+		
+				// Stops events from bubbling to color option event handler
+				mxEvent.addListener(gradientSelect, 'click', function(evt)
+				{
+					mxEvent.consume(evt);
+				});
+
+				var directions = [mxConstants.DIRECTION_NORTH, mxConstants.DIRECTION_EAST,
+						mxConstants.DIRECTION_SOUTH, mxConstants.DIRECTION_WEST];
+
+				for (var i = 0; i < directions.length; i++)
+				{
+					var gradientOption = document.createElement('option');
+					gradientOption.setAttribute('value', directions[i]);
+					mxUtils.write(gradientOption, mxResources.get(directions[i]));
+					gradientSelect.appendChild(gradientOption);
+				}
+
+				var gradientPanel = panel.createColorOption(mxResources.get('gradient'), function()
+				{	// getColorFn
+					return currentGradientColor;
+				}, function(color)
+				{	// setColorFn
+					thumbgraph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, (color != mxConstants.NONE) ? color : null, [clone]);
+//					document.execCommand('gradientcolor', false, (color != mxConstants.NONE) ? color : currentGradientColor);
+				}, /* defaultColor */ '#ffffff',
+				{	// listener
+					install: function(apply) { gradientColorApply = apply; },
+					destroy: function() { gradientColorApply = null; editorUi.editor.graph.getModel().removeListener(listener);}
+				}, function(color)
+				{	// callbackFn
+//					newValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] = (color != mxConstants.NONE) ? color : null;
+					newValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] = color;
+					thumbgraph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, (color != mxConstants.NONE) ? color : null, [clone]);
+					if (color == null || color == mxConstants.NONE)
+					{
+						gradientSelect.style.display = 'none';
+						newValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION] = mxConstants.NONE;
 					}
 					else
 					{
-//						svg[i].setAttribute('fill', 'url(#' + id + ')');
+						gradientSelect.style.display = '';
 					}
-				}
-			}
-		
-			var updateShapeStrokecolor = function(color)
-			{
-				var svg = shape.querySelectorAll('rect[stroke], path[stroke], circle[stroke], ellipse[stroke], polygon[stroke], line[stroke], polyline[stroke]');
-				var svgLen = svg.length;
-				for (let i = 0; i < svgLen; i++)
+				}, /* hideCheckbox */ false);
+			
+				var listener = mxUtils.bind(this, function()
 				{
-					svg[i].setAttribute('stroke', color);
-				}
-			}
+					var value = mxUtils.getValue(selectedValueStyle[selectedValue], mxConstants.STYLE_GRADIENT_DIRECTION, mxConstants.DIRECTION_SOUTH);
 		
-			var format = new Format(editorUi, content);
-			var panel = new BaseFormatPanel(format, editorUi, content);
-			var fillPanel = panel.createColorOption(mxResources.get('fillColor'), function()
-			{	// getColorFn
-//				newValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] = currentFillColor;
-				return currentFillColor;
-			}, function(color)
-			{	// setColorFn
-				updateShapeFillcolor((color != mxConstants.NONE) ? color : currentFillColor);
-				document.execCommand('backcolor', false, (color != mxConstants.NONE) ? color : currentFillColor);
-			}, /* defaultColor */ '#ffffff',
-			{	// listener
-				install: function(apply) { fillColorApply = apply; },
-				destroy: function() { fillColorApply = null; }
-			}, function(color)
-			{	// callbackFn
-				newValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR] = (color != mxConstants.NONE) ? color : null;
-				updateShapeFillcolor(color);
-			}, /* hideCheckbox */ false);
-			fillPanel.style.height = '30px';
-			fillPanel.style.boxSizing = 'border-box';
-			fillPanel.style.overflow = 'hidden';
-			fillPanel.style.padding = '4px';
-			fillPanel.style.width = '100%';
-			panels.appendChild(fillPanel);
-			// uncheck box if the fill collor is not changed
-			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR])
-			{
-				var cb = fillPanel.querySelectorAll('input[type="checkbox"]');
-				if (cb[0].checked)
-				{
-					cb[0].click();
-				}
-			}
-			else
-			{
-				updateShapeFillcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_FILLCOLOR]);
-			}
-
-			// Adds gradient direction option
-			var gradientSelect = document.createElement('select');
-			gradientSelect.style.position = 'absolute';
-			gradientSelect.style.marginTop = '-2px';
-			gradientSelect.style.right = (mxClient.IS_QUIRKS) ? '52px' : '72px';
-			gradientSelect.style.width = '70px';
+					// Handles empty string which is not allowed as a value
+					if (value == '')
+					{
+						value = mxConstants.DIRECTION_SOUTH;
+					}
 		
-			// Stops events from bubbling to color option event handler
-			mxEvent.addListener(gradientSelect, 'click', function(evt)
-			{
-				mxEvent.consume(evt);
-			});
+					gradientSelect.value = value;
+					newValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION] = gradientSelect.value;
+				});
+	
+				editorUi.editor.graph.getModel().addListener(mxEvent.CHANGE, listener);
+				listener();
 
-			var directions = [mxConstants.DIRECTION_NORTH, mxConstants.DIRECTION_EAST,
-	                  mxConstants.DIRECTION_SOUTH, mxConstants.DIRECTION_WEST];
-
-			for (var i = 0; i < directions.length; i++)
-			{
-				var gradientOption = document.createElement('option');
-				gradientOption.setAttribute('value', directions[i]);
-				mxUtils.write(gradientOption, mxResources.get(directions[i]));
-				gradientSelect.appendChild(gradientOption);
-			}
-
-			var gradientPanel = panel.createColorOption(mxResources.get('gradient'), function()
-			{	// getColorFn
-//				newValueStyle[selectedValue].fillColor = currentGradientColor;
-				return currentGradientColor;
-			}, function(color)
-			{	// setColorFn
-				updateShapeGradientcolor((color != mxConstants.NONE) ? color : currentGradientColor, gradientSelect.value);
-//				editorUi.editor.graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, (color != mxConstants.NONE) ? color : currentGradientColor, shape);
-				document.execCommand('gradientcolor', false, (color != mxConstants.NONE) ? color : currentGradientColor);
-			}, /* defaultColor */ '#ffffff',
-			{	// listener
-				install: function(apply) { gradientColorApply = apply; },
-				destroy: function() { gradientColorApply = null; editorUi.editor.graph.getModel().removeListener(listener);}
-			}, function(color)
-			{	// callbackFn
-				newValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR] = (color != mxConstants.NONE) ? color : null;
-//				updateShapeGradientcolor(color, gradientSelect.value);
-//				editorUi.editor.graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, shape);
-				if (color == null || color == mxConstants.NONE)
+				mxEvent.addListener(gradientSelect, 'change', function(evt)
 				{
-					gradientSelect.style.display = 'none';
+					newValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION] = gradientSelect.value;
+					thumbgraph.updateCellStyles(mxConstants.STYLE_GRADIENT_DIRECTION, gradientSelect.value, [clone]);
+					mxEvent.consume(evt);
+				});
+		
+				gradientPanel.style.height = '30px';
+				gradientPanel.style.boxSizing = 'border-box';
+				gradientPanel.style.overflow = 'hidden';
+				gradientPanel.style.padding = '4px';
+				gradientPanel.style.width = '100%';
+				gradientPanel.style.display = 'table-row';
+				gradientPanel.style.right = '30px';
+				gradientPanel.appendChild(gradientSelect);
+				panels.appendChild(gradientPanel);
+				// uncheck box if the gradient collor is not changed
+				var cbGradient = gradientPanel.firstElementChild;
+				if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR])
+				{
+					if (cbGradient.checked)
+					{
+						cbGradient.click();
+						gradientSelect.style.display = 'none';
+					}
+					else
+						changeDisplay(gradientPanel, cbGradient);
 				}
 				else
 				{
-					gradientSelect.style.display = '';
-				}
-			}, /* hideCheckbox */ false);
-			
-			var listener = mxUtils.bind(this, function()
-			{
-				ss = panel.format.getSelectionState();
-				var value = mxUtils.getValue(selectedValueStyle[selectedValue], mxConstants.STYLE_GRADIENT_DIRECTION, mxConstants.DIRECTION_SOUTH);
-//				var fillStyle = mxUtils.getValue(ss.style, 'fillStyle', 'auto');
-		
-				// Handles empty string which is not allowed as a value
-				if (value == '')
-				{
-					value = mxConstants.DIRECTION_SOUTH;
-				}
-		
-				gradientSelect.value = value;
-//				fillStyleSelect.value = fillStyle;
-//				container.style.display = (ss.fill) ? '' : 'none';
-		
-/*				var fillColor = mxUtils.getValue(ss.style, mxConstants.STYLE_FILLCOLOR, null);
-			
-				if (!ss.fill || ss.containsImage || fillColor == null || fillColor == mxConstants.NONE || ss.style.shape == 'filledEdge')
-				{
-//					fillStyleSelect.style.display = 'none';
-					gradientPanel.style.display = 'none';
-				}
-				else
-				{
-//					fillStyleSelect.style.display = (ss.style.sketch == '1') ? '' : 'none';
-					gradientPanel.style.display = (ss.style.sketch != '1' || fillStyle == 'solid' || fillStyle == 'auto') ? '' : 'none';
-				}
-*/			});
-	
-			editorUi.editor.graph.getModel().addListener(mxEvent.CHANGE, listener);
-//			gradientPanel.listeners.push({destroy: function() { editorUi.editor.graph.getModel().removeListener(listener); }});
-			listener();
-
-			mxEvent.addListener(gradientSelect, 'change', function(evt)
-			{
-//				editorUi.editor.graph.setCellStyles(mxConstants.STYLE_GRADIENT_DIRECTION, gradientSelect.value, editorUi.editor.graph.getSelectionCells());
-				updateShapeGradientcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION]);
-				mxEvent.consume(evt);
-			});
-	
-/*			mxEvent.addListener(fillStyleSelect, 'change', function(evt)
-			{
-//				editorUi.editor.graph.setCellStyles('fillStyle', fillStyleSelect.value, editorUi.editor.graph.getSelectionCells());
-				updateShapeGradientcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION]);
-				mxEvent.consume(evt);
-			});
-*/	
-			gradientPanel.style.height = '30px';
-			gradientPanel.style.boxSizing = 'border-box';
-			gradientPanel.style.overflow = 'hidden';
-			gradientPanel.style.padding = '4px';
-			gradientPanel.style.width = '100%';
-			gradientPanel.appendChild(gradientSelect);
-			panels.appendChild(gradientPanel);
-			// uncheck box if the gradient collor is not changed
-			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR])
-			{
-				var cb = gradientPanel.querySelectorAll('input[type="checkbox"]');
-				if (cb[0].checked)
-				{
-					cb[0].click();
-					gradientSelect.style.display = 'none';
+					thumbgraph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], [clone]);
+					changeDisplay(gradientPanel, cbGradient);
 				}
 			}
-			else
-			{
-				updateShapeGradientcolor(selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENTCOLOR], selectedValueStyle[selectedValue][mxConstants.STYLE_GRADIENT_DIRECTION]);
-			}
-
-			var opacityPanel = panels.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
-			opacityPanel.style.paddingTop = '8px';
-			opacityPanel.style.paddingBottom = '8px';
+			var opacityPanel = document.createElement('div');
+			createStepperOption(opacityPanel,mxResources.get('opacity'), '%', currentOpacity, 0, 100, 1, 50,
+				function(input)  // handle new value 
+				{
+					var cbOpacity = opacityPanel.firstElementChild;
+					input.value = Math.max(0, Math.min(100, parseInt(input.value))) + ' %';
+					thumbgraph.updateCellStyles((isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY), (input.value != mxConstants.NONE) ? parseInt(input.value) : currentOpacity , [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_OPACITY] = (cbOpacity.checked) ? parseInt(input.value) : null;
+					newValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)] = newValueStyle[selectedValue][mxConstants.STYLE_OPACITY];
+				},
+				function(input) // initialize panel
+				{ 
+					var cbOpacity = opacityPanel.firstElementChild;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && (selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY] || (isVertex ? selectedValueStyle[selectedValue][mxConstants.STYLE_FILL_OPACITY] : selectedValueStyle[selectedValue][mxConstants.STYLE_STROKE_OPACITY])))
+					{	
+						cbOpacity.checked = true;
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_OPACITY] = (cbOpacity.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY] : null;
+					newValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)] = selectedValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)];
+					input.value = currentOpacity + ' %';
+					thumbgraph.updateCellStyles((isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY), (input.value != mxConstants.NONE) ? parseInt(input.value) : currentOpacity , [clone]);
+					input.parentNode.style.display = cbOpacity.checked ? '' : 'none';
+				},
+				null);
+			opacityPanel.style.display = 'table-row';
 			panels.appendChild(opacityPanel);
+			var cbOpacity = opacityPanel.firstElementChild;
+			// Display - or not - the value field, according to checkbox
+/*			var changeOpacityDisplay = function()
+			{	
+				let ielem = 0;
+				for(var child=opacityPanel.firstElementChild; child!==null; child=child.nextElementSibling) {
+					if (ielem>1)
+					{	child.style.display = (cbOpacity.checked) ? '' : 'none';
+					}
+					ielem++;
+				}
+			}
+*/			// if no opacity in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !(selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY] || (isVertex ? selectedValueStyle[selectedValue][mxConstants.STYLE_FILL_OPACITY] : selectedValueStyle[selectedValue][mxConstants.STYLE_STROKE_OPACITY])))
+			{
+				if (cbOpacity.checked)
+				{
+					cbOpacity.click();
+				}
+				else
+					changeDisplay(opacityPanel, cbOpacity);
+			}
+			else
+			{
+				if (isVertex)
+					thumbgraph.updateCellStyles(mxConstants.STYLE_FILL_OPACITY, selectedValueStyle[selectedValue][mxConstants.STYLE_FILL_OPACITY], [clone]);
+				else
+					thumbgraph.updateCellStyles(mxConstants.STYLE_STROKE_OPACITY, selectedValueStyle[selectedValue][mxConstants.STYLE_STROKE_OPACITY], [clone]);
+				changeDisplay(opacityPanel, cbOpacity);
+			}
 
-		var colorPanel = document.createElement('div');
+			var colorPanel = document.createElement('div');
 	
 			var lineColor = panel.createColorOption(mxResources.get('line'), function()
 			{	// getColorFn
-//				newValueStyle[selectedValue].fillColor = currentStrokeColor;
 				return currentStrokeColor;
 			}, function(color)
 			{	// setColorFn
-				updateShapeStrokecolor((color != mxConstants.NONE) ? color : currentStrokeColor);
-//				editorUi.editor.graph.updateCellStyles(mxConstants.STYLE_STROKECOLOR, (color != mxConstants.NONE) ? color : currentStrokeColor, shape);
-				document.execCommand('stroke', false, (color != mxConstants.NONE) ? color : currentStrokeColor);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_STROKECOLOR, (color != mxConstants.NONE) ? color : defaultStrokeColor, [clone]);
 			}, /* defaultColor */ '#000000',
 			{	// listener
 				install: function(apply) { strokeColorApply = apply; },
 				destroy: function() { strokeColorApply = null; }
 			}, function(color)
 			{	// callbackFn
-				newValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] = (color != mxConstants.NONE) ? color : null;
-				updateShapeStrokecolor(color);
+//				newValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] = (color != mxConstants.NONE) ? color : null;
+				newValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR] = color;
+				thumbgraph.updateCellStyles(mxConstants.STYLE_STROKECOLOR, (color != mxConstants.NONE) ? color : defaultStrokeColor, [clone]);
 			}, /* hideCheckbox */ false);
 
 			lineColor.style.height = '30px';
@@ -1198,25 +1251,954 @@ App.prototype.getPeerForMode = function(mode)
 			lineColor.style.overflow = 'hidden';
 			lineColor.style.padding = '4px';
 			lineColor.style.width = '100%';
+			lineColor.style.display = 'table-row';
+			lineColor.style.right = '30px';
 			colorPanel.appendChild(lineColor);
 			panels.appendChild(colorPanel);
+			var cbLineColor = lineColor.firstElementChild;
 			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR])
 			{
-				var cb = lineColor.querySelectorAll('input[type="checkbox"]');
-				if (cb[0].checked)
+				if (cbLineColor.checked)
 				{
-					cb[0].click();
+					cbLineColor.click();
 				}
+				else
+					changeDisplay(colorPanel, cbLineColor);
 			}
 			else
 			{
-				updateShapeStrokecolor(selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_STROKECOLOR, selectedValueStyle[selectedValue][mxConstants.STYLE_STROKECOLOR], [clone]);
+				changeDisplay(colorPanel, cbLineColor);
 			}
 
-		}
+			var lineWidthPanel = document.createElement('div');
+				
+			createStepperOption(lineWidthPanel,mxResources.get('linewidth'), 'pt', currentLineWidth, 1, 10, 1, 50,
+				function(input)  // handle new value 
+				{
+					var cbLineWidth = lineWidthPanel.firstElementChild;
+					input.value = Math.max(1, Math.min(10, parseInt(input.value))) + ' pt';
+					thumbgraph.updateCellStyles(mxConstants.STYLE_STROKEWIDTH, (input.value != mxConstants.NONE) ? parseInt(input.value) : currentLineWidth , [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH] = (cbLineWidth.checked) ? parseInt(input.value) : null;
+				},
+				function(input) // initialize panel
+				{ 
+					var cbLineWidth = lineWidthPanel.firstElementChild;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH])
+					{	
+						cbLineWidth.checked = true;
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH] = (cbLineWidth.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH] : null;
+					input.value = currentLineWidth + ' pt';
+					input.parentNode.style.display = cbLineWidth.checked ? '' : 'none';
+				},
+				null);
+			lineWidthPanel.style.display = 'table-row';
+			panels.appendChild(lineWidthPanel);
+			var cbLineWidth = lineWidthPanel.firstElementChild;
+			// Display - or not - the value field, according to checkbox
+/*			var changeLineWidthDisplay = function()
+			{	
+				let ielem = 0;
+				for(var child=lineWidthPanel.firstElementChild; child!==null; child=child.nextElementSibling) {
+					if (ielem>1)
+					{	child.style.display = (cbLineWidth.checked) ? '' : 'none';
+					}
+					ielem++;
+				}
+			}
+*/			// if no lineWidth in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH])
+			{
+				if (cbLineWidth.checked)
+				{
+					cbLineWidth.click();
+				}
+				else
+					changeDisplay(lineWidthPanel, cbLineWidth);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_STROKEWIDTH, selectedValueStyle[selectedValue][mxConstants.STYLE_STROKEWIDTH], [clone]);
+				changeDisplay(lineWidthPanel, cbLineWidth);
+			}
+
+			var lineDashPanel = document.createElement('div');
+			var dashMenu = document.createElement('select');
+//			dashMenu.style.cssFloat = 'right';
+			dashMenu.style.position = 'absolute';
+			dashMenu.style.right = '20px';
+			var addItem = function(menu, width, label, keys, values)
+			{
+				var item = document.createElement('option');
+				item.text = label;
+				item.value = values;
+				item.style.width = width + 'px';
+				item.style.height = '1px';
+				item.style.borderBottom = '1px ' + label.split(' ')[0].toLowerCase() + ' black';
+				item.style.paddingTop = '6px';
+				menu.appendChild(item);
+//				var item = styleChange(menu, '', keys, values, 'geIcon', null);
+/*				var dashItem = document.createElement('canvas');
+				dashItem.width = width;
+				dashItem.height = 6;
+				var ctx = dashItem.getContext('2d');
+				ctx.beginPath();
+				if (values[1])
+					ctx.setLineDash(values[1].split(' '));
+				else
+					ctx.setLineDash([]);
+				ctx.moveTo(0, 10);
+				ctx.lineTo(width, 10);
+				ctx.stroke();				
+				item.appendChild(dashItem);
+*/				
+				return item;
+			};
+
+			addItem(dashMenu, 100, mxResources.get('solid'), [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], [0, null]).setAttribute('title', mxResources.get('solid'));
+			addItem(dashMenu, 100, mxResources.get('dashed') + ' (- -)', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', null]).setAttribute('title', mxResources.get('dashed') + ' - -');
+			addItem(dashMenu, 100, mxResources.get('dotted') + ' (. .)', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 1']).setAttribute('title', mxResources.get('dotted') + ' . .');
+			addItem(dashMenu, 100, mxResources.get('dotted') + ' (.  .)', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 2']).setAttribute('title', mxResources.get('dotted') + ' .  .');
+			addItem(dashMenu, 100, mxResources.get('dotted') + ' (.    .)', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 4']).setAttribute('title', mxResources.get('dotted') + ' .    .');
+			createMenuOption(lineDashPanel,mxResources.get('pattern'), dashMenu, 300,
+				function(selectedOption)  // handle new value 
+				{
+					var cbDashPanel = lineDashPanel.firstElementChild;
+					if (cbDashPanel.checked)
+					{
+						var options = selectedOption.split(',');
+						thumbgraph.updateCellStyles(mxConstants.STYLE_DASHED, (options[0] && options[0] !== null ) ? parseInt(options[0]) : currentLineDash , [clone]);
+						thumbgraph.updateCellStyles(mxConstants.STYLE_DASH_PATTERN, (options[0] && options[0] !== null && options[1]) ? options[1] : currentLineDashPattern , [clone]);
+						newValueStyle[selectedValue][mxConstants.STYLE_DASHED] = parseInt(options[0]);
+						newValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] = options[1];
+					}
+					else
+					{
+						thumbgraph.updateCellStyles(mxConstants.STYLE_DASHED, null , [clone]);
+						thumbgraph.updateCellStyles(mxConstants.STYLE_DASH_PATTERN, null , [clone]);
+						newValueStyle[selectedValue][mxConstants.STYLE_DASHED] = null;
+						newValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] = null;
+					}
+				},
+				function(menu) // initialize panel
+				{ 
+					var cbDashPanel = lineDashPanel.firstElementChild;
+					let selectedOption = [null, null];
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && (selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED] || selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN]))
+					{	cbDashPanel.checked = true;
+						selectedOption = [selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED] || null, selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] || null];
+					}
+					let selectedOptionAsString = selectedOption.join(',');
+					for (let i = 0; i < menu.length ; i++)
+					{
+						if (menu[i].value == selectedOptionAsString)
+						{	menu[i].selected = true;
+							break;
+						}
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_DASHED] = (cbDashPanel.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED] : null;
+					newValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] = (cbDashPanel.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN] : null;
+				},
+				null,
+			);
+			lineDashPanel.style.display = 'table-row';
+			lineDashPanel.className = 'geFormatSection';
+			panels.appendChild(lineDashPanel);
+			var cbDashPanel = lineDashPanel.firstElementChild;
+			// if no dash nor dash pattern in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || (!selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED] && !selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN]))
+			{
+				if (cbDashPanel.checked)
+				{
+					cbDashPanel.click();
+				}
+				else
+					changeDisplay(lineDashPanel, cbDashPanel);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_DASHED, selectedValueStyle[selectedValue][mxConstants.STYLE_DASHED], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_DASH_PATTERN, selectedValueStyle[selectedValue][mxConstants.STYLE_DASH_PATTERN], [clone]);
+				changeDisplay(lineDashPanel, cbDashPanel);
+			}
+
+			var fontColorPanel = panel.createColorOption(mxResources.get('fontColor'), function()
+			{	// getColorFn
+				return currentFontColor;
+			}, function(color)
+			{	// setColorFn
+				thumbgraph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, (color != mxConstants.NONE) ? color : defaultFontColor, [clone]);
+			}, /* defaultColor */ '#ffffff',
+			{	// listener
+				install: function(apply) { fontColorApply = apply; },
+				destroy: function() { fontColorApply = null; }
+			}, function(color)
+			{	// callbackFn
+				newValueStyle[selectedValue][mxConstants.STYLE_FONTCOLOR] = (color != mxConstants.NONE) ? color : defaultFontColor;
+				thumbgraph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, (color != mxConstants.NONE) ? color : defaultFontColor, [clone]);
+			}, /* hideCheckbox */ false);
+			fontColorPanel.style.height = '30px';
+			fontColorPanel.style.boxSizing = 'border-box';
+			fontColorPanel.style.overflow = 'hidden';
+			fontColorPanel.style.padding = '4px';
+			fontColorPanel.style.width = '100%';
+			fontColorPanel.style.display = 'table-row';
+			fontColorPanel.style.right = '30px';
+			panels.appendChild(fontColorPanel);
+			// uncheck box if the fill collor is not changed
+			var cbFontColor = fontColorPanel.firstElementChild;
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_FONTCOLOR] || selectedValueStyle[selectedValue][mxConstants.STYLE_FONTCOLOR] == defaultFontColor)
+			{
+				if (cbFontColor.checked)
+				{
+					cbFontColor.click();
+				}
+				else
+					changeDisplay(fontColorPanel, cbFontColor);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, selectedValueStyle[selectedValue][mxConstants.STYLE_FONTCOLOR], [clone]);
+				changeDisplay(fontColorPanel, cbFontColor);
+			}
+
+			var fontSizePanel = document.createElement('div');
+				
+			createStepperOption(fontSizePanel,mxResources.get('fontSize'), 'pt', currentFontSize, 6, 50, 1, 50,
+				function(input)  // handle new value 
+				{
+					var cbFontSize = fontSizePanel.firstElementChild;
+					input.value = Math.max(6, Math.min(50, parseInt(input.value))) + ' pt';
+					thumbgraph.updateCellStyles(mxConstants.STYLE_FONTSIZE, (input.value != mxConstants.NONE) ? parseInt(input.value) : currentFontSize , [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE] = (cbFontSize.checked) ? parseInt(input.value) : null;
+				},
+				function(input) // initialize panel
+				{ 
+					var cbFontSize = fontSizePanel.firstElementChild;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE])
+					{	
+						cbFontSize.checked = true;
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE] = (cbFontSize.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE] : null;
+					input.value = currentFontSize + ' pt';
+					input.parentNode.style.display = cbFontSize.checked ? '' : 'none';
+				},
+				null);
+			fontSizePanel.style.display = 'table-row';
+			panels.appendChild(fontSizePanel);
+			var cbFontSize = fontSizePanel.firstElementChild;
+			// if no fontSize in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE])
+			{
+				if (cbFontSize.checked)
+				{
+					cbFontSize.click();
+				}
+				else
+					changeDisplay(fontSizePanel, cbFontSize);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_FONTSIZE, selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSIZE], [clone]);
+				changeDisplay(fontSizePanel, cbFontSize);
+			}
+
+			var fontStylePanel = document.createElement('div');
+			var buttonFontStyleValues = [mxConstants.FONT_BOLD, mxConstants.FONT_ITALIC, mxConstants.FONT_UNDERLINE];
+			var fontStyleButtons = createButtonOption(fontStylePanel,mxResources.get('style'), ['bold', 'italic', 'underline'],
+				function(buttonItems, checked)  // handle new value 
+				{
+					if (!checked)
+					{	newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] = mxConstants.NONE;
+						for (var i = 0; i < buttonItems.length; i++)
+						{
+							setSelected(buttonItems[i], false);
+						}
+						thumbgraph.updateCellStyles(mxConstants.STYLE_FONTSTYLE, newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] , [clone]);
+					}
+				},
+				function(buttonItems) // initialize panel
+				{ 
+					var cbFontStyle = fontStylePanel.querySelectorAll('input[type="checkbox"]');
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE])
+					{	cbFontStyle[0].checked = true;
+						newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] = selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE];
+					}
+					else
+						newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] = mxConstants.NONE;
+					// set button on/off, according to initial value
+					for (var i = 0; i < buttonItems.length; i++)
+					{
+						if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE])
+							setSelected(buttonItems[i], (selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] & buttonFontStyleValues[i]) == buttonFontStyleValues[i]);
+						else
+							setSelected(buttonItems[i], false);
+						
+						buttonItems[i].id = buttonFontStyleValues[i];
+						buttonItems[i].style.display = 'inline-block';
+						buttonItems[i].style.padding = '1px 1px 1px 2px';
+						mxEvent.addListener(buttonItems[i], 'click', function(evt)
+						{
+							var source = mxEvent.getSource(evt);
+							var parent = source.parentNode;
+							var mask = parent.id;
+							newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] = (newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] == mxConstants.NONE) ?
+																							(/*newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] |*/ mask) :	// set the value to on
+																							(newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] ^ mask); 	// inverse the value
+							setSelected(parent, (newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] & mask) == mask);
+							thumbgraph.updateCellStyles(mxConstants.STYLE_FONTSTYLE, newValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE] , [clone]);
+						});
+					}
+				});
+			fontStylePanel.style.display = 'table-row';
+			panels.appendChild(fontStylePanel);
+			var cbFontStyle = fontStylePanel.firstElementChild;
+			// if no fontstyle in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE])
+			{
+				if (cbFontStyle.checked)
+				{
+					cbFontStyle.click();
+				}
+				else
+					changeDisplay(fontStylePanel, cbFontStyle);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_FONTSTYLE, selectedValueStyle[selectedValue][mxConstants.STYLE_FONTSTYLE], [clone]);
+				changeDisplay(fontStylePanel, cbFontStyle);
+			}
+
+			var fontVerticalPanel = document.createElement('div');
+			var buttonVerticalValues = ['0'];
+			var fontVerticalButtons = createButtonOption(fontVerticalPanel,mxResources.get('vertical'), ['vertical'],
+				function(buttonItems, checked)  // handle new value 
+				{
+					if (!checked)
+					{	newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] = '1';
+						for (var i = 0; i < buttonItems.length; i++)
+						{
+							setSelected(buttonItems[i], false);
+						}
+						thumbgraph.updateCellStyles(mxConstants.STYLE_HORIZONTAL, newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] , [clone]);
+					}
+				},
+				function(buttonItems) // initialize panel
+				{ 
+					var cbFontVertical = fontVerticalPanel.firstElementChild;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL])
+					{	cbFontVertical.checked = true;
+						newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] = selectedValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL];
+					}
+					else
+						newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] = mxConstants.NONE;
+					// set button on/off, according to initial value
+					for (var i = 0; i < buttonItems.length; i++)
+					{
+						if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL])
+							setSelected(buttonItems[i], selectedValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] == buttonVerticalValues[i]);
+						else
+							setSelected(buttonItems[i], false);
+						
+						buttonItems[i].id = buttonVerticalValues[i];
+						buttonItems[i].style.display = 'inline-block';
+						buttonItems[i].style.padding = '1px 1px 1px 2px';
+						mxEvent.addListener(buttonItems[i], 'click', function(evt)
+						{
+							var source = mxEvent.getSource(evt);
+							var parent = source.parentNode;
+							var grandParent = parent.parentNode;
+							var value = parent.id;
+							newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] = newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] == value ? // click on current selection ?
+																						mxConstants.NONE :	// unset current selection, that is no selection
+																						value;				// set to current button's value'
+							grandParent.childNodes.forEach(function(button)
+							{
+								setSelected(button, newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] == button.id);
+							});
+							thumbgraph.updateCellStyles(mxConstants.STYLE_HORIZONTAL, newValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL] , [clone]);
+							});
+					}
+				});
+			fontVerticalPanel.style.display = 'table-row';
+			panels.appendChild(fontVerticalPanel);
+			var cbFontVertical = fontVerticalPanel.firstElementChild;
+			// if no fontstyle in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL])
+			{
+				if (cbFontVertical.checked)
+				{
+					cbFontVertical.click();
+				}
+				else
+					changeDisplay(fontVerticalPanel, cbFontVertical);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_HORIZONTAL, selectedValueStyle[selectedValue][mxConstants.STYLE_HORIZONTAL], [clone]);
+				changeDisplay(fontVerticalPanel, cbFontVertical);
+			}
+
+			NodeList.prototype.forEach = Array.prototype.forEach; // Hack to loop through nodes
+			var fontHorizontalAlignPanel = document.createElement('div');
+			var buttonHorizontalAlignValues = [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_RIGHT];
+			var fontHorizontalAlignButtons = createButtonOption(fontHorizontalAlignPanel,mxResources.get('horizontalAlignment') || '', buttonHorizontalAlignValues,
+				function(buttonItems, checked)  // handle new value 
+				{
+					if (!checked)
+					{	newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] = mxConstants.NONE;
+						for (var i = 0; i < buttonItems.length; i++)
+						{
+							setSelected(buttonItems[i], false);
+						}
+						thumbgraph.updateCellStyles(mxConstants.STYLE_ALIGN, newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] , [clone]);
+					}
+				},
+				function(buttonItems) // initialize panel
+				{ 
+					var cbHorizontalAlign = fontHorizontalAlignPanel.firstElementChild;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_ALIGN])
+					{	cbHorizontalAlign.checked = true;
+						newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] = selectedValueStyle[selectedValue][mxConstants.STYLE_ALIGN];
+					}
+					else
+						newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] = mxConstants.NONE;
+					// set button on/off, according to initial value
+					for (var i = 0; i < buttonItems.length; i++)
+					{
+						if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_ALIGN])
+							setSelected(buttonItems[i], selectedValueStyle[selectedValue][mxConstants.STYLE_ALIGN] == buttonHorizontalAlignValues[i]);
+						else
+							setSelected(buttonItems[i], false);
+
+						buttonItems[i].id = buttonHorizontalAlignValues[i];
+						buttonItems[i].style.display = 'inline-block';
+						buttonItems[i].style.padding = '1px 1px 1px 2px';
+						mxEvent.addListener(buttonItems[i], 'click', function(evt)
+						{
+							var source = mxEvent.getSource(evt);
+							var parent = source.parentNode;
+							var grandParent = parent.parentNode;
+							var value = parent.id;
+							newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] = newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] == value ? // click on current selection ?
+																						mxConstants.NONE :	// unset current selection, that is no selection
+																						value;				// set to current button's value'
+							grandParent.childNodes.forEach(function(button)
+							{
+								setSelected(button, newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] == button.id);
+							});
+							thumbgraph.updateCellStyles(mxConstants.STYLE_ALIGN, newValueStyle[selectedValue][mxConstants.STYLE_ALIGN] , [clone]);
+						});
+					}
+				});
+			fontHorizontalAlignPanel.style.display = 'table-row';
+			panels.appendChild(fontHorizontalAlignPanel);
+			var cbHorizontalAlign = fontHorizontalAlignPanel.firstElementChild;
+			// if no fontstyle in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_ALIGN])
+			{
+				if (cbHorizontalAlign.checked)
+				{
+					cbHorizontalAlign.click();
+				}
+				else
+					changeDisplay(fontHorizontalAlignPanel, cbHorizontalAlign);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_ALIGN, selectedValueStyle[selectedValue][mxConstants.STYLE_ALIGN], [clone]);
+				changeDisplay(fontHorizontalAlignPanel, cbHorizontalAlign);
+			}
+
+			var fontVerticalAlignPanel = document.createElement('div');
+			var buttonVerticalAlignValues = [mxConstants.ALIGN_TOP, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_BOTTOM];
+			var fontVerticalAlignButtons = createButtonOption(fontVerticalAlignPanel,mxResources.get('verticalAlignment') || '', buttonVerticalAlignValues,
+				function(buttonItems, checked)  // handle new value 
+				{
+					if (!checked)
+					{	newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.NONE;
+						for (var i = 0; i < buttonItems.length; i++)
+						{
+							setSelected(buttonItems[i], false);
+						}
+						thumbgraph.updateCellStyles(mxConstants.STYLE_VERTICAL_ALIGN, newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] , [clone]);
+					}
+				},
+				function(buttonItems) // initialize panel
+				{ 
+					var cbVerticalAlign = fontVerticalAlignPanel.firstElementChild;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN])
+					{	cbVerticalAlign.checked = true;
+						newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] = selectedValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN];
+					}
+					else
+						newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.NONE;
+					// set button on/off, according to initial value
+					for (var i = 0; i < buttonItems.length; i++)
+					{
+						if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN])
+							setSelected(buttonItems[i], selectedValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] == buttonVerticalAlignValues[i]);
+						else
+							setSelected(buttonItems[i], false);
+
+						buttonItems[i].id = buttonVerticalAlignValues[i];
+						buttonItems[i].style.display = 'inline-block';
+						buttonItems[i].style.padding = '1px 1px 1px 2px';
+						mxEvent.addListener(buttonItems[i], 'click', function(evt)
+						{
+							var source = mxEvent.getSource(evt);
+							var parent = source.parentNode;
+							var grandParent = parent.parentNode;
+							var value = parent.id;
+							newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] = newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] == value ? // click on current selection ?
+																						mxConstants.NONE :	// unset current selection, that is no selection
+																						value;				// set to current button's value'
+							grandParent.childNodes.forEach(function(button)
+							{
+								setSelected(button, newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] == button.id);
+							});
+							thumbgraph.updateCellStyles(mxConstants.STYLE_VERTICAL_ALIGN, newValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN] , [clone]);
+						});
+					}
+				});
+			fontVerticalAlignPanel.style.display = 'table-row';
+			fontVerticalAlignPanel.className = 'geFormatSection';
+			panels.appendChild(fontVerticalAlignPanel);
+			var cbVerticalAlign = fontVerticalAlignPanel.firstElementChild;
+			// Display - or not - the value field, according to checkbox
+			// if no fontstyle in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN])
+			{
+				if (cbVerticalAlign.checked)
+				{
+					cbVerticalAlign.click();
+				}
+				else
+					changeDisplay(fontVerticalAlignPanel, cbVerticalAlign);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_VERTICAL_ALIGN, selectedValueStyle[selectedValue][mxConstants.STYLE_VERTICAL_ALIGN], [clone]);
+				changeDisplay(fontVerticalAlignPanel, cbVerticalAlign);
+			}
+
+			var imagePanel = document.createElement('div');
+			var imageMenu = document.createElement('select');
+			var icon = document.createElement('img');
+			var margin = 20;
+			icon.style.position = 'absolute';
+			icon.style.right = margin + 'px';
+			var imageAlignPanel = document.createElement('div');
+			var imageAlignMenu = document.createElement('select');
+			var imageVerticalAlignPanel = document.createElement('div');
+			var imageVerticalAlignMenu = document.createElement('select');
+
+			// Display - or not - the value field, according to checkbox
+			var changeImageDisplay = function(cbImage)
+			{	
+				let ielem = 0;
+				for(var child=imagePanel.firstElementChild; child!==null; child=child.nextElementSibling) {
+					if (ielem>1)
+					{	child.style.display = (cbImage.checked) ? '' : 'none';
+					}
+					ielem++;
+				}
+			}
+
+			// display icon selector
+			var displayFileExplorer = function(evt) {
+				if (imageMenu.value == 'imageFromDrawioStore')
+				{
+					var dlg = new fileExplorerDialog('/drawio/src/main/webapp/img');
+					if (dlg && dlg.container)
+					{
+						ui.showDialog(dlg.container, 1000, 600, true, true, null, false, false);
+					}
+				}
+				else if (imageMenu.value == 'imageFromCustomStore')
+				{
+					var dlg = new fileExplorerDialog('/drawio-integration/images');
+					if (dlg && dlg.container)
+					{
+						ui.showDialog(dlg.container, 1000, 600, true, true, null, false, false);
+					}
+				}
+				else if (imageMenu.value == 'imageAddToCustomStore')
+				{
+					var fileInput = document.createElement('input');
+					fileInput.type = 'file';
+					fileInput.accept = 'image/*';
+	
+					mxEvent.addListener(fileInput, 'change', function(evt)
+					{
+						var file = evt.target.files[0];
+						var mimeType = file.type;
+						var fileName = file.name;
+						// setting up the reader
+						var reader = new FileReader();
+//						reader.readAsText(file,'UTF-8');
+						reader.readAsDataURL(file);
+
+						// get the file content as img
+						reader.onload = readerEvent => {
+							var img = readerEvent.target.result;
+							// get the name for saving on server
+							var url = pluginDomain + '/drawio-integration/images/';
+							var iconUrl = saveFileToServer(img, url, fileName, mimeType, icon, true/*base64Encoded*/	);
+							// display as icon
+							let extension = '.' + mimeType.split('/')[1];
+						}
+					});
+			
+					fileInput.click();
+				}
+			};
+
+			var imageSelectOptions = ['imageFromDrawioStore', 'imageFromCustomStore', 'imageAddToCustomStore'];
+
+			// create icon selection menu
+			for (var i = 0; i < imageSelectOptions.length; i++)
+			{
+				var imageSelectOption = document.createElement('option');
+				imageSelectOption.setAttribute('value', imageSelectOptions[i]);
+				imageSelectOption.addEventListener("click", displayFileExplorer);
+				mxUtils.write(imageSelectOption, mxResources.get(imageSelectOptions[i]));
+				imageMenu.appendChild(imageSelectOption);
+			}
+			imageMenu.style.position = 'absolute';
+			imageMenu.style.right = '50px';
+
+			const regex = /^.*(\/plugins\/archimap)/;
+			const regex2 = /\/plugins\/archimap.*/;
+			const regex3 = /^.*(\/.*\/plugins\/archimap)/;
+			var fileExplorerDialog = function(path) {
+					var fileExplorer = document.createElement('div');
+					var options = {
+						initpath: [
+							[ window.config.plugin_rootdir + path, '/', { canmodify: false } ]
+						],
+						onopenfile: function(folder, entry) {
+							var dir = folder.GetPathIDs().join('/');
+							dir = dir.replace(regex, ''); // suppress path up to and including /plugins/archimap
+							var url = pluginDomain + dir + '/';
+							// display as icon
+							icon.src = url + entry.name;
+							thumbshape.image = icon.src;
+							ui.hideDialog();
+							var dir = folder.GetPathIDs().join('/');
+							dir = dir.replace(regex3, '$1'); // suppress path up to and including /domainName/plugins/archimap
+							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE] = dir + '/' + entry.name;
+							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] = 25;
+							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] = 25;
+							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_RIGHT;
+							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_BOTTOM;
+						},
+
+						onrefresh: function(folder, required) {
+							var $this = this;
+							var dir = folder.GetPathIDs().join('/');
+							dir = dir.replace(regex, '$1'); // suppress path before /plugins/archimap
+							var xhr = new this.PrepareXHR({
+								method : 'GET',
+								url: pluginDomain + '/drawio-integration/ajax/getfile.php?dir=/'+dir,
+								headers: {cors: 'http://localhost'},
+								params: {
+									action: 'file_explorer_refresh',
+									path: JSON.stringify(folder.GetPathIDs())
+								},
+								onsuccess: function(e) {
+									var data = JSON.parse(e.target.responseText);
+									let folderentries = [];
+									let dircount = 0;
+									for (const type in data) {
+										if (type == 'directories')
+										{
+											let directories = data[type];
+											dirLen = directories.length;
+											for (var i = 0; i < dirLen; i++) {
+															directory = directories[i].replace(/^.*[\\\/]/, ''); // get filename from full path
+															folderentries[i] = {'id' : directory,
+																			'name' : directory,
+																			'type' : 'folder',
+																			'hash' : 'folder_' + directory
+																			};
+											};
+											dircount = folderentries.length;
+										}
+										else if (type == 'filenames')
+										{
+											let filenames = data[type];
+											filenamesLen = filenames.length;
+											let thumbdir = document.location.protocol + '//' + document.location.hostname + 
+															window.location.pathname.replace(regex2,'') + // keep only the path before /plugins/archimap
+															dir + '/';
+											for (var i = 0; i < filenamesLen; i++) {
+															filename = filenames[i].replace(/^.*[\\\/]/, ''); // get filename from full path
+															folderentries[dircount + i] = {'id' : filename,
+																			'name' : filename,
+																			'type' : 'file',
+																			'hash' : 'file_' + filename,
+																			'thumb' : thumbdir + filename
+																			};
+											};
+										}
+									}
+									folder.SetEntries(folderentries);
+
+									if (data.success)
+									{
+										if ($this.IsMappedFolder(folder))  folder.SetEntries(data.entries);
+									}
+/*									else if (required)
+									{
+										$this.SetNamedStatusBarText('folder', $this.EscapeHTML('Failed to load folder.  ' + data.error));
+									}
+*/								},
+								onerror: function(e) {
+									// Maybe output a nice message if the request fails for some reason.
+//									if (required)  $this.SetNamedStatusBarText('folder', 'Failed to load folder.  Server error.');
+
+//									console.log('error', e);
+								}
+							});
+
+							xhr.Send();
+						}
+					};
+
+					var fe = new window.FileExplorer(fileExplorer, options);
+					this.container = fileExplorer;
+			}
+
+			createMenuOption(imagePanel,mxResources.get('image'), imageMenu, 500,
+				function(selectedOption)  // handle new value 
+				{
+					var cbImage = imagePanel.firstElementChild;
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE, icon.src , [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE] = icon.src;
+					thumbshape.image = icon.src;
+				},
+				function(menu) // initialize panel
+				{ 
+					var cbImage = imagePanel.firstElementChild;
+					icon.src = currentImage;
+//					let currentMargin = parseInt(currentImageWidth, 10) + margin + 5;
+//					imageMenu.style.right = currentMargin + 'px';  // move menu to the left according to icon size
+					thumbshape.image = icon.src;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE])
+					{	cbImage.checked = true;
+//						selectedOption = selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE];
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE] = (cbImage.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE] : mxConstants.NONE;
+				},
+				null
+			);
+			imagePanel.style.padding = '4px 4px 4px 4px';
+			imagePanel.style.height = '30px';
+			imagePanel.style.display = 'table-row';
+			imagePanel.style.boxSizing = 'border-box';
+			imagePanel.style.overflow = 'visible';
+			imagePanel.style.width = '100%';
+			imagePanel.style.fontWeight = 'normal';
+			imagePanel.style.display = 'table-row';
+			panels.appendChild(imagePanel);
+			var cbImage = imagePanel.firstElementChild;
+			// Display - or not - the value field, according to checkbox
+			// if no image in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue] || !selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE])
+			{
+				if (cbImage.checked)
+				{
+					cbImage.click();
+				}
+				else
+					changeImageDisplay(cbImage);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_ALIGN, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_WIDTH, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_HEIGHT, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT], [clone]);
+				changeImageDisplay(cbImage);
+			}
+
+			var cbImage = imagePanel.firstElementChild;
+			var horizontalAlignment = [mxConstants.ALIGN_LEFT, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_RIGHT];
+
+			for (var i = 0; i < horizontalAlignment.length; i++)
+			{
+				var horizontalAlignmentOption = document.createElement('option');
+				horizontalAlignmentOption.setAttribute('value', horizontalAlignment[i]);
+				mxUtils.write(horizontalAlignmentOption, mxResources.get(horizontalAlignment[i]));
+				imageAlignMenu.appendChild(horizontalAlignmentOption);
+			}
+			imageAlignMenu.style.position = 'absolute';
+			imageAlignMenu.style.right = '20px';
+			imageAlignMenu.style.display = 'inherit';
+			
+			createMenuOption(imageAlignPanel,mxResources.get('horizontalAlignment'), imageAlignMenu, 500,
+				function(selectedOption)  // handle new value 
+				{
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_ALIGN, selectedOption, [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] = selectedOption;
+				},
+				function(menu) // initialize panel
+				{ 
+					let selectedOption = currentImageAlign;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN])
+					{	//cbImage[0].checked = true;
+						selectedOption = selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN];
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] = (cbImage.checked) ? selectedOption : mxConstants.NONE;
+					for (let i = 0; i < menu.length ; i++)
+					{
+						if (menu[i].value == selectedOption)
+						{	menu[i].selected = true;
+							break;
+						}
+					}
+				},
+				cbImage // driving checkbox
+			);
+			imageAlignPanel.style.display = 'table-row';
+			imageAlignPanel.style.padding = '12px 4px 4px 4px';
+			imagePanel.appendChild(imageAlignPanel);
+			
+			var verticalAlignment = [mxConstants.ALIGN_TOP, mxConstants.ALIGN_MIDDLE, mxConstants.ALIGN_BOTTOM];
+
+			for (var i = 0; i < verticalAlignment.length; i++)
+			{
+				var verticalAlignmentOption = document.createElement('option');
+				verticalAlignmentOption.setAttribute('value', verticalAlignment[i]);
+				mxUtils.write(verticalAlignmentOption, mxResources.get(verticalAlignment[i]));
+				imageVerticalAlignMenu.appendChild(verticalAlignmentOption);
+			}
+			imageVerticalAlignMenu.style.position = 'absolute';
+			imageVerticalAlignMenu.style.right = '20px';
+			imageVerticalAlignMenu.style.display = 'inherit';
+				
+			createMenuOption(imageVerticalAlignPanel,mxResources.get('verticalAlignment'), imageVerticalAlignMenu, 500,
+				function(selectedOption)  // handle new value 
+				{
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, selectedOption, [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = selectedOption;
+				},
+				function(menu) // initialize panel
+				{ 
+//					var cbImage = imagePanel.querySelectorAll('input[type="checkbox"]');
+					let selectedOption = currentImageVerticalAlign;
+					if (selectedValueStyle && selectedValueStyle[selectedValue] && selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN])
+					{	//cbImage[0].checked = true;
+						selectedOption = selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN];
+					}
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = (cbImage.checked) ? selectedOption : mxConstants.NONE;
+					for (let i = 0; i < menu.length ; i++)
+					{
+						if (menu[i].value == selectedOption)
+						{	menu[i].selected = true;
+							break;
+						}
+					}
+				},
+				cbImage // driving checkbox
+				);
+			imageVerticalAlignPanel.style.display = 'table-row';
+			imageVerticalAlignPanel.style.padding = '12px 4px 4px 4px';
+			imagePanel.appendChild(imageVerticalAlignPanel);
+
+			var imageWidthPanel = document.createElement('div');
+			createStepperOption(imageWidthPanel,mxResources.get('width'), 'px', currentImageWidth, 10, 200, 1, 50,
+				function(input)  // handle new value 
+				{
+					input.value = Math.max(10, Math.min(200, parseInt(input.value))) + ' px';
+/*					let currentMargin = parseInt(input.value, 10) + margin + 5;
+					imageMenu.style.right = currentMargin + 'px';  // move menu to the left according to icon size
+					icon.style.width = input.value;
+*/					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_WIDTH, (input.value != mxConstants.NONE) ? parseInt(input.value) : currentImageWidth , [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] = (cbImage.checked) ? parseInt(input.value) : mxConstants.NONE;
+				},
+				function(input) // initialize panel
+				{ 
+					input.value = currentImageWidth + ' px';
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] = (cbImage.checked) ? currentImageWidth : mxConstants.NONE;
+				}, 
+				cbImage); // driving checkbox
+			imageWidthPanel.style.display = 'table-row';
+			imageWidthPanel.style.padding = '12px 4px 4px 4px';
+			imagePanel.appendChild(imageWidthPanel);
+
+			var imageHeightPanel = document.createElement('div');
+			createStepperOption(imageHeightPanel,mxResources.get('height'), 'px', currentImageHeight, 10, 200, 1, 50,
+				function(input)  // handle new value 
+				{
+					input.value = Math.max(10, Math.min(200, parseInt(input.value))) + ' px';
+//					icon.style.height = input.value;
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_HEIGHT, (input.value != mxConstants.NONE) ? parseInt(input.value) : currentImageHeight , [clone]);
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] = (cbImage.checked) ? parseInt(input.value) : mxConstants.NONE;
+				},
+				function(input) // initialize panel
+				{ 
+					input.value = currentImageHeight + ' px';
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] = (cbImage.checked) ? currentImageHeight : mxConstants.NONE;
+				}, 
+				cbImage); // driving checkbox
+			imageHeightPanel.style.display = 'table-row';
+			imageHeightPanel.style.padding = '12px 4px 4px 4px';
+//			imageHeightPanel.className = 'geFormatSection';
+			imagePanel.appendChild(imageHeightPanel);
+
+			mxEvent.addListener(imagePanel, 'click', function(evt)
+			{
+				var source = mxEvent.getSource(evt);
+				if (source == cbImage || source.nodeName == 'P')
+				{		
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE, cbImage.checked ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE] : mxConstants.NONE, [clone]);
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_ALIGN, cbImage.checked ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] : mxConstants.NONE, [clone]);
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, cbImage.checked ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] : mxConstants.NONE, [clone]);
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_WIDTH, cbImage.checked ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] : mxConstants.NONE, [clone]);
+					thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_HEIGHT, cbImage.checked ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] : mxConstants.NONE, [clone]);
+					changeImageDisplay(cbImage);
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE] = (cbImage.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE] : mxConstants.NONE;
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] = (cbImage.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] : mxConstants.NONE;
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = (cbImage.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] : mxConstants.NONE;
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] = (cbImage.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] : mxConstants.NONE;
+					newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] = (cbImage.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] : mxConstants.NONE;
+				}
+			});
+
+			// if image in style, reflect it on display
+			if (!selectedValueStyle || !selectedValueStyle[selectedValue]
+			|| (!selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE] && !selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] 
+				&& !selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN]))
+			{
+				if (cbImage.checked)
+				{
+					cbImage.checked = false;
+				}
+				else
+					changeImageDisplay(cbImage);
+			}
+			else
+			{
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_ALIGN, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_VERTICAL_ALIGN], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_WIDTH, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH], [clone]);
+				thumbgraph.updateCellStyles(mxConstants.STYLE_IMAGE_HEIGHT, selectedValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT], [clone]);
+				changeImageDisplay(cbImage);
+			}
+			// Reserve space for icon
+			icon.style.cssFloat = 'right';
+			icon.style.width = /*mxUtils.getNumber(thumbstate.style, mxConstants.STYLE_IMAGE_WIDTH, mxConstants.DEFAULT_IMAGESIZE)*/mxConstants.DEFAULT_IMAGESIZE + 'px';  // keep ratio
+			icon.style.height = /*mxUtils.getNumber(thumbstate.style, mxConstants.STYLE_IMAGE_HEIGHT, mxConstants.DEFAULT_IMAGESIZE)*/mxConstants.DEFAULT_IMAGESIZE + 'px'; // keep ratio
+			document.getElementById(mxResources.get('image') + 'menu').appendChild(icon);
+		};
 
 
-	// fill in a structure with the style information
+		// after getting the CSS styles, fill in a structure with the style information
 		var success = function(req)
 		{
 			var decodeHTML = function (html) {
@@ -1272,10 +2254,9 @@ App.prototype.getPeerForMode = function(mode)
 		{
 			repository.getStyles("STYLE", (evt ? evt.target.value : cssList.value), success, error);
 		};
-
 		cssList.addEventListener('change', (event) => getCssStyles(event));
 		content.appendChild(cssList);
-		
+	
 		var listCssClasses = function(cssClasses, postFn)
 		{
 			let cssClasseslen = cssClasses.length;
@@ -1290,11 +2271,445 @@ App.prototype.getPeerForMode = function(mode)
 				postFn();
 			return cssList;
 		}
+		
+		var redrawCellswithStyle = function(style)
+		{
+			var cells = editorUi.editor.graph.model.cells;
+			for (var property in cells)
+			{
+				var cell = cells[property];
+				if (cell.style)
+				{
+					styles = cell.style.split(';');
+					if (styles.indexOf(style) >= 0)
+					{
+						editorUi.editor.graph.model.styleForCellChanged(cell, style);
+						var state = editorUi.editor.graph.view.getState(cell);
+//				console.log('redraw',cell.value, style, cell.style, state.shape);
+						state.shape.redraw();
+					}
+				}
+			}
+		}
+
+		function setSelected(elt, selected)
+		{
+			elt.style.backgroundImage = (selected) ? 'linear-gradient(#c5ecff 0px,#87d4fb 100%)' : '';
+		};
+	
+		var createButtonOption = function(container, label, buttonOptions, handler, init, hideCheckbox)
+		{
+			var cb = document.createElement('input');
+			cb.setAttribute('type', 'checkbox');
+			cb.style.margin = '0px 6px 0px 0px';
+			container.appendChild(cb);
+			
+			if (!hideCheckbox)
+			{
+				container.appendChild(cb);	
+			}
+	
+			var span1 = document.createElement('p');
+			span1.style.display = 'inline';
+			mxUtils.write(span1, label || '');
+			container.appendChild(span1);
+			
+			var span2 = document.createElement('span');
+			var buttonItems = [];
+			var height = 24;
+			var width = 24;
+			for (var i = 0; i < buttonOptions.length; i++)
+			{
+				var action = editorUi.actions.get(buttonOptions[i]);
+				if (action)
+				{	
+					buttonItems.push(editorUi.toolbar.addItem('geSprite-' + buttonOptions[i].toLowerCase(), buttonOptions[i], span2, true));
+					buttonItems[i].setAttribute('title', mxResources.get(buttonOptions[i]) + ' (' + action.shortcut + ')');
+				}
+				else
+				{	
+					buttonItems.push(editorUi.toolbar.addButton('geSprite-' + buttonOptions[i].toLowerCase(), mxResources.get(buttonOptions[i]), null, span2));
+				}
+				BaseFormatPanel.prototype.styleButtons([buttonItems[i]]);
+				buttonItems[i].style.height = height + 'px';
+				buttonItems[i].style.width = width + 'px';
+			}
+			// set right margin
+			let rightMargin = 20;
+			for (var i = buttonOptions.length - 1; i >= 0; i--)
+			{
+				buttonItems[i].style.position = 'absolute';
+				buttonItems[i].style.right = rightMargin + 'px';
+				rightMargin += width + 2;
+			}
+	
+			mxEvent.addListener(container, 'click', function(evt)
+			{
+				var source = mxEvent.getSource(evt);
+		
+				if (source == cb || source.nodeName == 'P')
+				{		
+					// Toggles checkbox state for click on label
+					if (source != cb)
+					{
+						cb.checked = !cb.checked;
+					}
+	
+					span2.style.display = cb.checked ? 'inherit' : 'none';
+				}
+
+				if (handler != null)
+				{
+					handler(buttonItems, cb.checked);
+				}
+			});
+	
+			if (init != null)
+			{
+				init(buttonItems);
+			}
+			span2.style.cssFloat = 'right';
+			span2.style.width = ((width + 2) * buttonOptions.length) + 'px';
+//			span2.style.display = cb.checked ? 'inherit' : 'none';
+			span2.style.display = 'inherit';
+
+			container.style.padding = '6px 0px 1px 0px';
+			container.style.height = '30px';
+			container.style.boxSizing = 'border-box';
+			container.style.overflow = 'hidden';
+			container.style.padding = '4px';
+			container.style.width = '100%';
+			container.style.fontWeight = 'normal';
+			container.style.display = 'table-row';
+			container.style.marginTop = '0px';
+			container.style.right = '30px';
+			container.appendChild(span2);
+
+			return container;
+
+		}
+
+		var createStepperOption = function(container, label, unit, defaultValue, minValue, maxValue, step, width, handler, init, existingcb, isFloat)
+		{
+			var span1 = document.createElement('p');
+			span1.style.display = 'inline';
+			mxUtils.write(span1, label);
+	
+			var span2 = document.createElement('div');
+			span2.style.cssFloat = 'right';
+			
+			if (existingcb)
+			{
+				var cb = existingcb;
+				span1.style.paddingLeft = '16px';
+			}
+			else
+			{
+				var cb = document.createElement('input');
+				cb.setAttribute('type', 'checkbox');
+				cb.style.margin = '0px 6px 0px 0px';
+	
+				container.appendChild(cb);	
+				
+				mxEvent.addListener(container, 'click', function(evt)
+				{
+					var source = mxEvent.getSource(evt);
+		
+					if (source == cb || source.nodeName == 'P')
+					{		
+						// Toggles checkbox state for click on label
+						if (source != cb)
+						{
+							cb.checked = !cb.checked;
+						}
+	
+						// Overrides default value with current value to make it easier
+						// to restore previous value if the checkbox is clicked twice
+						var value = parseInt(input.value);
+						span2.style.display = cb.checked ? 'inherit' : 'none';
+						input.style.display = span2.style.display;
+						stepper.style.display = span2.style.display;
+			
+						input.value = (cb.checked) ? (value || defaultValue) + ' ' + unit : mxConstants.NONE;
+						if (handler != null)
+						{
+							handler(input);
+						}
+					}
+				});
+			
+			}
+			width = (width != null) ? width : 50;
+			height = /*(height != null) ? height :*/ 11;
+//			span2.style.display = cb.checked ? 'inherit' : 'none';
+			span2.style.display = 'inherit';
+			container.appendChild(span1);
+			container.appendChild(span2);
+	
+			var input = document.createElement('input');
+			input.style.display = 'inherit';
+			input.style.width = width + 'px';
+			input.style.textAlign = 'right';
+			input.style.position = 'absolute';
+			input.style.right = '20px';
+			input.value = (defaultValue || '1') + ' ' + unit;
+			span2.appendChild(input);
+	
+			var stepper = document.createElement('span');
+			mxUtils.setPrefixedStyle(stepper.style, 'borderRadius', '3px');
+			stepper.style.border = '1px solid rgb(192, 192, 192)';
+			stepper.style.position = 'absolute';
+			stepper.style.right = '0px';
+			stepper.style.display = 'inherit';
+	
+			var up = document.createElement('div');
+			up.style.borderBottom = '1px solid rgb(192, 192, 192)';
+			up.style.position = 'absolute';
+			up.style.height = height + 'px';
+			up.style.width = '10px';
+			up.style.right = '10px';
+			up.className = 'geBtnUp';
+			stepper.appendChild(up);
+	
+			var down = up.cloneNode(false);
+			down.style.border = 'none';
+			down.style.height = height + 'px';
+			down.style.top = '11px';
+			down.className = 'geBtnDown';
+			stepper.appendChild(down);
+			span2.appendChild(stepper);
+
+			mxEvent.addListener(down, 'click', function(evt)
+			{
+				if (input.value == '')
+				{
+					input.value = (defaultValue || '1') + ' ' + unit;
+				}
+		
+				var val = isFloat? parseFloat(input.value) : parseInt(input.value);
+		
+				if (!isNaN(val))
+				{
+					input.value = (val - step) + ' ' + unit;
+			
+					if (update != null)
+					{
+						update(evt);
+					}
+				}
+		
+				mxEvent.consume(evt);
+			});
+	
+			mxEvent.addListener(up, 'click', function(evt)
+			{
+				if (input.value == '')
+				{
+					input.value = (defaultValue || '1') + ' ' + unit;
+				}
+		
+				var val = isFloat? parseFloat(input.value) : parseInt(input.value);
+		
+				if (!isNaN(val))
+				{
+					input.value = (val + step) + ' ' + unit;
+			
+					if (update != null)
+					{
+						update(evt);
+					}
+				}
+		
+				mxEvent.consume(evt);
+			});
+			
+			mxEvent.addListener(input, 'blur', function(evt)
+			{
+/*				if (input.value == '')
+				{
+					input.value = (defaultValue || '1') + ' ' + unit;
+				}
+*/		
+				var val = isFloat? parseFloat(input.value) : parseInt(input.value);
+		
+				if (!isNaN(val))
+				{			
+					if (update != null)
+					{
+						update(evt);
+					}
+				}
+		
+				mxEvent.consume(evt);
+			});
+			
+			var update = mxUtils.bind(this, function(evt)
+			{
+				if (handler != null)
+				{
+					handler(input);
+				}
+				else
+				{
+					var value = isFloat? parseFloat(input.value) : parseInt(input.value);
+					value = Math.min(maxValue, Math.max(minValue, (isNaN(value)) ? defaultValue : value));
+				
+					input.value = ((value != null) ? value : defaultValue) + ' ' + unit;
+				}
+		
+				mxEvent.consume(evt);
+			});
+	
+			if (init != null)
+			{
+				init(input);
+			}
+
+			container.style.padding = '6px 0px 1px 0px';
+			container.style.height = '30px';
+			container.style.boxSizing = 'border-box';
+			container.style.overflow = 'hidden';
+			container.style.padding = '4px';
+			container.style.width = '100%';
+			container.style.fontWeight = 'normal';
+			container.style.display = 'table-row';
+			return container;
+		};
+		
+		var createMenuOption = function(container, label, menu, width, handler, init, existingcb)
+		{
+			var span1 = document.createElement('p');
+			span1.style.display = 'inline';
+			mxUtils.write(span1, label || '');
+			
+			var span2 = document.createElement('div');
+			span2.style.cssFloat = 'right';
+			span2.id = label + 'menu';
+	
+			if (existingcb)
+			{
+				var cb = existingcb;
+				span1.style.paddingLeft = '16px';
+			}
+			else
+			{
+				var cb = document.createElement('input');
+				cb.setAttribute('type', 'checkbox');
+				cb.style.margin = '0px 6px 0px 0px';
+	
+				container.appendChild(cb);	
+				
+				mxEvent.addListener(container, 'click', function(evt)
+				{
+					var source = mxEvent.getSource(evt);
+		
+					if (source == cb || source.nodeName == 'P')
+					{		
+						// Toggles checkbox state for click on label
+						if (source != cb)
+						{
+							cb.checked = !cb.checked;
+						}
+	
+						span2.style.display = cb.checked ? 'inherit' : 'none';
+						selectedOption = (cb.checked) ? menu.value : mxConstants.NONE;
+						if (handler != null)
+						{
+							handler(selectedOption);
+						}
+					}
+				});
+			}
+			
+			container.appendChild(span1);
+			container.appendChild(span2);
+			span2.appendChild(menu);
+//			span2.style.display = cb.checked ? 'inherit' : 'none';
+			span2.style.display = 'inherit';
+			width = (width != null) ? width : 200;
+			var height = /*(height != null) ? height :*/ 8;
+	
+			mxEvent.addListener(menu, 'click', function(evt)
+			{
+				selectedOption = (cb.checked) ? menu.value : mxConstants.NONE;
+				if (handler != null)
+				{
+					handler(selectedOption);
+				}
+			});
+	
+			if (init != null)
+			{
+				init(menu);
+			}
+
+			container.style.padding = '6px 0px 1px 0px';
+			container.style.height = '30px';
+			container.style.boxSizing = 'border-box';
+			container.style.overflow = 'hidden';
+			container.style.padding = '4px';
+			container.style.width = '100%';
+			container.style.fontWeight = 'normal';
+			container.style.display = 'table-row';
+			container.style.right = '20px';
+			return container;
+		};
+
+		var saveFileToServer = function(data, url, filename, mimeType, icon, base64Encoded)
+		{
+			let extension = '.' + mimeType.split('/')[1];
+			let label = document.createElement('label');
+			label.textContent = mxResources.get('filename') + ' ';
+			label.textAlign = 'center';
+			let pattern = '^[a-zA-Z0-9-_]+$';
+			let regexp = new RegExp(pattern);
+			let newFilename = document.createElement('input');
+			newFilename.id = 'newfilename';
+			newFilename.pattern = pattern;
+			newFilename.title = mxResources.get('alphanumericPlus-_');
+			newFilename.value = filename.replace(extension, '');
+			regexp.test(newFilename.value)?newFilename.style.color = "green":newFilename.style.color = "red";
+			newFilename.addEventListener('keyup', (event) => 
+			{
+				regexp.test(newFilename.value)?newFilename.style.color = "green" : newFilename.style.color = "red";
+			});
+			newFilename.addEventListener('focus', (event) => 
+			{
+				regexp.test(newFilename.value)?newFilename.style.color = "green":newFilename.style.color = "red";
+			});
+			label.appendChild(newFilename);
+
+			var dlg = new CustomDialog(editorUi, label, mxUtils.bind(this, function()
+			{ // okFn
+				if (regexp.test(newFilename.value)) // check that the pattern is respected
+				{
+					var xhr = new XMLHttpRequest();
+					xhr.onreadystatechange = function() {
+						if (xhr.readyState == 4 && (xhr.status != 200 && xhr.status != 0)) {
+							ui.showError(mxResources.get('error'), mxResources.get('errorOnSaving'), mxResources.get('ok'), null);
+						}; 
+					}
+					var urlparams = 'dir=images&filename=' + encodeURIComponent(newFilename.value) + '&extension=' + encodeURIComponent(extension);
+					xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/putfile.php?"+urlparams, true);
+					xhr.setRequestHeader('Content-type', mimeType);
+					xhr.send(data);
+					icon.src = url + newFilename.value + extension;
+					thumbshape.image = icon.src;
+				}
+			}), mxUtils.bind(this, function()
+			{ // cancelFn
+				editorUi.hideDialog();
+			}), mxResources.get('saveAs') // okButtonText
+			);
+			var height = 160;
+			editorUi.showDialog(dlg.container, 300, height, true, true);
+		}
+
 		// build combobox with list of styles from central repository
 		dataSource(listCssClasses, getCssStyles);
 		var data = null;
 		var dlg = new CustomDialog(editorUi, content, mxUtils.bind(this, function()
-        {
+		{
 			// when hitting "Save", build the xml stylesheet
 			var key = cssList.value;
 			var doc = mxUtils.createXmlDocument();
@@ -1309,7 +2724,7 @@ App.prototype.getPeerForMode = function(mode)
 			addKey.appendChild(addShape);
 			for (attrib in newValueStyle[key])
 			{
-				if (newValueStyle[key].hasOwnProperty(attrib) && attrib != 'shape' && newValueStyle[key][attrib])
+				if (newValueStyle[key].hasOwnProperty(attrib) && attrib != 'shape' && newValueStyle[key][attrib] && newValueStyle[key][attrib] != mxConstants.NONE && newValueStyle[key][attrib] !== null)
 				{
 					var addAttrib = doc.createElement('add');
 					addAttrib.setAttribute('as', attrib);
@@ -1323,13 +2738,16 @@ App.prototype.getPeerForMode = function(mode)
 			{
 				this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
 			}), isNewKey);
+			// add or replace new style sheet to graph object
+			editorUi.editor.graph.getStylesheet().putCellStyle(key, newValueStyle[key]);
 			// refresh the display
-			editorUi.refreshCellStyle(editorUi.editor);
-        }), null, mxResources.get('save'), null, null, null, mxResources.get('quit'));
+			redrawCellswithStyle(key);
+			editorUi.editor.graph.refresh();
+//				editorUi.refreshCellStyle(editorUi.editor);
+		}), null, mxResources.get('save'), null, null, null, mxResources.get('quit'));
 		if (dlg && dlg.container)
-			editorUi.showDialog(dlg.container, 420, 820, true, true);
-		
-	};
+			editorUi.showDialog(dlg.container, 420, 650, true, true);
+	}
 
 //	Add popup menus to sidebar's stencils in custom libraries only	
 	Sidebar.prototype.showPopupMenuForCustomLibrary = function(elt, evt, index, imgs, file)

@@ -107,6 +107,7 @@ DiagramEditor.prototype.frameStyle = 'position:absolute;border:0;top:0;left:0;ri
 // Added EFE 20200515 - Get (admin) role as parameter and configure custom libraries and plugins accordingly
 DiagramEditor.prototype.editElement = function(elem)
 {
+	var diaedit = this;
     var getSessionToken = function()
     {
         let tables = {};
@@ -123,6 +124,152 @@ DiagramEditor.prototype.editElement = function(elem)
 					if (xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 0)) {
 						session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
 						user.session_token = session_token.session_token;
+						// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
+						diaedit.config = {'libraries' : [ {
+														"title": { "main": "Custom"},
+														"entries": [ { "id": "glpi",
+																	"title": { "main": "GLPI"},
+																	"desc": { "main": "GLPI selected icons"},
+																	"libs": []
+																	} ]
+														} ]
+										};
+					    // fill in config with libraries from "getlibraries" on central repository
+					    var getLibraries = function(type, key, libconfig, success, error)
+					    {
+					        let tables = {};
+					        tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
+					                    'column' : 'key, value', 
+					                    'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
+					        var xhr3 = new XMLHttpRequest();
+							xhr3.onreadystatechange = function() {
+								if (xhr3.readyState == 4 && (xhr3.status == 200 || xhr3.status == 0)) {
+									datas = JSON && JSON.parse(xhr3.responseText) || $.parseJSON(xhr3.responseText);
+					                success(datas, libconfig);
+								}
+							};
+							xhr3.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
+							xhr3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+							xhr3.send(JSON.stringify(tables));
+					    }
+					    var success = function(repolibs, libconfig)
+						{
+					        var decodeHTML = function (html) {
+					            var txt = document.createElement('textarea');
+					            txt.innerHTML = html;
+					            return txt.value;
+					        };
+					        var ExtractTagFromXml = function (xml, tag) {
+					            var parser = new DOMParser();
+					            var xmlDoc = parser.parseFromString(xml,"text/xml");
+					            if (tag)
+					            {
+					                return JSON.parse(xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue);
+					            }
+					            else
+					            {
+					                return xmlDoc;
+					            }
+            
+					        };
+					        if (repolibs && repolibs['param'])
+					        {
+					            var arrayLength = repolibs['param'].length;
+					            var istart = libconfig.length;
+					            for (var i = 0 in repolibs['param'])
+					            {
+//					              var data = new XMLSerializer().serializeToString(ExtractTagFromXml(decodeHTML(repolibs['param'][i].value)));
+					                var data = ExtractTagFromXml(decodeHTML(repolibs['param'][i].value), 'mxlibrary');
+					                libconfig[istart] = 
+					                    {"title" : {"main" : repolibs['param'][i].key.replace(/_/g, " ")}, // replace underscore by space in file name
+										"data" : data};
+					                istart++;
+					            }
+					        }
+							// fill in config with libraries from "drawio-extension/libraries" directory on server
+							var customlibsurl = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio-integration/libraries/';
+							var istart = diaedit.config.libraries[0].entries[0].libs.length;
+							for (var i=0; i<customlibs.length; i++)
+							{	diaedit.config.libraries[0].entries[0].libs[istart+i] = {"title" : {"main" : customlibs[i].replace(/_/g, " ")}, // replace underscore by space in file name
+											"url" : customlibsurl + customlibs[i] + ".xml", "prefetch" : true};
+							}
+							// add the "plugins" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
+							if (user && user.role && user.role.toLowerCase().includes("admin"))
+							{	// user role contains "admin"
+								diaedit.config.plugin_rootdir = window.plugin_rootdir;
+								diaedit.config.user = user;
+								diaedit.config.plugins = 
+													[// load plugin needed to autocomplete and to modify graph's display preferences
+													'../../../../drawio-integration/plugins/Repository.js',
+													'../../../../drawio-integration/ext/jquery/jquery.min.js',
+													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
+													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
+													// load libraries needed by Alpaca
+													'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
+													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
+													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.css',
+//													'//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', 
+													'../../../../drawio-integration/ext/alpaca/bootstrap.min.js', 
+													'../../../../drawio-integration/ext/alpaca/bootstrap-3.3.2.min.css', 
+													'../../../../drawio-integration/ext/alpaca/alpaca.min.js', 
+													'../../../../drawio-integration/ext/alpaca/alpaca.min.css', 
+													// load file explorer libraries 
+													'../../../../drawio-integration/ext/js-fileexplorer/file-explorer/file-explorer.js', 
+													'../../../../drawio-integration/ext/js-fileexplorer/file-explorer/file-explorer.css', 
+													// load plugin needed to link a library's stencil to a (architecture) repository
+													'../../../../drawio-integration/plugins/autocomplete.js', 
+													'../../../../drawio-integration/plugins/link2repo.js'];
+								diaedit.libraries = true;	// allow libraries creation/modification
+							} else
+							{	// user role is normal
+								diaedit.config.user = user;
+								
+								diaedit.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
+													'../../../../drawio-integration/plugins/Repository.js',
+													'../../../../drawio-integration/ext/jquery/jquery.min.js',
+													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
+													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
+													// load libraries needed by Alpaca
+													'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
+													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
+													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.css',
+//													'//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', 
+													'../../../../drawio-integration/ext/alpaca/bootstrap.min.js', 
+													'../../../../drawio-integration/ext/alpaca/bootstrap-3.3.2.min.css', 
+													'../../../../drawio-integration/ext/alpaca/alpaca.min.js', 
+													'../../../../drawio-integration/ext/alpaca/alpaca.min.css', 
+													// load plugin needed to link a library's stencil to a (architecture) repository
+													'../../../../drawio-integration/plugins/autocomplete.js'];
+							}
+						// End of Added EFE 20200515
+							var src = diaedit.getElementData(elem);
+							diaedit.startElement = elem;
+							var fmt = diaedit.format;
+
+							if (src.substring(0, 15) === 'data:image/png;')
+							{
+								fmt = 'xmlpng';
+							}
+							else if (src.substring(0, 19) === 'data:image/svg+xml;' ||
+								elem.nodeName.toLowerCase() == 'svg')
+							{
+								fmt = 'xmlsvg';
+							}
+							else
+							{
+								fmt = 'xml';
+							}
+
+							diaedit.startEditing(src, fmt);
+
+							return diaedit;
+						};
+					    var error = function()
+					    {
+					        console.log("error during load of repository's libraries");
+					    };
+					    var customlibsrepo = getLibraries('LIBXML', null, diaedit.config.libraries[0].entries[0].libs, success, error);
+    
 					}
 				};
 				xhr2.open("GET", DiagramEditor.prototype.rootDomain + "/apirest.php/initSession/", true);
@@ -137,138 +284,6 @@ DiagramEditor.prototype.editElement = function(elem)
 		xhr.send(JSON.stringify(tables));
     }
 	getSessionToken();
-	// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
-	this.config = {'libraries' : [ {
-									"title": { "main": "Custom"},
-									"entries": [ { "id": "glpi",
-												"title": { "main": "GLPI"},
-												"desc": { "main": "GLPI selected icons"},
-												"libs": []
-												} ]
-									} ]
-					};
-    // fill in config with libraries from "getlibraries" on central repository
-    var getLibraries = function(type, key, libconfig, success, error)
-    {
-        let tables = {};
-        tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
-                    'column' : 'key, value', 
-                    'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
-        var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
-				datas = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-                success(datas, libconfig);
-			}
-		};
-		xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
-		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-		xhr.send(JSON.stringify(tables));
-    }
-    var success = function(repolibs, libconfig)
-	{
-        var decodeHTML = function (html) {
-            var txt = document.createElement('textarea');
-            txt.innerHTML = html;
-            return txt.value;
-        };
-        var ExtractTagFromXml = function (xml, tag) {
-            var parser = new DOMParser();
-            var xmlDoc = parser.parseFromString(xml,"text/xml");
-            if (tag)
-            {
-                return JSON.parse(xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue);
-            }
-            else
-            {
-                return xmlDoc;
-            }
-            
-        };
-        if (repolibs && repolibs['param'])
-        {
-            var arrayLength = repolibs['param'].length;
-            var istart = libconfig.length;
-            for (var i = 0 in repolibs['param'])
-            {
-//              var data = new XMLSerializer().serializeToString(ExtractTagFromXml(decodeHTML(repolibs['param'][i].value)));
-                var data = ExtractTagFromXml(decodeHTML(repolibs['param'][i].value), 'mxlibrary');
-                libconfig[istart] = 
-                    {"title" : {"main" : repolibs['param'][i].key.replace(/_/g, " ")}, // replace underscore by space in file name
-					"data" : data};
-                istart++;
-            }
-        }
-	};
-    var error = function()
-    {
-        console.log("error during load of repository's libraries");
-    };
-    var customlibsrepo = getLibraries('LIBXML', null, this.config.libraries[0].entries[0].libs, success, error);
-    
-    // fill in config with libraries from "drawio-extension/libraries" directory on server
-	var customlibsurl = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio-integration/libraries/';
-    var istart = this.config.libraries[0].entries[0].libs.length;
-	for (var i=0; i<customlibs.length; i++)
-	{	this.config.libraries[0].entries[0].libs[istart+i] = {"title" : {"main" : customlibs[i].replace(/_/g, " ")}, // replace underscore by space in file name
-					"url" : customlibsurl + customlibs[i] + ".xml", "prefetch" : true};
-	}
-	// add the "plugins" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
-	if (user && user.role && user.role.toLowerCase().includes("admin"))
-	{	// user role contains "admin"
-		this.config.user = user;
-		this.config.plugins = 
-								[// load plugin needed to autocomplete and to modify graph's display preferences
-								'../../../../drawio-integration/plugins/Repository.js',
-								'../../../../drawio-integration/ext/jquery/jquery.min.js',
-								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
-								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
-								// load libraries needed by Alpaca
-								'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
-								'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
-								'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.css',
-//								'//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css', 
-								'../../../../drawio-integration/ext/alpaca/bootstrap.min.js', 
-								'../../../../drawio-integration/ext/alpaca/bootstrap-3.3.2.min.css', 
-								'../../../../drawio-integration/ext/alpaca/alpaca.min.js', 
-								'../../../../drawio-integration/ext/alpaca/alpaca.min.css', 
-								// load plugin needed to link a library's stencil to a (architecture) repository
-								'../../../../drawio-integration/plugins/autocomplete.js', 
-								'../../../../drawio-integration/plugins/link2repo.js'];
-		this.libraries = true;	// allow libraries creation/modification
-	} else
-	{	// user role is normal
-		this.config.user = user;
-								
-		this.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
- 								'../../../../drawio-integration/plugins/Repository.js',
-								'../../../../drawio-integration/ext/jquery/jquery.min.js', 
-								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
-								'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
-								'../../../../drawio-integration/plugins/autocomplete.js'];
-	}
-// End of Added EFE 20200515
-	var src = this.getElementData(elem);
-	this.startElement = elem;
-	var fmt = this.format;
-
-	if (src.substring(0, 15) === 'data:image/png;')
-	{
-		fmt = 'xmlpng';
-	}
-	else if (src.substring(0, 19) === 'data:image/svg+xml;' ||
-		elem.nodeName.toLowerCase() == 'svg')
-	{
-		fmt = 'xmlsvg';
-	}
-	else
-	{
-		fmt = 'xml';
-	}
-
-	this.startEditing(src, fmt);
-
-	return this;
 };
 
 /**

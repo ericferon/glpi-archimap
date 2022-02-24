@@ -1,2 +1,2 @@
-#Installation
-Decompress the archive into the plugins directory, in a directory named "archimap"
+#Installation and set up
+see https://github.com/ericferon/glpi-archimap/wiki/How-to-install-and-set-up-the-plugin

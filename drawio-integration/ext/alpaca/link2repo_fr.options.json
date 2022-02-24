@@ -53,13 +53,13 @@
 		"autocompletelabel": {
 			"size": 20,
 			"label": "Affichage comme",
-			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
+			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+' seul (sans espace)",
 			"helper" : "comment la liste des suggestions de noms sera composée (après le nom lui-même) p.ex : '/'+manufacturer+' (level '+level+' - '+type+' : '+state+')'"
 		},
 		"autocompletecssclass": {
 			"size": 20,
 			"label": "Classe CSS",
-			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+'",
+			"placeholder": "Mélange de noms de colonnes et de chaînes de caractères entre apostrophes, séparés par le signe '+' seul (sans espace)",
 			"helper" : "comment la classe CSS, à ajouter à la forme, sera composée ; p.ex : 'SWComponent_Level'+level+';SWComponent_'+type+';SWComponent_'+state"
 		},
 		"autocompleteobject": {

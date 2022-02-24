@@ -42,8 +42,13 @@ foreach($keys as $key => $typevalue) {
 //Toolbox::logInFile("gettables", "puttconfig ".$query."\n");
 //var_dump($query);
     $result=$DB->query($query);
-  $datas[$key] = $DB->insertId();
+	$datas[$key] = $DB->insertId();
 }
 //var_dump($result);
 echo json_encode($datas);
+// if one key = STYLE, write all styles into a file
+if (in_array('STYLE', $keys))
+{
+	include (GLPI_ROOT . "/plugins/archimap/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
+}
 ?>
