@@ -1098,7 +1098,6 @@ App.prototype.getPeerForMode = function(mode)
 				}, function(color)
 				{	// setColorFn
 					thumbgraph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, (color != mxConstants.NONE) ? color : null, [clone]);
-//					document.execCommand('gradientcolor', false, (color != mxConstants.NONE) ? color : currentGradientColor);
 				}, /* defaultColor */ '#ffffff',
 				{	// listener
 					install: function(apply) { gradientColorApply = apply; },
@@ -1187,8 +1186,16 @@ App.prototype.getPeerForMode = function(mode)
 					{	
 						cbOpacity.checked = true;
 					}
-					newValueStyle[selectedValue][mxConstants.STYLE_OPACITY] = (cbOpacity.checked) ? selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY] : null;
-					newValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)] = selectedValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)];
+					if (cbOpacity.checked)
+					{
+						newValueStyle[selectedValue][mxConstants.STYLE_OPACITY] = selectedValueStyle[selectedValue][mxConstants.STYLE_OPACITY];
+						newValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)] = selectedValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)];
+					}
+					else
+					{
+						newValueStyle[selectedValue][mxConstants.STYLE_OPACITY] = mxConstants.NONE;
+						newValueStyle[selectedValue][(isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY)] = mxConstants.NONE;
+					}
 					input.value = currentOpacity + ' %';
 					thumbgraph.updateCellStyles((isVertex ? mxConstants.STYLE_FILL_OPACITY : mxConstants.STYLE_STROKE_OPACITY), (input.value != mxConstants.NONE) ? parseInt(input.value) : currentOpacity , [clone]);
 					input.parentNode.style.display = cbOpacity.checked ? '' : 'none';
