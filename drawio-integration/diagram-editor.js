@@ -202,8 +202,8 @@ DiagramEditor.prototype.editElement = function(elem)
 													[// load plugin needed to autocomplete and to modify graph's display preferences
 													'../../../../drawio-integration/plugins/Repository.js',
 													'../../../../drawio-integration/ext/jquery/jquery.min.js',
-													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
-													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
+													'../../../../drawio-integration/ext/jquery/jquery-ui.min.js', 
+													'../../../../drawio-integration/ext/jquery/jquery-ui.min.css',
 													// load libraries needed by Alpaca
 													'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
 													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
@@ -227,8 +227,8 @@ DiagramEditor.prototype.editElement = function(elem)
 								diaedit.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
 													'../../../../drawio-integration/plugins/Repository.js',
 													'../../../../drawio-integration/ext/jquery/jquery.min.js',
-													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.min.js', 
-													'../../../../drawio-integration/ext/jquery/jquery-ui-1.12.1.custom.css',
+													'../../../../drawio-integration/ext/jquery/jquery-ui.min.js', 
+													'../../../../drawio-integration/ext/jquery/jquery-ui.min.css',
 													// load libraries needed by Alpaca
 													'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
 													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
