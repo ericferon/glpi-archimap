@@ -49,6 +49,6 @@ echo json_encode($datas);
 // if one key = STYLE, write all styles into a file
 if (in_array('STYLE', $keys))
 {
-	include (GLPI_ROOT . "/plugins/archimap/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
+	include (Plugin::getPhpDir("archimap")."/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
 }
 ?>

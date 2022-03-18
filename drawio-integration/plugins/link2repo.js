@@ -1876,9 +1876,9 @@ App.prototype.getPeerForMode = function(mode)
 			imageMenu.style.position = 'absolute';
 			imageMenu.style.right = '50px';
 
-			const regex = /^.*(\/plugins\/archimap)/;
-			const regex2 = /\/plugins\/archimap.*/;
-			const regex3 = /^.*(\/.*\/plugins\/archimap)/;
+			const regex = /^.*(\/archimap)/;
+			const regex2 = /\/archimap.*/;
+			const regex3 = /^.*(\/.*\/archimap)/;
 			var fileExplorerDialog = function(path) {
 					var fileExplorer = document.createElement('div');
 					var options = {
@@ -1887,7 +1887,7 @@ App.prototype.getPeerForMode = function(mode)
 						],
 						onopenfile: function(folder, entry) {
 							var dir = folder.GetPathIDs().join('/');
-							dir = dir.replace(regex, ''); // suppress path up to and including /plugins/archimap
+							dir = dir.replace(regex, ''); // suppress path up to and including /archimap
 							var url = pluginDomain + dir + '/';
 							// display as icon
 							icon.src = url + entry.name;
@@ -1895,7 +1895,7 @@ App.prototype.getPeerForMode = function(mode)
 							ui.hideDialog();
 							var dir = folder.GetPathIDs().join('/');
 							dir = dir.replace(regex3, '$1'); // suppress path up to and including /domainName/plugins/archimap
-							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE] = dir + '/' + entry.name;
+							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE] = url + entry.name;
 							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_WIDTH] = 25;
 							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_HEIGHT] = 25;
 							newValueStyle[selectedValue][mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_RIGHT;
@@ -1905,7 +1905,7 @@ App.prototype.getPeerForMode = function(mode)
 						onrefresh: function(folder, required) {
 							var $this = this;
 							var dir = folder.GetPathIDs().join('/');
-							dir = dir.replace(regex, '$1'); // suppress path before /plugins/archimap
+							dir = dir.replace(regex, '$1'); // suppress path before /archimap
 							var xhr = new this.PrepareXHR({
 								method : 'GET',
 								url: pluginDomain + '/drawio-integration/ajax/getfile.php?dir=/'+dir,
@@ -1938,7 +1938,7 @@ App.prototype.getPeerForMode = function(mode)
 											let filenames = data[type];
 											filenamesLen = filenames.length;
 											let thumbdir = document.location.protocol + '//' + document.location.hostname + 
-															window.location.pathname.replace(regex2,'') + // keep only the path before /plugins/archimap
+															window.location.pathname.replace(regex2,'') + // keep only the path before /archimap
 															dir + '/';
 											for (var i = 0; i < filenamesLen; i++) {
 															filename = filenames[i].replace(/^.*[\\\/]/, ''); // get filename from full path

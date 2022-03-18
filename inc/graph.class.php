@@ -414,14 +414,14 @@ class PluginArchimapGraph extends CommonDBTM {
                         'used'   => $p['used']];
 
       $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
-                                            $CFG_GLPI["root_doc"]."/plugins/archimap/ajax/dropdownTypeArchimap.php",
+                                            Plugin::getPhpDir("archimap")."/ajax/dropdownTypeArchimap.php",
                                             $params, false);
       $out .= "<span id='show_".$p['name']."$rand'>";
       $out .= "</span>\n";
 
       $params['graphtype'] = 0;
       $out .= Ajax::updateItem("show_".$p['name'].$rand,
-                               $CFG_GLPI["root_doc"]. "/plugins/archimap/ajax/dropdownTypeArchimap.php",
+                               Plugin::getPhpDir("archimap")."/ajax/dropdownTypeArchimap.php",
                                $params, false);
       if ($p['display']) {
          echo $out;
@@ -496,7 +496,7 @@ class PluginArchimapGraph extends CommonDBTM {
          $colsup=0;
       }
 
-      if ($withtemplate!=2) echo "<form method='post' action=\"".$CFG_GLPI["root_doc"]."/plugins/archimap/front/graph.form.php\">";
+      if ($withtemplate!=2) echo "<form method='post' action=\"".Plugin::getPhpDir("archimap")."/front/graph.form.php\">";
 
       echo "<div align='center'><table class='tab_cadre_fixe'>";
       echo "<tr><th colspan='".(4+$colsup)."'>"._n('Graph associated', 'Graphs associated', 2, 'archimap')."</th></tr>";
@@ -513,7 +513,7 @@ class PluginArchimapGraph extends CommonDBTM {
 
          echo "<tr class='tab_bg_1".($data["is_deleted"]=='1'?"_2":"")."'>";
          if ($withtemplate!=3 && $canread && (in_array($data['entities_id'],$_SESSION['glpiactiveentities']) || $data["is_recursive"])) {
-            echo "<td class='center'><a href='".$CFG_GLPI["root_doc"]."/plugins/archimap/front/graph.form.php?id=".$data["id"]."'>".$data["name"];
+            echo "<td class='center'><a href='".Plugin::getPhpDir("archimap")."/front/graph.form.php?id=".$data["id"]."'>".$data["name"];
          if ($_SESSION["glpiis_ids_visible"]) echo " (".$data["id"].")";
             echo "</a></td>";
          } else {

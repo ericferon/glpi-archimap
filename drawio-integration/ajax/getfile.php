@@ -35,7 +35,7 @@
 define('GLPI_ROOT', '../../../..');
 include (GLPI_ROOT . "/inc/includes.php");
 
-$allowed_dirs = ['plugins/archimap/drawio-integration/images', 'plugins/archimap/drawio/src/main/webapp/img'];
+$allowed_dirs = ['archimap/drawio-integration/images', 'archimap/drawio/src/main/webapp/img'];
 if (isset($_GET['dir'])) {
 	$dir = $_GET['dir'];
 //	check that dir is allowed
@@ -49,7 +49,7 @@ if (isset($_GET['dir'])) {
 	}
 	if ($allowed)
 	{
-		$rootdir = substr($_SERVER['SCRIPT_FILENAME'], 0, strpos($_SERVER['SCRIPT_FILENAME'], '/plugins/archimap'));
+		$rootdir = substr($_SERVER['SCRIPT_FILENAME'], 0, strpos($_SERVER['SCRIPT_FILENAME'], '/archimap'));
 		$directories = glob($rootdir.$dir.'/*', GLOB_ONLYDIR);
 	}
 	else

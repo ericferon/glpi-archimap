@@ -50,6 +50,6 @@ foreach($keys as $key => $typevalue) {
 echo json_encode($result);
 if ($nbstyles)
 {
-	include (GLPI_ROOT . "/plugins/archimap/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
+	include (Plugin::getPhpDir("archimap")."/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
 }
 ?>
