@@ -25,8 +25,13 @@
 	</authors>
 	<versions>
 		<version>
+			<num>3.2.3</num>
+			<compatibility>~9.5.0 || ~10.0.0</compatibility>
+			<download_url>https://github.com/ericferon/glpi-archimap/releases/download/v3.2.3/archimap-v3.2.3.tar.gz</download_url>
+		</version>
+		<version>
 			<num>3.2.2</num>
-			<compatibility>~9.5.0</compatibility>
+			<compatibility>~9.5.0 || ~10.0.0</compatibility>
 			<download_url>https://github.com/ericferon/glpi-archimap/releases/download/v3.2.2/archimap-v3.2.2.tar.gz</download_url>
 		</version>
 		<version>
