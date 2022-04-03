@@ -20,13 +20,17 @@ env:
 install: true
 script: true
 after_success:
+    - npm i tar-to-zip -g
     - tar --transform "s%^%$GLPI_PLUGIN_NAME/%" --show-transformed -zcvf $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz ajax drawio drawio-integration front inc locales sql graph.png *.xml *.php  LICENSE README.md
+    - tar2zip $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz
 deploy:
   provider: releases
   token:
     secure: d4Xv49I+X8yl4byTCPf0cOO7SCeMq+biRvW4wgTxm7UHiKTbSrOxdcLlhOHxxoAXH815y+g4eC0Ap9qdrZUGYj0ZN6abOm0/gkPiDvl1YEltE0FmEqsvtfGkJP3Tu42vfy6JRGIgC/KwCJ1/WyDiRQQFbMNvgiookd5JaFVLmC0cBSYW+CNuwawhZtV6fjm8iX2hMYEpydkGaA5x7SMkjUeP75hxw+xa/dYrCg2PQKHu6YndWJakWt1J7vsNtbGWI8VYP2DtRSOeYTA6b8fW/jXqepsPyKjGj+Rx/Ewq4GSO//g65JZslYZrRVBrRZ17xaaQzjfzHBgJPFgUtxfU0iTGyVYXlq1f+UpL+wI6qQPebHgww3kw0utcqIXBemZnyALMnDhFIjqUDfUadsvvUzGm0bIbs7o0logyxUrfKK3YsVuxmRP3uYtBegtgQ8HQVTB111Dxr8/AkDOnZOorDfitq4iAqYO+MeiwBp5zu4CBssLCmLPszgDC/TEILSf0r8Cd0MWCRLogkL2x+rF89pKsWJkxQNG4yc3OOt1myPgmXjktJz3Me0EUDbzvJQ6pAZTnJJ3bUiyMYZsgs08aO6RxRzeI04UIDt9n8vzYRxbit6tZJKBIeG/8w/h5O52l7oDVKjyFioNkjcS1nYhEvIH7dQIx2RCA7hK5PIE344c=
   skip_cleanup: true
-  file: $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz
+  file: 
+    - $GLPI_PLUGIN_NAME-$TRAVIS_TAG.tar.gz
+    - $GLPI_PLUGIN_NAME-$TRAVIS_TAG.zip
   name: $RELEASE_NAME
   release_notes: $RELEASE_BODY
   prerelease: false
