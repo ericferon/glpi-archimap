@@ -22,6 +22,10 @@ function hideGlpi()
 	if (footer) footer.style.display = 'none';
 	var page = document.getElementById('page');
 	if (page) page.style.display = 'none';
+	var aside = document.getElementsByTagName('aside')[0];
+	if (aside) aside.style.display = 'none';
+	var header10 = document.getElementsByTagName('header')[0];
+	if (header10) header10.style.display = 'none';
 };
 // display drawio editor
 function showDrawio()
@@ -77,7 +81,7 @@ DiagramEditor.prototype.config = null;
  */
 // Modified EFE 20200930 - Build drawDomain dynamically
 DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/front')) + '/drawio/src/main/webapp/';
-DiagramEditor.prototype.rootDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/plugins'));
+DiagramEditor.prototype.rootUrl = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,(window.location.pathname.indexOf('/marketplace')>=0?window.location.pathname.indexOf('/marketplace'):window.location.pathname.indexOf('/plugins')));
 //DiagramEditor.prototype.drawDomain = 'https://embed.diagrams.net/';
 // End of Modified EFE 20200930 - Build drawDomain dynamically
 
@@ -202,8 +206,8 @@ DiagramEditor.prototype.editElement = function(elem)
 													[// load plugin needed to autocomplete and to modify graph's display preferences
 													'../../../../drawio-integration/plugins/Repository.js',
 													'../../../../drawio-integration/ext/jquery/jquery.min.js',
-													'../../../../drawio-integration/ext/jquery/jquery-ui.min.js', 
-													'../../../../drawio-integration/ext/jquery/jquery-ui.min.css',
+													'../../../../drawio-integration/ext/jquery/jquery-ui.js', 
+													'../../../../drawio-integration/ext/jquery/jquery-ui.css',
 													// load libraries needed by Alpaca
 													'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
 													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
@@ -227,8 +231,8 @@ DiagramEditor.prototype.editElement = function(elem)
 								diaedit.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
 													'../../../../drawio-integration/plugins/Repository.js',
 													'../../../../drawio-integration/ext/jquery/jquery.min.js',
-													'../../../../drawio-integration/ext/jquery/jquery-ui.min.js', 
-													'../../../../drawio-integration/ext/jquery/jquery-ui.min.css',
+													'../../../../drawio-integration/ext/jquery/jquery-ui.js', 
+													'../../../../drawio-integration/ext/jquery/jquery-ui.css',
 													// load libraries needed by Alpaca
 													'../../../../drawio-integration/ext/alpaca/handlebars.min.js', 
 													'../../../../drawio-integration/ext/handsontable/dist/handsontable.full.min.js',
@@ -272,7 +276,7 @@ DiagramEditor.prototype.editElement = function(elem)
     
 					}
 				};
-				xhr2.open("GET", DiagramEditor.prototype.rootDomain + "/apirest.php/initSession/", true);
+				xhr2.open("GET", DiagramEditor.prototype.rootUrl + "/apirest.php/initSession/", true);
 				xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 				xhr2.setRequestHeader("App-Token", user.app_token);
 				xhr2.setRequestHeader("Authorization", 'user_token '+user.user_token);

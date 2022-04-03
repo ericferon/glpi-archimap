@@ -1067,6 +1067,51 @@ EditorUi.prototype.updateTabContainer = function()
 //mxGraph.prototype.pageFormat = mxConstants.PAGE_FORMAT_A4_PORTRAIT;
 mxGraph.prototype.pageFormat = mxConstants.PAGE_FORMAT_A4_LANDSCAPE;
 
+// inspired from mxClient.js
+/**
+ * Function: createDefaultVertexStyle
+ *
+ * Creates and returns the default vertex style.
+ */
+mxStylesheet.prototype.createDefaultVertexStyle = function()
+{
+	var style = new Object();
+
+	style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_RECTANGLE;
+	style[mxConstants.STYLE_PERIMETER] = mxPerimeter.RectanglePerimeter;
+	style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+	style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+//	style[mxConstants.STYLE_FILLCOLOR] = '#C3D9FF';
+	style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
+//	style[mxConstants.STYLE_STROKECOLOR] = '#6482B9';
+	style[mxConstants.STYLE_STROKECOLOR] = '#000000';
+//	style[mxConstants.STYLE_FONTCOLOR] = '#774400';
+	style[mxConstants.STYLE_FONTCOLOR] = '#000000';
+
+	return style;
+};
+
+/**
+ * Function: createDefaultEdgeStyle
+ *
+ * Creates and returns the default edge style.
+ */
+mxStylesheet.prototype.createDefaultEdgeStyle = function()
+{
+	var style = new Object();
+
+	style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
+	style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_CLASSIC;
+	style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
+	style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
+//	style[mxConstants.STYLE_STROKECOLOR] = '#6482B9';
+	style[mxConstants.STYLE_STROKECOLOR] = '#000000';
+//	style[mxConstants.STYLE_FONTCOLOR] = '#446299';
+	style[mxConstants.STYLE_FONTCOLOR] = '#000000';
+
+	return style;
+};
+
 /**
  * Variable: custompreferences
  *
@@ -2799,6 +2844,7 @@ PropertiesPanel.prototype.init = function()
 	var editor = ui.editor;
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
+//	var ss = ui.getSelectionState();
 	
 	this.container.appendChild(this.addProperties(this.createPanel()));
 };
@@ -2812,6 +2858,7 @@ PropertiesPanel.prototype.addProperties = function(div)
 	var editor = ui.editor;
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
+//	var ss = ui.getSelectionState();
 	// Create table 
 	div.style.paddingTop = '0px';
 	div.style.paddingBottom = '2px';
