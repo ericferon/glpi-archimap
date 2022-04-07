@@ -80,10 +80,13 @@ DiagramEditor.prototype.config = null;
  * Protocol and domain to use.
  */
 // Modified EFE 20200930 - Build drawDomain dynamically
-DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,window.location.pathname.indexOf('/front')) + '/drawio/src/main/webapp/';
-DiagramEditor.prototype.rootUrl = document.location.protocol + '//' + document.location.hostname + document.location.pathname.substring(0,(document.location.pathname.indexOf('/marketplace')>=0?document.location.pathname.indexOf('/marketplace'):document.location.pathname.indexOf('/plugins')));
-// Append port number if different from empty string
+DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname;
+DiagramEditor.prototype.drawDomain += (document.location.port && document.location.port != "") ? ':' + document.location.port : '';
+DiagramEditor.prototype.drawDomain += document.location.pathname.substring(0,document.location.pathname.indexOf('/front')) + '/drawio/src/main/webapp/';
+DiagramEditor.prototype.rootUrl = document.location.protocol + '//' + document.location.hostname;
 DiagramEditor.prototype.rootUrl += (document.location.port && document.location.port != "") ? ':' + document.location.port : '';
+DiagramEditor.prototype.rootUrl += document.location.pathname.substring(0,(document.location.pathname.indexOf('/marketplace')>=0?document.location.pathname.indexOf('/marketplace'):document.location.pathname.indexOf('/plugins')));
+// Append port number if different from empty string
 //DiagramEditor.prototype.drawDomain = 'https://embed.diagrams.net/';
 // End of Modified EFE 20200930 - Build drawDomain dynamically
 

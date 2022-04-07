@@ -24,9 +24,10 @@
  */
 window.DRAWIOINTEGRATION_PATH = '../../../../drawio-integration';
 window.EXPORT_URL = 'https://convert.diagrams.net/node/export';
-window.ROOT_PATH = document.location.protocol + '//' + document.location.hostname + window.location.pathname.substring(0,(window.location.pathname.indexOf('/marketplace')>=0?window.location.pathname.indexOf('/marketplace'):window.location.pathname.indexOf('/plugins')));
-// Append port number if different from empty string
+window.ROOT_PATH = window.location.protocol + '//' + window.location.hostname;
 window.ROOT_PATH += (window.location.port && window.location.port != "") ? ':' + window.location.port : '';
+window.ROOT_PATH += window.location.pathname.substring(0,(window.location.pathname.indexOf('/marketplace')>=0?window.location.pathname.indexOf('/marketplace'):window.location.pathname.indexOf('/plugins')));
+// Append port number if different from empty string
 Draw.loadPlugin(function(editorUi)
 {
 	console.log('entering autocomplete plugin', editorUi);
