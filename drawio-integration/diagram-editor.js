@@ -611,6 +611,10 @@ DiagramEditor.prototype.handleMessage = function(msg)
 		if (footer && footer.style) footer.style.display = 'inline';
 		var page = document.getElementById('page');
 		if (page) page.style.display = 'inline';
+		var aside = document.getElementsByTagName('aside')[0];
+		if (aside) aside.style.display = 'flex';
+		var header10 = document.getElementsByTagName('header')[0];
+		if (header10) header10.style.display = 'flex';
 		var diagramtab = $('a[title="Diagram"]');
 		if (diagramtab.length > 0)	diagramtab[0].click();	
 		// add event on 2nd tab to show full screen drawing pane
