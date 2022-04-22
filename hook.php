@@ -25,7 +25,7 @@
  */
 
 function plugin_archimap_install() {
-   global $DB;
+   global $DB, $CFG_GLPI;
 
    include_once (Plugin::getPhpDir("archimap")."/inc/profile.class.php");
 
@@ -75,7 +75,7 @@ function plugin_archimap_install() {
    }
    
 	if ($DB->TableExists("glpi_plugin_archimap_configs")) {
-		include (Plugin::getPhpDir("archimap")."/scripts/copystylestodb.php");
+		include (Plugin::getPhpDir("archimap")."/ajax/copystylestodb.php");
 	}
 
    if ($update) {
@@ -174,7 +174,7 @@ function plugin_archimap_postinit() {
 
 function plugin_archimap_AssignToTicket($types) {
 
-   if (Session::haveRight("plugin_archimap_open_ticket", "1")) {
+   if (Session::haveRight("plugin_archimap_open_ticket", READ)) {
       $types['PluginArchimapGraph']=PluginArchimapGraph::getTypeName(2);
    }
    return $types;
