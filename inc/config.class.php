@@ -145,15 +145,15 @@ class PluginArchimapConfig extends CommonDBTM {
 
       echo "<tr class='tab_bg_1'>";
       //type
-      echo "<td>".__('Type').": </td>";
+      echo "<td>".__('Type')."</td>";
       echo "<td>";
 //      Dropdown::show('PluginArchimapConfigtype', ['value' => $this->fields['plugin_archimap_configtypes_id']]);
-      Html::autocompletionTextField($this,"type", array('size' => 50, 'attrs' => ['size' => 50]));
+      echo Html::input('type',['value' => $this->fields['type'], 'id' => "type" , 'size' => 50]);
       echo "</td>";
       //key
       echo "<td>".__('Key')."</td>";
       echo "<td>";
-      Html::autocompletionTextField($this,"key", array('size' => 50, 'attrs' => ['size' => 50]));
+      echo Html::input('key',['value' => $this->fields['key'], 'id' => "key" , 'size' => 50]);
       echo "</td>";
 	  echo "</tr>";
 	  
@@ -162,7 +162,6 @@ class PluginArchimapConfig extends CommonDBTM {
       echo "<td>".__('Value', 'archimap')."</td>";
       echo "<td colspan='3'>";
       echo "<textarea cols='100' rows='1' name='value'>".$this->fields["value"]."</textarea>";
-//      Html::autocompletionTextField($this,"value",array('size' => 130, 'attrs' => ['size' => 130]));
       echo "</td>";
 	  echo "</tr>";
 	  

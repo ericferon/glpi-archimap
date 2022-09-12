@@ -74,15 +74,16 @@ class PluginArchimapDiagram extends CommonDBChild {
       return $input;
    }
 
-   function showForm (CommonGLPI $item, $options=[]) {
+   function showForm ($ID, $options=[]) {
 
       if (!$this->canView()) return false;
 
+//		$this->initForm($ID, $options);
+//		$this->showFormHeader($options);
 //      echo "<tr><td>graph content</td><td>";
-//      Html::autocompletionTextField($item,"graph",array('size' => "20"));
-		Html::autocompletionTextField($item,"id",array('size' => "20", 'option' => "type='hidden'"));
-		Html::autocompletionTextField($item,"name",array('size' => "20", 'option' => "type='hidden'"));
-		Html::autocompletionTextField($item,"graph",array('size' => "20", 'option' => "type='hidden'"));
+		echo Html::input("id",['value' => $ID->fields['id'], 'id' => "id", 'size' => "20", 'option' => "type='hidden'"]);
+		echo Html::input("name",['value' => $ID->fields['name'], 'id' => "name", 'size' => "50", 'option' => "type='hidden'"]);
+		echo Html::input("graph",['value' => $ID->fields['graph'], 'id' => "graph", 'size' => "100", 'option' => "type='hidden'"]);
 //      echo "</td></tr>";
 //		get list of file names in drawio-integration/libraries to upload custom libraries
 		$customlibs = [];
