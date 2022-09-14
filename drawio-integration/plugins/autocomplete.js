@@ -143,6 +143,7 @@ Draw.loadPlugin(function(editorUi)
 					thisCell.customproperties['autocompleteaddedclass'] = classlist;
 				}
 			}
+			thisEditor.graph.refresh();
 		}
 	}
 

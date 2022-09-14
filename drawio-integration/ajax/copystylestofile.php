@@ -34,11 +34,11 @@
 
 //include ('../../../inc/includes.php');
 
-// read input file name from DB (entry STYLEFILE/DESTINATION)
+// read output file name from DB (entry STYLEFILE/DESTINATION)
 $query = "SELECT `value` FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLEFILE' and `key` = 'DESTINATION'";
 if ($result=$DB->query($query)) {
 	$data=$DB->fetchAssoc($result);
-	if ($data['value'])
+	if (isset($data['value']))
 	{
 		$filename = "../styles/" . $data['value'];
 		$stylesheet = "<mxStylesheet>";
@@ -59,6 +59,7 @@ if ($result=$DB->query($query)) {
 			$dom = new \DOMDocument('1.0');
 			$dom->preserveWhiteSpace = false;
 			$dom->formatOutput = true;
+			Toolbox::logInfo("putpostconfig : opening file $filename (current working dir :".getcwd().")");
 			$dom->loadXML($stylexml->asXML());
 			$rc = file_put_contents($filename, $dom->saveXML()); // pretty print into filename
 			if ($rc)
