@@ -343,18 +343,6 @@ class PluginArchimapGraph extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
-
-//      echo "<tr class='tab_bg_1'>";
-//      echo "<td>";
-      echo Html::input("id",['value' => $this->fields['id'], 'id' => "id", 'type' => "hidden"]);
-//      echo "</td>";
-//      echo Html::input("name",['value' => $ID->fields['name'], 'id' => "name", 'size' => "20", 'option' => "type='hidden'"]);
-//      echo "<td>";
-      echo Html::input("graph",['value' => $this->fields['graph'], 'id' => "graph", 'type' => "hidden"]);
-//      echo "</td>";
-//      echo "</tr>";
-
-
       $this->showFormButtons($options);
 
       return true;

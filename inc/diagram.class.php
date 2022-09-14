@@ -81,9 +81,9 @@ class PluginArchimapDiagram extends CommonDBChild {
 //		$this->initForm($ID, $options);
 //		$this->showFormHeader($options);
 //      echo "<tr><td>graph content</td><td>";
-		echo Html::input("id",['value' => $ID->fields['id'], 'id' => "id", 'size' => "20", 'option' => "type='hidden'"]);
-		echo Html::input("name",['value' => $ID->fields['name'], 'id' => "name", 'size' => "50", 'option' => "type='hidden'"]);
-		echo Html::input("graph",['value' => $ID->fields['graph'], 'id' => "graph", 'size' => "100", 'option' => "type='hidden'"]);
+		echo Html::input("id",['value' => $ID->fields['id'], 'id' => "id", 'size' => "20", 'type' => "hidden"]);
+		echo Html::input("name",['value' => $ID->fields['name'], 'id' => "name", 'size' => "50", 'type' => "hidden"]);
+		echo Html::input("graph",['value' => $ID->fields['graph'], 'id' => "graph", 'size' => "100", 'type' => "hidden"]);
 //      echo "</td></tr>";
 //		get list of file names in drawio-integration/libraries to upload custom libraries
 		$customlibs = [];
