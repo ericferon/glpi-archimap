@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
 
-if (strpos($_SERVER['PHP_SELF'],"dropdownTypeDataflows.php")) {
+if (strpos($_SERVER['PHP_SELF'],"dropdownTypeArchimap.php")) {
    $AJAX_INCLUDE=1;
    include ('../../../inc/includes.php');
    header("Content-Type: text/html; charset=UTF-8");
