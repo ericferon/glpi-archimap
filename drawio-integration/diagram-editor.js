@@ -27,6 +27,36 @@ function hideGlpi()
 	var header10 = document.getElementsByTagName('header')[0];
 	if (header10) header10.style.display = 'none';
 };
+function showGlpi() 
+{
+	// come back on the first tab of GLPI
+	// remove iframes
+	var iframe = document.getElementsByTagName('iframe');
+	while (iframe && iframe.length>0)
+	{
+		iframe[0].remove();
+	}
+	// display back the header, footer and page HTML elements
+	var header = document.getElementById('header');
+	if (header) header.style.display = 'inline';
+	var footer = document.getElementById('footer');
+	if (footer && footer.style) footer.style.display = 'inline';
+	var page = document.getElementById('page');
+	if (page) page.style.display = 'inline';
+	var aside = document.getElementsByTagName('aside')[0];
+	if (aside) aside.style.display = 'flex';
+	var header10 = document.getElementsByTagName('header')[0];
+	if (header10) header10.style.display = 'flex';
+	var diagramtab = $('a[title="Diagram"]');
+	if (diagramtab.length > 0)	diagramtab[0].click();	
+	// add event on 2nd tab to show full screen drawing pane
+	document.querySelector('a[title="Drawing Pane"]').addEventListener("click",(function() {hideGlpi();showDrawio()}));
+};
+function hideDrawio() 
+{
+	var geeditor = document.getElementsByTagName('geEditor')[0];
+	if (geeditor) geeditor.style.display = 'none';
+};
 // display drawio editor
 function showDrawio()
 {
@@ -120,21 +150,21 @@ DiagramEditor.prototype.editElement = function(elem)
     var getSessionToken = function()
     {
         let tables = {};
-        tables['app_token'] = {'table' : 'glpi_plugin_archimap_configs', 
-                    'column' : 'key, value', 
-                    'where' : 'type = "APP_TOKEN"'};
+        tables['app_token'] = {'column' : 'key, value', 
+					'type' : 'APP_TOKEN'};
         var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
 				app_token = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
-				user.app_token = app_token['app_token'][''].value;
-				var xhr2 = new XMLHttpRequest();
-				xhr2.onreadystatechange = function() {
-					if (xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 0)) {
-						session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
-						user.session_token = session_token.session_token;
-						// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
-						diaedit.config = {'libraries' : [ {
+				if (app_token['app_token']['']) {
+					user.app_token = app_token['app_token'][''].value;
+					var xhr2 = new XMLHttpRequest();
+					xhr2.onreadystatechange = function() {
+						if (xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 0)) {
+							session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
+							user.session_token = session_token.session_token;
+							// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
+							diaedit.config = {'libraries' : [ {
 														"title": { "main": "Custom"},
 														"entries": [ { "id": "glpi",
 																	"title": { "main": "GLPI"},
@@ -143,71 +173,72 @@ DiagramEditor.prototype.editElement = function(elem)
 																	} ]
 														} ]
 										};
-					    // fill in config with libraries from "getlibraries" on central repository
-					    var getLibraries = function(type, key, libconfig, success, error)
-					    {
-					        let tables = {};
-					        tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
-					                    'column' : 'key, value', 
-					                    'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
-					        var xhr3 = new XMLHttpRequest();
-							xhr3.onreadystatechange = function() {
-								if (xhr3.readyState == 4 && (xhr3.status == 200 || xhr3.status == 0)) {
-									datas = JSON && JSON.parse(xhr3.responseText) || $.parseJSON(xhr3.responseText);
-					                success(datas, libconfig);
-								}
-							};
-							xhr3.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
-							xhr3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-							xhr3.send(JSON.stringify(tables));
-					    }
-					    var success = function(repolibs, libconfig)
-						{
-					        var decodeHTML = function (html) {
-					            var txt = document.createElement('textarea');
-					            txt.innerHTML = html;
-					            return txt.value;
-					        };
-					        var ExtractTagFromXml = function (xml, tag) {
-					            var parser = new DOMParser();
-					            var xmlDoc = parser.parseFromString(xml,"text/xml");
-					            if (tag)
-					            {
-					                return JSON.parse(xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue);
-					            }
-					            else
-					            {
-					                return xmlDoc;
-					            }
-            
-					        };
-					        if (repolibs && repolibs['param'])
-					        {
-					            var arrayLength = repolibs['param'].length;
-					            var istart = libconfig.length;
-					            for (var i = 0 in repolibs['param'])
-					            {
-//					              var data = new XMLSerializer().serializeToString(ExtractTagFromXml(decodeHTML(repolibs['param'][i].value)));
-					                var data = ExtractTagFromXml(decodeHTML(repolibs['param'][i].value), 'mxlibrary');
-					                libconfig[istart] = 
-					                    {"title" : {"main" : repolibs['param'][i].key.replace(/_/g, " ")}, // replace underscore by space in file name
-										"data" : data};
-					                istart++;
-					            }
-					        }
-							// fill in config with libraries from "drawio-extension/libraries" directory on server
-							var customlibsurl = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio-integration/libraries/';
-							var istart = diaedit.config.libraries[0].entries[0].libs.length;
-							for (var i=0; i<customlibs.length; i++)
-							{	diaedit.config.libraries[0].entries[0].libs[istart+i] = {"title" : {"main" : customlibs[i].replace(/_/g, " ")}, // replace underscore by space in file name
-											"url" : customlibsurl + customlibs[i] + ".xml", "prefetch" : true};
+							// fill in config with libraries from "getlibraries" on central repository
+							var getLibraries = function(type, key, libconfig, success, error)
+							{
+								let tables = {};
+								tables['param'] = {'column' : 'key, value', 
+												'type' : type};
+								if (key)
+									tables['param'].key;
+								var xhr3 = new XMLHttpRequest();
+								xhr3.onreadystatechange = function() {
+									if (xhr3.readyState == 4 && (xhr3.status == 200 || xhr3.status == 0)) {
+										datas = JSON && JSON.parse(xhr3.responseText) || $.parseJSON(xhr3.responseText);
+										success(datas, libconfig);
+									}
+								};
+								xhr3.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
+								xhr3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+								xhr3.send(JSON.stringify(tables));
 							}
-							// add the "plugins" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
-							if (user && user.role && user.role.toLowerCase().includes("admin"))
-							{	// user role contains "admin"
-								diaedit.config.plugin_rootdir = window.plugin_rootdir;
-								diaedit.config.user = user;
-								diaedit.config.plugins = 
+							var success = function(repolibs, libconfig)
+							{
+								var decodeHTML = function (html) {
+									var txt = document.createElement('textarea');
+									txt.innerHTML = html;
+									return txt.value;
+								};
+								var ExtractTagFromXml = function (xml, tag) {
+									var parser = new DOMParser();
+									var xmlDoc = parser.parseFromString(xml,"text/xml");
+									if (tag)
+									{
+										return JSON.parse(xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue);
+									}
+									else
+									{
+										return xmlDoc;
+									}
+            
+								};
+								if (repolibs && repolibs['param'])
+								{
+									var arrayLength = repolibs['param'].length;
+									var istart = libconfig.length;
+									for (var i = 0 in repolibs['param'])
+									{
+//					            	  var data = new XMLSerializer().serializeToString(ExtractTagFromXml(decodeHTML(repolibs['param'][i].value)));
+										var data = ExtractTagFromXml(decodeHTML(repolibs['param'][i].value), 'mxlibrary');
+										libconfig[istart] = 
+											{"title" : {"main" : repolibs['param'][i].key.replace(/_/g, " ")}, // replace underscore by space in file name
+											"data" : data};
+										istart++;
+									}
+								}
+								// fill in config with libraries from "drawio-extension/libraries" directory on server
+								var customlibsurl = document.location.protocol + '//' + document.location.hostname + window.location.pathname.split('/').slice(0,4).join('/') + '/drawio-integration/libraries/';
+								var istart = diaedit.config.libraries[0].entries[0].libs.length;
+								for (var i=0; i<customlibs.length; i++)
+								{	diaedit.config.libraries[0].entries[0].libs[istart+i] = {"title" : {"main" : customlibs[i].replace(/_/g, " ")}, // replace underscore by space in file name
+											"url" : customlibsurl + customlibs[i] + ".xml", "prefetch" : true};
+								}
+								// add the "plugins" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
+								if (user && user.role && user.role.toLowerCase().includes("admin"))
+								{	// user role contains "admin"
+									diaedit.config.plugin_rootdir = window.plugin_rootdir;
+									diaedit.config.user = user;
+									diaedit.config.plugins = 
 													[// load plugin needed to autocomplete and to modify graph's display preferences
 													'../../../../drawio-integration/plugins/Repository.js',
 													'../../../../drawio-integration/ext/jquery/jquery.min.js',
@@ -228,12 +259,12 @@ DiagramEditor.prototype.editElement = function(elem)
 													// load plugin needed to link a library's stencil to a (architecture) repository
 													'../../../../drawio-integration/plugins/autocomplete.js', 
 													'../../../../drawio-integration/plugins/link2repo.js'];
-								diaedit.libraries = true;	// allow libraries creation/modification
-							} else
-							{	// user role is normal
-								diaedit.config.user = user;
+									diaedit.libraries = true;	// allow libraries creation/modification
+								} else
+								{	// user role is normal
+									diaedit.config.user = user;
 								
-								diaedit.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
+									diaedit.config.plugins = 	[// load plugin needed to autocomplete and to modify graph's display preferences
 													'../../../../drawio-integration/plugins/Repository.js',
 													'../../../../drawio-integration/ext/jquery/jquery.min.js',
 													'../../../../drawio-integration/ext/jquery/jquery-ui.js', 
@@ -249,43 +280,63 @@ DiagramEditor.prototype.editElement = function(elem)
 													'../../../../drawio-integration/ext/alpaca/alpaca.min.css', 
 													// load plugin needed to link a library's stencil to a (architecture) repository
 													'../../../../drawio-integration/plugins/autocomplete.js'];
-							}
-						// End of Added EFE 20200515
-							var src = diaedit.getElementData(elem);
-							diaedit.startElement = elem;
-							var fmt = diaedit.format;
+								}
+							// End of Added EFE 20200515
+								var src = diaedit.getElementData(elem);
+								diaedit.startElement = elem;
+								var fmt = diaedit.format;
 
-							if (src.substring(0, 15) === 'data:image/png;')
-							{
-								fmt = 'xmlpng';
-							}
-							else if (src.substring(0, 19) === 'data:image/svg+xml;' ||
-								elem.nodeName.toLowerCase() == 'svg')
-							{
-								fmt = 'xmlsvg';
-							}
-							else
-							{
-								fmt = 'xml';
-							}
+								if (src.substring(0, 15) === 'data:image/png;')
+								{
+									fmt = 'xmlpng';
+								}
+								else if (src.substring(0, 19) === 'data:image/svg+xml;' ||
+									elem.nodeName.toLowerCase() == 'svg')
+								{
+									fmt = 'xmlsvg';
+								}
+								else
+								{
+									fmt = 'xml';
+								}
 
-							diaedit.startEditing(src, fmt);
+								diaedit.startEditing(src, fmt);
 
-							return diaedit;
-						};
-					    var error = function()
-					    {
-					        console.log("error during load of repository's libraries");
-					    };
-					    var customlibsrepo = getLibraries('LIBXML', null, diaedit.config.libraries[0].entries[0].libs, success, error);
+								return diaedit;
+							};
+							var error = function()
+							{
+								console.log("error during load of repository's libraries");
+							};
+							var customlibsrepo = getLibraries('LIBXML', null, diaedit.config.libraries[0].entries[0].libs, success, error);
     
-					}
-				};
-				xhr2.open("GET", DiagramEditor.prototype.rootUrl + "/apirest.php/initSession/", true);
-				xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-				xhr2.setRequestHeader("App-Token", user.app_token);
-				xhr2.setRequestHeader("Authorization", 'user_token '+user.user_token);
-				xhr2.send();
+						}
+						else if (xhr2.readyState == 4) {
+							session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
+							alert("Error when initializing the link between Drawio and GLPI : <br/>HTTP initSession error "+xhr2.status+" - "+xhr2.statusText
+								+"<br/>App-Token is "+(user.app_token?"present, but invalid ("+session_token[0]+").":"missing.")
+								+"<br/>user_token is "+(user.user_token?"present.":"missing.")
+							);
+							hideDrawio();
+							showGlpi();
+						}
+					};
+					xhr2.open("GET", DiagramEditor.prototype.rootUrl + "/apirest.php/initSession/", true);
+					xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+					xhr2.setRequestHeader("App-Token", user.app_token);
+					xhr2.setRequestHeader("Authorization", 'user_token '+user.user_token);
+					xhr2.send();
+				}
+				else {
+					alert("Error when getting the APP_TOKEN : "+app_token['app_token']['error'].msg);
+					hideDrawio();
+					showGlpi();
+				}
+			}
+			else if (xhr.readyState == 4) {
+				alert("Error when getting the APP_TOKEN : HTTP error "+xhr.status+" - "+xhr.statusText);
+				hideDrawio();
+				showGlpi();
 			}
 		};
 		xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getconfig.php", true);
@@ -597,28 +648,7 @@ DiagramEditor.prototype.handleMessage = function(msg)
 			this.stopEditing(msg);
 		}
 // Added EFE 20200512
-		// come back on the first tab of GLPI
-		// remove iframes
-		var iframe = document.getElementsByTagName('iframe');
-		while (iframe && iframe.length>0)
-		{
-			iframe[0].remove();
-		}
-		// display back the header, footer and page HTML elements
-		var header = document.getElementById('header');
-		if (header) header.style.display = 'inline';
-		var footer = document.getElementById('footer');
-		if (footer && footer.style) footer.style.display = 'inline';
-		var page = document.getElementById('page');
-		if (page) page.style.display = 'inline';
-		var aside = document.getElementsByTagName('aside')[0];
-		if (aside) aside.style.display = 'flex';
-		var header10 = document.getElementsByTagName('header')[0];
-		if (header10) header10.style.display = 'flex';
-		var diagramtab = $('a[title="Diagram"]');
-		if (diagramtab.length > 0)	diagramtab[0].click();	
-		// add event on 2nd tab to show full screen drawing pane
-		document.querySelector('a[title="Drawing Pane"]').addEventListener("click",(function() {hideGlpi();showDrawio()}));
+		showGlpi();
 // End of Added EFE 20200512
 	}
 };

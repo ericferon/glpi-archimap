@@ -33,25 +33,34 @@ $tables = file_get_contents('php://input');
 if (isset($tables)) {
 	$tables = json_decode($tables);
 } else {
-    die("No 'tables' contained in body of POST request 'getconfig'");
+    die("No query parameters contained in body of POST request 'getconfig'");
 }
 $datas = [];
 foreach($tables as $key => $tablecolumn) {
-	$table = $tablecolumn->table;
+	$table = "glpi_plugin_archimap_configs";
 	$columns = explode(",", str_replace(' ', '', $tablecolumn->column)); // suppress spaces and split on comma
-	$where = ($tablecolumn->where ? " WHERE ".$tablecolumn->where : "");
-	if (!in_array(strtolower($table), $forbidden_tables)) {
-		$query = "SELECT `".implode("`, `", $columns)."` FROM glpi_plugin_archimap_configs $where ORDER BY `".implode("`, `", $columns)."`";
+	if (isset($tablecolumn->type))
+		$where = "`type` = '".strtok($tablecolumn->type, " (\t")."'"; // take only first word
+	else
+		$where = "";
+	if (isset($tablecolumn->type) && isset($tablecolumn->key)) $where .= " AND ";
+	if (isset($tablecolumn->key)) $where .= "`key` = '".strtok($tablecolumn->key, " (\t")."'";
+		$query = "SELECT `".implode("`, `", $columns)."` FROM glpi_plugin_archimap_configs".($where?" WHERE ".$where:"")." ORDER BY `".implode("`, `", $columns)."`";
 //Toolbox::logInFile("gettables", $query."\n");
 //var_dump($query);
 		if ($result=$DB->query($query)) {
-			while ($data=$DB->fetchAssoc($result)) {
-//				$datas[$key][]=$data[$key];
+			if ($DB->numrows($result)>0)
+			{	while ($data=$DB->fetchAssoc($result)) {
 //Toolbox::logInFile("gettables", print_r($datas,TRUE)."\n");
-				$datas[$key][$data[$columns[0]]]=$data;
+					$datas[$key][$data[$columns[0]]]=$data;
+				}
 			}
+			else
+				$datas[$key]["error"]["msg"]="No data found";
 		}
-	} 
+		else {
+			$datas[$key]["error"]["msg"]="SQL error";
+		}
 }
 //var_dump($datas);
 //Toolbox::logInFile("gettables", print_r($datas,TRUE)."\n");
