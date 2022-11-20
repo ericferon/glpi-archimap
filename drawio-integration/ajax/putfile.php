@@ -50,7 +50,11 @@ if (isset($_GET['filename'])) {
     die("No 'filename' parameter in POST request 'putfile'");
 }
 if (isset($_GET['extension'])) {
-	$extension = rawurldecode($_GET['extension']);
+//	$extension = rawurldecode($_GET['extension']);
+    $extension = preg_replace("/[^a-zA-Z]+/", "", rawurldecode($_GET['extension']));
+    if (!in_array(strtolower($extension), [ 'jpg', 'jpeg', 'gif', 'png' ])) {
+        die("invalid 'extension' parameter in POST request 'putfile'");
+    }
 } else {
     die("No 'extension' parameter in POST request 'putfile'");
 }
@@ -74,11 +78,11 @@ if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
 }
 
 file_put_contents("img.{$type}", $data);
-if (file_put_contents(getcwd().'/../'.$dir.'/'.$filename.$extension, $data) === false)
+if (file_put_contents(getcwd().'/../'.$dir.'/'.$filename.'.'.$extension, $data) === false)
 {
 	header('HTTP/1.1 500 Internal Server Error saving file '.getcwd().'/../'.$dir.'/'.$filename.$extension);
 } else {
 	header('HTTP/1.1 200 OK');
-	Toolbox::logInFile('putfile', getcwd().'/../'.$dir.'/'.$filename.$extension." saved\n");
+	Toolbox::logInFile('putfile', getcwd().'/../'.$dir.'/'.$filename.'.'.$extension." saved\n");
 }
 ?>
