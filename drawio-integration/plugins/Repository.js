@@ -380,7 +380,10 @@ Repository.prototype.getLibraries = function(type, key, success, error)
 	let tables = {};
     tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
                     'column' : 'key, value', 
-                    'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
+                    'type' : "LIBXML"};
+//                    'where' : 'type = "LIBXML"' + (key ? ' and `key` = "'+key+'"' : '')};
+	if (key)
+		tables['param']['key'] = key;
 	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '/ajax/getconfig.php', JSON.stringify(tables), 'POST');
 		
 	this.executeRequest(req, mxUtils.bind(this, function(req)
