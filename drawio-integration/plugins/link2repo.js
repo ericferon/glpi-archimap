@@ -842,9 +842,11 @@ App.prototype.getPeerForMode = function(mode)
 					// combine the CSS class tokens, replacing column names with real values
 					for (i = 0; i < classes.length; i++)
 					{
+//						console.log('link2repo datas', datas);
 						cssclass = [''];
 						for (j = 0; j < classes[i].length; j++)
 						{
+//						console.log('link2repo classes', i, j, classes[i][j]);
 							if (!classes[i][j].includes("'") && !classes[i][j].includes('"')) // no single or double quote => this is a column name
 							{
 								cssclass = cartesian(cssclass, datas[classes[i][j]]);
@@ -2743,7 +2745,7 @@ App.prototype.getPeerForMode = function(mode)
 			// save this xml stylesheet
 			repository.writeFile('STYLE', cssList.value, data, null, mxUtils.bind(this, function(message)
 			{
-				this.ui.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
+				editorUi.showError(mxResources.get('error'), message, mxResources.get('ok'), null);
 			}), isNewKey);
 			// add or replace new style sheet to graph object
 			editorUi.editor.graph.getStylesheet().putCellStyle(key, newValueStyle[key]);
