@@ -400,7 +400,10 @@ Repository.prototype.getStyles = function(type, key, success, error)
 	let tables = {};
     tables['param'] = {'table' : 'glpi_plugin_archimap_configs', 
                     'column' : 'key, value', 
-                    'where' : 'type = "STYLE"' + (key ? ' and `key` LIKE "'+key+'"' : '')};
+                    'type' : "STYLE"};
+//                    'where' : 'type = "STYLE"' + (key ? ' and `key` LIKE "'+key+'"' : '')};
+	if (key)
+		tables['param']['key'] = key;
 	var req = new mxXmlRequest(window.DRAWIOINTEGRATION_PATH + '/ajax/getconfig.php', JSON.stringify(tables), 'POST');
 		
 	this.executeRequest(req, mxUtils.bind(this, function(req)
