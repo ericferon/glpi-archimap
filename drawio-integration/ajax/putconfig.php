@@ -35,19 +35,21 @@ if (isset($keys)) {
     die("No 'keys' contained in body of POST request 'getconfig'");
 }
 $datas = [];
+$nbstyles = 0;
 foreach($keys as $key => $typevalue) {
 	$type = $typevalue->type;
 	$value = $typevalue->value;
     $query = "INSERT INTO glpi_plugin_archimap_configs (type, `key`, value ) VALUES ('$type', '$key', '$value');";
-//Toolbox::logInFile("gettables", "puttconfig ".$query."\n");
+//Toolbox::logInFile("gettables", "putconfig ".$query."\n");
 //var_dump($query);
     $result=$DB->query($query);
 	$datas[$key] = $DB->insertId();
+    if ($type == 'STYLE') $nbstyles++;
 }
 //var_dump($result);
 echo json_encode($datas);
 // if one key = STYLE, write all styles into a file
-if (in_array('STYLE', $keys))
+if ($nbstyles)
 {
 	include (Plugin::getPhpDir("archimap")."/drawio-integration/ajax/copystylestofile.php"); // copy STYLE entries into file
 }
