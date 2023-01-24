@@ -28,6 +28,7 @@
 window.DRAWIOINTEGRATION_PATH = '../../../../drawio-integration';
 Draw.loadPlugin(function(ui)
 {
+//	console.log('entering link2repo plugin', ui);
 // Add a mode "repository" (see drawio/src/main/webapp/js/diagramly/App.js)
 	App.MODE_REPOSITORY = 'repository';
 // Adds resource for plugin
@@ -805,7 +806,7 @@ App.prototype.getPeerForMode = function(mode)
 				i++;
 			}
 			// Get the columns names, from customproperties, to build the query and list the available values
-			let columns = cell.customproperties.autocompletejointcolumns.split(',');
+			let columns = cell.customproperties.autocompletejointcolumns.replace(/,[ ]+/gi,',').split(','); // suppress blanks after comma
 			let tables = {};
 			let icolumn = -1;
 			for (i = 0; i<classes.length; i++)
@@ -842,11 +843,9 @@ App.prototype.getPeerForMode = function(mode)
 					// combine the CSS class tokens, replacing column names with real values
 					for (i = 0; i < classes.length; i++)
 					{
-//						console.log('link2repo datas', datas);
 						cssclass = [''];
 						for (j = 0; j < classes[i].length; j++)
 						{
-//						console.log('link2repo classes', i, j, classes[i][j]);
 							if (!classes[i][j].includes("'") && !classes[i][j].includes('"')) // no single or double quote => this is a column name
 							{
 								cssclass = cartesian(cssclass, datas[classes[i][j]]);
