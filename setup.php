@@ -49,6 +49,14 @@ function plugin_init_archimap() {
    //if glpi is loaded
    if (Session::getLoginUserID()) {
 
+      $plugin = new Plugin();
+      // link to fields plugin
+      if ($plugin->isActivated('fields')
+      && Session::haveRight("plugin_archimap", READ))
+      {
+         $PLUGIN_HOOKS['plugin_fields']['archimap'] = 'PluginArchimapGraph';
+      }
+
       if (Session::haveRight("plugin_archimap", READ)
           || Session::haveRight("config", UPDATE)) {
          $PLUGIN_HOOKS['config_page']['archimap']        = 'front/config.php';
@@ -89,7 +97,7 @@ function plugin_version_archimap() {
 
    return array (
       'name' => _n('Diagram', 'Diagrams', 2, 'archimap'),
-      'version' => '3.2.18',
+      'version' => '3.2.19',
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=>'https://github.com/ericferon/glpi-archimap',
