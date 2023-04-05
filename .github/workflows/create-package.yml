@@ -26,7 +26,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{env.ARCHIVE_NAME}}.tar.gz
+          file: ${{env.ARCHIVE_NAME}}.zip
           tag: ${{env.TAG_NAME}}
           overwrite: true
           prerelease: false
