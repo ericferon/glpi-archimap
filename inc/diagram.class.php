@@ -75,6 +75,7 @@ class PluginArchimapDiagram extends CommonDBChild {
    }
 
    function showForm ($ID, $options=[]) {
+      global $DB;
 
       if (!$this->canView()) return false;
 
@@ -85,6 +86,23 @@ class PluginArchimapDiagram extends CommonDBChild {
 		echo Html::input("name",['value' => $ID->fields['name'], 'id' => "name", 'size' => "50", 'type' => "hidden"]);
 		echo Html::input("graph",['value' => $ID->fields['graph'], 'id' => "graph", 'size' => "100", 'type' => "hidden"]);
 //      echo "</td></tr>";
+//		get app_token
+		$query = "SELECT `value` FROM glpi_plugin_archimap_configs WHERE `type` = 'APP_TOKEN' LIMIT 1";
+		if ($result=$DB->query($query)) {
+			if ($DB->numrows($result)>0)
+			{	while ($data=$DB->fetchAssoc($result)) {
+					$app_token=$data['value'];
+				}
+			}
+			else {
+				die("<div><p>No data found when getting APP_TOKEN in plugin configuration.</p></div>\n");
+				$app_token="";
+			}
+		}
+		else {
+			die("<div><p>SQL error when getting APP_TOKEN in plugin configuration.</p></div>\n");
+			$app_token="";
+		}
 //		get list of file names in drawio-integration/libraries to upload custom libraries
 		$customlibs = [];
 		$customlibslist = glob(Plugin::getPhpDir("archimap").'/drawio-integration/libraries/*.xml');
@@ -99,7 +117,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 //		create a "user" javascript object for passing GLPI user name, role and language
 		echo "<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>\n"; // to solve error message "jQuery is not defined" (cfr https://stackoverflow.com/questions/45741173/jquery-is-not-defined-within-jquery-ui)
 		echo "<script type=\"text/javascript\">window.plugin_rootdir = '".Plugin::getPhpDir("archimap")."';</script>\n"; // plugin's root dir
-		echo "<script type=\"text/javascript\">var user = {}; user.name = '".$_SESSION['glpiname']."'; user.role = '".$_SESSION['glpiactiveprofile']['name']."'; user.language = '".$_SESSION['glpilanguage']."'; user.user_token = '".User::getToken($_SESSION['glpiID'], 'api_token')."';</script>\n"; // get active profile name (e.g "super-admin", ...)
+		echo "<script type=\"text/javascript\">var user = {}; user.name = '".$_SESSION['glpiname']."'; user.role = '".$_SESSION['glpiactiveprofile']['name']."'; user.language = '".$_SESSION['glpilanguage']."'; user.user_token = '".User::getToken($_SESSION['glpiID'], 'api_token')."'; user.app_token = '".$app_token."';</script>\n"; // get active profile name (e.g "super-admin", ...)
 //		create a "customlibs" javascript object for passing an array of custom libraries
 		echo "<script type=\"text/javascript\">var customlibs = ".json_encode($customlibs).";</script>\n"; // get list of file names in drawio-integration/libraries to upload custom libraries
 		echo "<div class=\"geEditor\" style=\"position:relative;width:100%;overflow;cursor:default;margin-left:auto;margin-right:auto;\">\n";
