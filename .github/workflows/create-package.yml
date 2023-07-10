@@ -20,7 +20,7 @@ jobs:
       - name: Create archive
         run: |
           npm i tar-to-zip -g
-          tar --transform "s%^%$PLUGIN_NAME/%" --show-transformed -zcvf "$ARCHIVE_NAME".tar.gz ajax drawio drawio-integration front inc locales sql graph.png *.xml *.php  LICENSE README.md INSTALL.md
+          tar --transform "s%^%$PLUGIN_NAME/%" --show-transformed -zcvf "$ARCHIVE_NAME".tar.gz ajax public front inc locales sql graph.png *.xml *.php  LICENSE README.md INSTALL.md
           tar2zip "$ARCHIVE_NAME".tar.gz
       - name: Upload tarfile to release
         uses: svenstaro/upload-release-action@v2
