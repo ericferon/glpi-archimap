@@ -25,6 +25,7 @@
  */
  
 class PluginArchimapConfigMenu extends CommonGLPI {
+   static $rightname = 'plugin_archimap_configuration';
 
    static function getMenuName() {
       return _n('Diagram Configuration', 'Diagrams configuration', 2, 'archimap');

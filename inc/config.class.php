@@ -31,42 +31,13 @@ if (!defined('GLPI_ROOT')) {
 class PluginArchimapConfig extends CommonDBTM {
 
    public $dohistory=true;
-   static $rightname = "plugin_archimap";
+   static $rightname = "plugin_archimap_configuration";
    protected $usenotepad         = true;
    
    static function getTypeName($nb=0) {
 
-      return __('Diagrams configuration');
+      return __('Diagrams configuration', "archimap");
    }
-
-/*   function getTabNameForItem(CommonGLPI $item, $withtemplate=0) {
-
-      if ($item->getType()=='Supplier') {
-         if ($_SESSION['glpishow_count_on_tabs']) {
-            return self::createTabEntry(self::getTypeName(2), self::countForItem($item));
-         }
-         return self::getTypeName(2);
-      }
-      return '';
-   }
-
-
-   static function displayTabContentForItem(CommonGLPI $item, $tabnum=1, $withtemplate=0) {
-
-      if ($item->getType()=='Supplier') {
-         $self = new self();
-         $self->showPluginFromSupplier($item->getField('id'));
-      }
-      return true;
-   }
-
-   static function countForItem(CommonDBTM $item) {
-
-      $dbu = new DbUtils();
-      return $dbu->countElementsInTable('glpi_plugin_archimap_graphs',
-                                  "`suppliers_id` = '".$item->getID()."'");
-   }
-*/
 
    // search fields from GLPI 9.3 on
    function rawSearchOptions() {

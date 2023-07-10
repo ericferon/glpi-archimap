@@ -31,7 +31,7 @@ if (!defined('GLPI_ROOT')) {
 // Class for a Dropdown
 class PluginArchimapConfigtype extends CommonDropdown {
 
-   static $rightname = "plugin_archimap";
+   static $rightname = "plugin_archimap_configuration";
    
    static function getTypeName($nb=0) {
 
