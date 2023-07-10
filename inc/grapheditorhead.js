@@ -96,7 +96,7 @@
 
 // URLs for save and export
 //		var EXPORT_URL = '/mxgraph/NewExport';
-		window.DRAWIO_WEBAPP = '../drawio/src/main/webapp';
+		window.DRAWIO_WEBAPP = '../public/drawio/src/main/webapp';
 		
 		// URLs for save and export (from js/mxgraph/Init.js)
 		window.EXPORT_URL = window.EXPORT_URL || '/export';
@@ -129,8 +129,9 @@
 // Modified EFE 20200930
 		// GLPI embedding
 		window.mxBasePath = window.DRAWIO_WEBAPP + '/mxgraph';
+		window.mxLoadStylesheets = false;
 		window.REALTIME_URL = window.REALTIME_URL || (window.DRAWIO_WEBAPP + 'cache');
-		window.DRAWIOINTEGRATION_PATH = '../drawio-integration';
+		window.DRAWIOINTEGRATION_PATH = '../public/drawio-integration';
 // End of Modified EFE 20200930
 
 		// Forces CDN caches by passing URL parameters via URL hash

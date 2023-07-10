@@ -121,27 +121,27 @@ class PluginArchimapDiagram extends CommonDBChild {
 //		create a "customlibs" javascript object for passing an array of custom libraries
 		echo "<script type=\"text/javascript\">var customlibs = ".json_encode($customlibs).";</script>\n"; // get list of file names in drawio-integration/libraries to upload custom libraries
 		echo "<div class=\"geEditor\" style=\"position:relative;width:100%;overflow;cursor:default;margin-left:auto;margin-right:auto;\">\n";
-		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"../drawio/src/main/webapp/styles/grapheditor.css\">\n";
+		echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"../public/drawio/src/main/webapp/styles/grapheditor.css\">\n";
 
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorhead.js\"></script>\n";
 		echo "<div><p>Please ensure JavaScript is enabled.</p><button type=\"button\" onclick=\"hideGlpi();showDrawio()\">".__('Load diagram', 'archimap')."</button></div>\n";
 //		echo "<script type=\"text/javascript\" src=\"../drawio/src/main/webapp/js/log4javascript/log4javascript.js\"></script>\n";
-		echo "<script type=\"text/javascript\" src=\"../drawio-integration/diagram-editor.js\"></script>\n";
+		echo "<script type=\"text/javascript\" src=\"../public/drawio-integration/diagram-editor.js\"></script>\n";
 		echo "<script type=\"text/javascript\" src=\"../inc/grapheditorbody.js\"></script>\n";
 		echo "</div>\n";
 
-		require_once Plugin::getPhpDir("archimap")."/drawio-integration/ext/js-fileexplorer/server-side-helpers/file_explorer_fs_helper.php";
+		require_once Plugin::getPhpDir("archimap")."/public/drawio-integration/ext/js-fileexplorer/server-side-helpers/file_explorer_fs_helper.php";
 
 		$options = array(
-		"base_url" => Plugin::getWebDir("archimap")."/drawio-integration/images/",
+		"base_url" => Plugin::getWebDir("archimap")."/public/drawio-integration/images/",
 		"protect_depth" => 1,  // Protects base directory + additional directory depth.
 		"recycle_to" => "Recycle Bin",
 		"temp_dir" => "/tmp",
 		"dot_folders" => false,  // .git, .svn, .DS_Store
 		"allowed_exts" => ".jpg, .jpeg, .png, .gif, .svg, .txt",
 		"allow_empty_ext" => false,
-		"thumbs_dir" => Plugin::getPhpDir("archimap")."/drawio-integration/images",
-		"thumbs_url" => Plugin::getWebDir("archimap")."/drawio-integration/images/",
+		"thumbs_dir" => Plugin::getPhpDir("archimap")."/public/drawio-integration/images",
+		"thumbs_url" => Plugin::getWebDir("archimap")."/public/drawio-integration/images/",
 //		"thumb_create_url" => "https://localhost/fileexplorer?action=file_explorer_thumbnail&xsrftoken=qwerasdf",
 		"refresh" => true,
 		"rename" => false,
@@ -161,7 +161,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		"delete" => false
 	);
 
-		FileExplorerFSHelper::HandleActions("file_explorer_refresh", "file_explorer_", Plugin::getPhpDir("archimap")."/drawio-integration/images", $options);
+		FileExplorerFSHelper::HandleActions("file_explorer_refresh", "file_explorer_", Plugin::getPhpDir("archimap")."/public/drawio-integration/images", $options);
 
 
 //      $options['candel'] = false;

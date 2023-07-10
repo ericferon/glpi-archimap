@@ -1,0 +1,54 @@
+<script type="text/x-handlebars-template">
+
+    {{#compare actionbarStyle "left"}}
+        <div class="alpaca-array-item-flex-container">
+            {{#if dragAndDrop}}
+            <i class="glyphicon glyphicon-menu-hamburger alpaca-array-item-move"></i>
+            {{/if}}
+            <div>
+                {{#arrayActionbar}}{{/arrayActionbar}}
+            </div>
+            <div class="alpaca-array-item-flex-1">
+                {{#itemField}}{{/itemField}}
+            </div>
+        </div>
+    {{else}}
+        {{#compare actionbarStyle "right"}}
+        <div class="alpaca-array-item-flex-container">
+            {{#if dragAndDrop}}
+            <i class="glyphicon glyphicon-menu-hamburger alpaca-array-item-move"></i>
+            {{/if}}
+            <div class="alpaca-array-item-flex-1">
+                {{#itemField}}{{/itemField}}
+            </div>
+            <div>
+                {{#arrayActionbar}}{{/arrayActionbar}}
+            </div>
+        </div>
+        {{else}}
+            {{#if dragAndDrop}}
+            <div class="alpaca-array-item-flex-container">
+                <i class="glyphicon glyphicon-menu-hamburger alpaca-array-item-move"></i>
+            {{else}}
+            <div>
+            {{/if}}
+                <div class="alpaca-array-item-flex-1">
+                    {{#compare actionbarStyle "top"}}
+                    <div>
+                    {{#arrayActionbar}}{{/arrayActionbar}}
+                    </div>
+                    {{/compare}}
+
+                    {{#itemField}}{{/itemField}}
+
+                    {{#compare actionbarStyle "bottom"}}
+                    <div>
+                    {{#arrayActionbar}}{{/arrayActionbar}}
+                    </div>
+                    {{/compare}} 
+                </div>   
+            </div>
+        {{/compare}}
+    {{/compare}}
+
+</script>

@@ -47,6 +47,8 @@ function plugin_archimap_install() {
 		if ($DB->TableExists("glpi_plugin_archimap_configs")
 		&& ($DB->numrows($DB->query("SELECT * from glpi_plugin_archimap_configs where type = 'APP_TOKEN'")) == 0))
 			$DB->runFile(Plugin::getPhpDir("archimap")."/sql/update-3.1.0.sql");
+        // change path to images as ...archimap/public/drawio-integration/...
+        $DB->runFile(Plugin::getPhpDir("archimap")."/sql/update-3.1.1.sql");
 	}
 
    

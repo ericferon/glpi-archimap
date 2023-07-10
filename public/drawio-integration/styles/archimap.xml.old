@@ -1,0 +1,480 @@
+<?xml version="1.0"?>
+<mxStylesheet>
+  <add as="Active">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="dashed" value="0"/>
+    <add as="opacity" value="100"/>
+    <add as="strokeColor" value="Black"/>
+    <add as="fontColor" value="Black"/>
+    <add as="fillColor" value="#D3D3D3"/>
+  </add>
+  <add as="Application_Business_Custom">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#7EA6E0"/>
+  </add>
+  <add as="Application_Business_Package">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#7EA6E0"/>
+  </add>
+  <add as="Application_Business_Partner">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#40E0D0"/>
+  </add>
+  <add as="Application_Group_Application">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#40E0D0"/>
+  </add>
+  <add as="Application_IT_Application">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#FFD564"/>
+  </add>
+  <add as="Application_IT_Partner">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#FFD564"/>
+  </add>
+  <add as="Application_IT_Service">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#FFD564"/>
+  </add>
+  <add as="Application_typestate">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#7EA6E0"/>
+  </add>
+  <add as="Computer_Active">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="dashed" value="0"/>
+    <add as="opacity" value="100"/>
+    <add as="strokeColor" value="Black"/>
+    <add as="fontColor" value="Black"/>
+    <add as="fillColor" value="#D3D3D3"/>
+  </add>
+  <add as="Computer_In_stock">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="dashed" value="1"/>
+    <add as="opacity" value="75"/>
+  </add>
+  <add as="Computer_Suppressed">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="fillColor" value="#F08080"/>
+  </add>
+  <add as="Database_0_-_In_Design">
+    <add as="dashed" value="1"/>
+    <add as="opacity" value="50"/>
+    <add as="fillColor" value="#989898"/>
+  </add>
+  <add as="Database_1_-_In_Specification" extend="Database_0_-_In_Design"/>
+  <add as="Database_2_-_In_Development" extend="Database_0_-_In_Design"/>
+  <add as="Database_3_-_Active">
+    <add as="shape" value="cylinder3"/>
+    <add as="fillColor" value="#B9E0A5"/>
+    <add as="gradientColor" value="#ffffff"/>
+    <add as="gradientDirection" value="south"/>
+    <add as="strokeColor" value="#FF8000"/>
+    <add as="fontColor" value="#FF0000"/>
+    <add as="dashed" value="1"/>
+    <add as="dashPattern" value="1 1"/>
+    <add as="strokeWidth" value="3"/>
+  </add>
+  <add as="Database_4_-_To_be_stopped" extend="Database_3_-_Active">
+    <add as="fillColor" value="#DB7093"/>
+  </add>
+  <add as="Database_5_-_Stopped" extend="Database_4_-_To_be_stopped"/>
+  <add as="Database_6_-_Removed" extend="Database_4_-_To_be_stopped"/>
+  <add as="Database_7_-_In_maintenance" extend="Database_3_-_Active"/>
+  <add as="DataElement">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#C0DCC0"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="DataElement_Level1" extend="DataElement">
+    <add as="fillColor" value="#C0DCC0"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="DataElement_Level2" extend="DataElement">
+    <add as="fillColor" value="#8fc18f"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="DataElement_Level3" extend="DataElement">
+    <add as="fillColor" value="#b0d3b0"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="Dataflow_0_-_In_Design">
+    <add as="shape" value="connector"/>
+    <add as="dashed" value="1"/>
+    <add as="fontColor" value="#000000"/>
+    <add as="image" value="http://localhost/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
+    <add as="imageAlign" value="left"/>
+    <add as="imageVerticalAlign" value="middle"/>
+    <add as="imageWidth" value="25"/>
+    <add as="imageHeight" value="25"/>
+  </add>
+  <add as="Dataflow_1_-_In_Specification">
+    <add as="shape" value="connector"/>
+    <add as="fontColor" value="#FF0000"/>
+  </add>
+  <add as="Dataflow_2_-_In_Development" extend="In_Development">
+    <add as="shape" value="connector"/>
+  </add>
+  <add as="Dataflow_3_-_Active">
+    <add as="shape" value="connector"/>
+    <add as="opacity" value="60"/>
+    <add as="strokeOpacity" value="60"/>
+    <add as="strokeColor" value="#EA6B66"/>
+    <add as="strokeWidth" value="2"/>
+    <add as="dashed" value="1"/>
+    <add as="fontColor" value="#A680B8"/>
+    <add as="fontSize" value="15"/>
+    <add as="fontStyle" value="5"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Email_128x92.png"/>
+    <add as="imageAlign" value="center"/>
+    <add as="imageVerticalAlign" value="top"/>
+    <add as="imageWidth" value="25"/>
+    <add as="imageHeight" value="25"/>
+  </add>
+  <add as="Dataflow_4_-_To_be_stopped" extend="To_be_removed">
+    <add as="shape" value="connector"/>
+    <add as="fontColor" value="PaleVioletRed"/>
+    <add as="strokeColor" value="PaleVioletRed"/>
+  </add>
+  <add as="Dataflow_5_-_Stopped">
+    <add as="shape" value="undefined"/>
+    <add as="strokeColor" value="#FF0000"/>
+    <add as="fontColor" value="#0000FF"/>
+    <add as="fontStyle" value="7"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="bottom"/>
+    <add as="fontSize" value="16"/>
+  </add>
+  <add as="Dataflow_6_-_Removed" extend="Removed">
+    <add as="shape" value="connector"/>
+  </add>
+  <add as="Dataflow_7_-_In_maintenance" extend="In_Use">
+    <add as="shape" value="connector"/>
+  </add>
+  <add as="Dataflow_Email">
+    <add as="shape" value="connector"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/email_128x92.png"/>
+    <add as="imageWidth" value="16"/>
+    <add as="imageHeight" value="12"/>
+    <add as="imageAlign" value="left"/>
+    <add as="imageVerticalAlign" value="middle"/>
+  </add>
+  <add as="Dataflow_SAP_PO">
+    <add as="shape" value="connector"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
+    <add as="imageWidth" value="48"/>
+    <add as="imageHeight" value="12"/>
+    <add as="imageAlign" value="left"/>
+    <add as="imageVerticalAlign" value="middle"/>
+  </add>
+  <add as="Dataflow_Tibco">
+    <add as="shape" value="connector"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/tibco_128x32.png"/>
+    <add as="imageWidth" value="48"/>
+    <add as="imageHeight" value="12"/>
+    <add as="imageAlign" value="left"/>
+    <add as="imageVerticalAlign" value="middle"/>
+  </add>
+  <add as="Dataflow_WebService">
+    <add as="shape" value="doubleconnector"/>
+    <add as="direction" value="backnforth"/>
+    <add as="dashed" value="1"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/internet_128x128.png"/>
+    <add as="imageWidth" value="16"/>
+    <add as="imageHeight" value="16"/>
+    <add as="imageAlign" value="left"/>
+    <add as="imageVerticalAlign" value="middle"/>
+  </add>
+  <add as="dummy">
+	</add>
+  <add as="Functional_Level2">
+    <add as="fillColor" value="#DBC798"/>
+  </add>
+  <add as="FW_Active">
+    <add as="shape" value="image"/>
+    <add as="fillColor" value="#2AA32A"/>
+    <add as="gradientColor" value="#FF0000"/>
+    <add as="gradientDirection" value="south"/>
+    <add as="opacity" value="50"/>
+    <add as="fillOpacity" value="50"/>
+    <add as="strokeColor" value="#0000FF"/>
+    <add as="strokeWidth" value="3"/>
+    <add as="dashed" value="1"/>
+    <add as="fontColor" value="#FF8000"/>
+    <add as="fontSize" value="14"/>
+    <add as="fontStyle" value="1"/>
+    <add as="align" value="right"/>
+    <add as="verticalAlign" value="bottom"/>
+  </add>
+  <add as="FW_Suppressed">
+    <add as="shape" value="image"/>
+    <add as="fillColor" value="#0000FF"/>
+    <add as="gradientDirection" value="south"/>
+  </add>
+  <add as="In_Development">
+    <add as="shape" value="label"/>
+    <add as="dashed" value="1"/>
+    <add as="opacity" value="50"/>
+    <add as="strokeColor" value="Black"/>
+    <add as="fontColor" value="Black"/>
+  </add>
+  <add as="In_repair" extend="In_Development">
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="dashed" value="1"/>
+    <add as="opacity" value="75"/>
+  </add>
+  <add as="In_stock" extend="In_Development">
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="dashed" value="1"/>
+    <add as="opacity" value="75"/>
+  </add>
+  <add as="In_Use">
+    <add as="shape" value="label"/>
+    <add as="dashed" value="0"/>
+    <add as="opacity" value="100"/>
+    <add as="strokeColor" value="Black"/>
+    <add as="fontColor" value="Black"/>
+  </add>
+  <add as="LinkedCell">
+    <add as="image" value="/glpi/plugins/archimap/drawio/src/main/webapp/img/lib/clip_art/general/UrlLink_128x128.png"/>
+    <add as="imageWidth" value="15"/>
+    <add as="imageHeight" value="15"/>
+    <add as="imageAlign" value="right"/>
+    <add as="imageVerticalAlign" value="top"/>
+  </add>
+  <add as="Missing" extend="To_be_removed">
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="fillColor" value="#F08080"/>
+  </add>
+  <add as="Removed">
+    <add as="shape" value="label"/>
+    <add as="dashed" value="0"/>
+    <add as="opacity" value="100"/>
+    <add as="strokeColor" value="LightGrey"/>
+    <add as="fontColor" value="LightGrey"/>
+    <add as="fillColor" value="#FFFFFF"/>
+  </add>
+  <add as="Stolen" extend="To_be_removed">
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="fillColor" value="#F08080"/>
+  </add>
+  <add as="Supplier">
+    <add as="align" value="center"/>
+    <add as="verticalAlign" value="bottom"/>
+  </add>
+  <add as="Suppressed" extend="To_be_removed">
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="fillColor" value="#F08080"/>
+  </add>
+  <add as="SWComponent_Business_Custom">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+  </add>
+  <add as="SWComponent_Business_Package">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#2AA32A"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="SWComponent_Business_Partner">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#5F9EA0"/>
+    <add as="fontColor" value="#FFFFFF"/>
+  </add>
+  <add as="SWComponent_Datastructure_Cube">
+    <add as="shape" value="cube"/>
+    <add as="fillColor" value="#4682B4"/>
+    <add as="fontColor" value="#FFFFFF"/>
+  </add>
+  <add as="SWComponent_Datastructure_File">
+    <add as="shape" value="document"/>
+    <add as="fillColor" value="#4682B4"/>
+    <add as="fontColor" value="#FFFFFF"/>
+  </add>
+  <add as="SWComponent_Datastructure_Idoc">
+    <add as="shape" value="label"/>
+    <add as="spacing" value="0"/>
+    <add as="spacingTop" value="0"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
+    <add as="imageWidth" value="25"/>
+    <add as="imageHeight" value="25"/>
+    <add as="imageAlign" value="right"/>
+    <add as="imageVerticalAlign" value="bottom"/>
+    <add as="spacingLeft" value="0"/>
+    <add as="align" value="center"/>
+    <add as="verticalAlign" value="middle"/>
+    <add as="fillColor" value="#4682B4"/>
+    <add as="fontColor" value="#FFFFFF"/>
+  </add>
+  <add as="SWComponent_Datastructure_XML">
+    <add as="shape" value="note"/>
+    <add as="fillColor" value="#4682B4"/>
+    <add as="fontColor" value="#FFFFFF"/>
+  </add>
+  <add as="SWComponent_Document_Excel" extend="SWComponent_Webservice">
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/MS-Excel_128x128.png"/>
+  </add>
+  <add as="SWComponent_Document_Folder">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#99ffff"/>
+    <add as="gradientDirection" value="south"/>
+    <add as="fontColor" value="#000000"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Empty_Folder_128x128.png"/>
+    <add as="imageWidth" value="25"/>
+    <add as="imageHeight" value="25"/>
+    <add as="imageAlign" value="right"/>
+    <add as="imageVerticalAlign" value="bottom"/>
+  </add>
+  <add as="SWComponent_Document_Html" extend="SWComponent_Webservice">
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/InternetExplorer_128x128.png"/>
+  </add>
+  <add as="SWComponent_Document_Pdf" extend="SWComponent_Webservice">
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Adobe-pdf_128x128.png"/>
+  </add>
+  <add as="SWComponent_Group_Application" extend="SWComponent_Business_Partner"/>
+  <add as="SWComponent_In_Development">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#4682B4"/>
+    <add as="fontColor" value="#FFFFFF"/>
+    <add as="align" value="center"/>
+    <add as="verticalAlign" value="middle"/>
+  </add>
+  <add as="SWComponent_In_Use">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#2AA32A"/>
+    <add as="gradientColor" value="#FFFF00"/>
+    <add as="gradientDirection" value="west"/>
+    <add as="strokeColor" value="#FFB570"/>
+    <add as="fontColor" value="#FF0000"/>
+    <add as="fontStyle" value="2"/>
+    <add as="align" value="center"/>
+    <add as="verticalAlign" value="top"/>
+  </add>
+  <add as="SWComponent_IT_Application">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="green"/>
+    <add as="gradientColor" value="#FF8000"/>
+    <add as="strokeColor" value="#FF0000"/>
+  </add>
+  <add as="SWComponent_IT_Service">
+    <add as="fillColor" value="green"/>
+    <add as="fontColor" value="red"/>
+  </add>
+  <add as="SWComponent_Level1">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="SWComponent_Level2">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#00CCCC"/>
+    <add as="gradientColor" value="#ffffff"/>
+    <add as="gradientDirection" value="south"/>
+    <add as="opacity" value="50"/>
+    <add as="fillOpacity" value="50"/>
+    <add as="strokeColor" value="#FF0000"/>
+    <add as="strokeWidth" value="2"/>
+    <add as="dashed" value="1"/>
+    <add as="fontColor" value="#0000FF"/>
+    <add as="fontSize" value="16"/>
+    <add as="fontStyle" value="2"/>
+    <add as="align" value="left"/>
+    <add as="verticalAlign" value="top"/>
+    <add as="image" value="/glpi/plugins/archimap/drawio-integration/images/Sap_128x128.png"/>
+    <add as="imageAlign" value="left"/>
+    <add as="imageVerticalAlign" value="bottom"/>
+    <add as="imageWidth" value="25"/>
+    <add as="imageHeight" value="25"/>
+  </add>
+  <add as="SWComponent_Level3">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#4682B4"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="SWComponent_Level4">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#B1DCFE"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="SWComponent_Level5">
+    <add as="fillColor" value="#D8EEFE"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="SWComponent_Level6">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#38678f"/>
+    <add as="fontColor" value="#000000"/>
+  </add>
+  <add as="SWComponent_Level7">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#7ba7cc"/>
+  </add>
+  <add as="SWComponent_Removed" extend="Removed">
+    <add as="dashed" value="1"/>
+    <add as="strokeColor" value="LightGrey"/>
+    <add as="fontColor" value="LightGrey"/>
+  </add>
+  <add as="SWComponent_state">
+    <add as="shape" value="label"/>
+    <add as="perimeter" value="rectanglePerimeter"/>
+    <add as="fillColor" value="#7EA6E0"/>
+    <add as="fontColor" value="#FFFFFF"/>
+  </add>
+  <add as="SWComponent_To_be_removed">
+    <add as="fillColor" value="#DB7093"/>
+  </add>
+  <add as="SWComponent_type" extend="SWComponent_Business_Custom"/>
+  <add as="SWComponent_Webservice">
+    <add as="shape" value="mxgraph.archimate3.application"/>
+    <add as="fillColor" value="#2AA32A"/>
+    <add as="gradientColor" value="#FFB570"/>
+    <add as="gradientDirection" value="north"/>
+    <add as="opacity" value="40"/>
+    <add as="fillOpacity" value="40"/>
+    <add as="strokeColor" value="#0000FF"/>
+    <add as="strokeWidth" value="3"/>
+    <add as="dashed" value="1"/>
+    <add as="dashPattern" value="1 1"/>
+    <add as="fontColor" value="#EA6B66"/>
+    <add as="fontSize" value="18"/>
+    <add as="fontStyle" value="2"/>
+    <add as="horizontal" value="1"/>
+    <add as="align" value="center"/>
+    <add as="verticalAlign" value="middle"/>
+    <add as="image" value="http://localhost/glpi/plugins/archimap/drawio-integration/images/cloud_DE.png"/>
+    <add as="imageAlign" value="right"/>
+    <add as="imageVerticalAlign" value="bottom"/>
+    <add as="imageWidth" value="25"/>
+    <add as="imageHeight" value="25"/>
+  </add>
+  <add as="To_be_removed">
+    <add as="shape" value="label"/>
+    <add as="dashed" value="0"/>
+    <add as="opacity" value="100"/>
+    <add as="strokeColor" value="Black"/>
+    <add as="fontColor" value="Black"/>
+    <add as="fillColor" value="#DB7093"/>
+  </add>
+</mxStylesheet>
