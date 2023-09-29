@@ -25,6 +25,8 @@ function hideGlpi()
 	if (page) page.style.display = 'none';
 	var aside = document.getElementsByTagName('aside')[0];
 	if (aside) aside.style.display = 'none';
+	var breadcrumb = document.getElementsByClassName('secondary-bar')[0];
+	if (breadcrumb) breadcrumb.style.display = 'none';
 	var header10 = document.getElementsByTagName('header')[0];
 	if (header10) header10.style.display = 'none';
 };
@@ -46,6 +48,8 @@ function showGlpi()
 	if (page) page.style.display = 'inline';
 	var aside = document.getElementsByTagName('aside')[0];
 	if (aside) aside.style.display = 'flex';
+	var breadcrumb = document.getElementsByClassName('secondary-bar')[0];
+	if (breadcrumb) breadcrumb.style.display = 'flex';
 	var header10 = document.getElementsByTagName('header')[0];
 	if (header10) header10.style.display = 'flex';
 	var diagramtab = $('a[title="Diagram"]');
@@ -111,7 +115,6 @@ DiagramEditor.prototype.config = null;
  * Protocol and domain to use.
  */
 // Modified EFE 20200930 - Build drawDomain dynamically
-console.log('diagram-editor:',document.location.pathname);
 DiagramEditor.prototype.drawDomain = document.location.protocol + '//' + document.location.hostname;
 DiagramEditor.prototype.drawDomain += (document.location.port && document.location.port != "") ? ':' + document.location.port : '';
 DiagramEditor.prototype.drawDomain += document.location.pathname.substring(0,document.location.pathname.indexOf('/front')) + '/public/drawio/src/main/webapp/';
