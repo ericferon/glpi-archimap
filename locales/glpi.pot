@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-11 15:43+0200\n"
+"POT-Creation-Date: 2023-09-28 22:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,13 +18,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
+#. TRANS : %1$s is the itemtype name,
+#. %2$s is the name of the item (used for headings of a list)
+#: inc/graph_item.class.php:507
+#, php-format
+msgid "%1$s = %2$s"
+msgstr ""
+
+#: inc/graph_item.class.php:235
+msgid "Add an item"
+msgstr ""
+
+#: inc/profile.class.php:124 inc/profile.class.php:156
+msgid "Associable items to a ticket"
+msgstr ""
+
 #: inc/graph_item.class.php:466
 msgctxt "button"
 msgid "Associate a graph"
 msgstr ""
 
-#: hook.php:463
+#: hook.php:463 hook.php:475
 msgid "Associate to the diagram"
+msgstr ""
+
+#: inc/graph.class.php:519
+msgid "Comments"
+msgstr ""
+
+#: inc/profile.class.php:150
+msgid "Configuration"
+msgstr ""
+
+#: inc/profile.class.php:148
+msgid "Create"
+msgstr ""
+
+#: inc/profile.class.php:148
+msgid "Delete permanently"
+msgstr ""
+
+#: inc/graph.class.php:103 inc/graph.class.php:196
+msgid "Description"
 msgstr ""
 
 #: setup.php:77 inc/graph.class.php:47 inc/menu.class.php:31
@@ -34,17 +69,37 @@ msgid_plural "Diagrams"
 msgstr[0] ""
 msgstr[1] ""
 
+#: inc/config.class.php:39
+msgid "Diagrams configuration"
+msgstr ""
+
 #: inc/diagram.class.php:41
 msgid "Drawing Pane"
 msgid_plural "Drawing Pane"
 msgstr[0] ""
 msgstr[1] ""
 
+#: inc/graph.class.php:162 inc/graph.class.php:167 inc/graph.class.php:270
+#: inc/graph.class.php:278 inc/graph.class.php:516 inc/graph_item.class.php:274
+#: inc/graph_item.class.php:493
+msgid "Entity"
+msgstr ""
+
+#: inc/profile.class.php:117
+msgid "General"
+msgstr ""
+
+#. technical maintainer
 #: inc/graph.class.php:122 inc/graph.class.php:228 inc/graph_item.class.php:495
+#: inc/graph.class.php:127 inc/graph.class.php:221 inc/graph.class.php:349
+#: inc/graph_item.class.php:498
 msgid "Graph Maintainer"
 msgstr ""
 
+#. data owner
 #: inc/graph.class.php:129 inc/graph.class.php:224 inc/graph_item.class.php:494
+#: inc/graph.class.php:134 inc/graph.class.php:231 inc/graph.class.php:341
+#: inc/graph_item.class.php:497
 msgid "Graph Owner"
 msgstr ""
 
@@ -54,10 +109,77 @@ msgid_plural "Graphs associated"
 msgstr[0] ""
 msgstr[1] ""
 
-#: inc/diagram.class.php:107
+#: inc/profile.class.php:120
+msgid "Helpdesk"
+msgstr ""
+
+#: inc/config.class.php:83 inc/graph.class.php:157 inc/graph.class.php:167
+#: inc/graph.class.php:262 inc/graph.class.php:278
+msgid "ID"
+msgstr ""
+
+#: inc/graph_item.class.php:276
+msgid "Inventory number"
+msgstr ""
+
+#. key
+#: inc/config.class.php:66 inc/config.class.php:125
+msgid "Key"
+msgstr ""
+
+#: inc/config.class.php:75 inc/graph.class.php:152 inc/graph.class.php:241
+msgid "Last update"
+msgstr ""
+
+#: inc/diagram.class.php:107 inc/diagram.class.php:127
 msgid "Load diagram"
 msgstr ""
 
-#: inc/graph.class.php:215
+#. name of diagrams
+#: hook.php:339 inc/graph.class.php:97 inc/graph.class.php:187
+#: inc/graph.class.php:320 inc/graph.class.php:514 inc/graph_item.class.php:272
+#: inc/graph_item.class.php:491
+msgid "Name"
+msgstr ""
+
+#: inc/profile.class.php:148
+msgid "Put in trashbin"
+msgstr ""
+
+#: inc/profile.class.php:148
+msgid "Read"
+msgstr ""
+
+#: inc/graph_item.class.php:275
+msgid "Serial number"
+msgstr ""
+
+#. short description of diagrams
+#: inc/graph.class.php:215 inc/graph.class.php:333
 msgid "Short description"
+msgstr ""
+
+#. data owner
+#: inc/graph.class.php:356
+msgid "Status"
+msgstr ""
+
+#: inc/graph.class.php:564
+msgid "Transfer"
+msgstr ""
+
+#. type
+#. echo "<th>".PluginArchimapGraphCategory::getTypeName(1)."</th>";
+#: inc/config.class.php:57 inc/config.class.php:119 inc/graph.class.php:325
+#: inc/graph.class.php:518 inc/graph_item.class.php:271
+msgid "Type"
+msgstr ""
+
+#: inc/profile.class.php:148
+msgid "Update"
+msgstr ""
+
+#. short description of diagrams
+#: inc/config.class.php:133
+msgid "Value"
 msgstr ""

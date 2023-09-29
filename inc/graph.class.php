@@ -206,6 +206,14 @@ class PluginArchimapGraph extends CommonDBTM {
       ];
 
       $tab[] = [
+         'id'       => '6',
+         'table'    => 'glpi_plugin_archimap_graphstates',
+         'field'    => 'name',
+         'name'     => PluginArchimapGraphstate::getTypeName(1),
+         'datatype' => 'dropdown'
+      ];
+
+      $tab[] = [
          'id'        => '11',
          'table'     => 'glpi_users',
          'field'     => 'name',
@@ -340,6 +348,13 @@ class PluginArchimapGraph extends CommonDBTM {
       //technical maintainer
       echo "<td>".__('Graph Maintainer', 'archimap')."</td><td>";
       User::dropdown(['name' => "users_id", 'value' => $this->fields["users_id"], 'entity' => $this->fields["entities_id"], 'right' => 'interface']);
+      echo "</td>";
+      echo "</tr>";
+	  
+      echo "<tr class='tab_bg_1'>";
+      //data owner
+      echo "<td>".__('Status')."</td><td>";
+      Dropdown::show('PluginArchimapGraphstate', ['value' => $this->fields['plugin_archimap_graphstates_id']]);
       echo "</td>";
       echo "</tr>";
 
