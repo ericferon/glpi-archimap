@@ -1,0 +1,193 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+# Translators:
+# Soporte Infraestructura Standby, 2023
+# 
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-09-28 22:55+0200\n"
+"PO-Revision-Date: 2023-08-24 15:42+0000\n"
+"Last-Translator: Soporte Infraestructura Standby, 2023\n"
+"Language-Team: Spanish (Ecuador) (https://app.transifex.com/ericferon/teams/174797/es_EC/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es_EC\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#. TRANS : %1$s is the itemtype name,
+#. %2$s is the name of the item (used for headings of a list)
+#: inc/graph_item.class.php:507
+#, php-format
+msgid "%1$s = %2$s"
+msgstr "%1$s = %2$s"
+
+#: inc/graph_item.class.php:235
+msgid "Add an item"
+msgstr "Agregar un elemento"
+
+#: inc/profile.class.php:124 inc/profile.class.php:156
+msgid "Associable items to a ticket"
+msgstr "Elementos asociables a un caso"
+
+#: inc/graph_item.class.php:466
+msgctxt "button"
+msgid "Associate a graph"
+msgstr "Asociar un gráfico"
+
+#: hook.php:463 hook.php:475
+msgid "Associate to the diagram"
+msgstr "Asociar al diagrama"
+
+#: inc/graph.class.php:519
+msgid "Comments"
+msgstr "Comentarios"
+
+#: inc/profile.class.php:150
+msgid "Configuration"
+msgstr "Configuración"
+
+#: inc/profile.class.php:148
+msgid "Create"
+msgstr "Crear"
+
+#: inc/profile.class.php:148
+msgid "Delete permanently"
+msgstr "Borrar permanentemente"
+
+#: inc/graph.class.php:103 inc/graph.class.php:196
+msgid "Description"
+msgstr "Descripción"
+
+#: setup.php:77 inc/graph.class.php:47 inc/menu.class.php:31
+#: inc/profile.class.php:141
+msgid "Diagram"
+msgid_plural "Diagrams"
+msgstr[0] "Diagrama"
+msgstr[1] "Diagrama"
+msgstr[2] "Diagramas"
+
+#: inc/config.class.php:39
+msgid "Diagrams configuration"
+msgstr "Configuración de diagramas"
+
+#: inc/diagram.class.php:41
+msgid "Drawing Pane"
+msgid_plural "Drawing Pane"
+msgstr[0] "Panel de dibujo"
+msgstr[1] "Panel de dibujo"
+msgstr[2] "Paneles de dibujo"
+
+#: inc/graph.class.php:162 inc/graph.class.php:167 inc/graph.class.php:270
+#: inc/graph.class.php:278 inc/graph.class.php:516
+#: inc/graph_item.class.php:274 inc/graph_item.class.php:493
+msgid "Entity"
+msgstr "Entidad"
+
+#: inc/profile.class.php:117
+msgid "General"
+msgstr "General"
+
+#. technical maintainer
+#: inc/graph.class.php:122 inc/graph.class.php:228
+#: inc/graph_item.class.php:495 inc/graph.class.php:127
+#: inc/graph.class.php:221 inc/graph.class.php:349
+#: inc/graph_item.class.php:498
+msgid "Graph Maintainer"
+msgstr "Mantenedor de gráficos"
+
+#. data owner
+#: inc/graph.class.php:129 inc/graph.class.php:224
+#: inc/graph_item.class.php:494 inc/graph.class.php:134
+#: inc/graph.class.php:231 inc/graph.class.php:341
+#: inc/graph_item.class.php:497
+msgid "Graph Owner"
+msgstr "Propietario del gráfico"
+
+#: inc/graph.class.php:389
+msgid "Graph associated"
+msgid_plural "Graphs associated"
+msgstr[0] "Gráfico asociado"
+msgstr[1] "Gráfico asociado"
+msgstr[2] "Gráficos asociados"
+
+#: inc/profile.class.php:120
+msgid "Helpdesk"
+msgstr "Mesa de ayuda"
+
+#: inc/config.class.php:83 inc/graph.class.php:157 inc/graph.class.php:167
+#: inc/graph.class.php:262 inc/graph.class.php:278
+msgid "ID"
+msgstr "ID"
+
+#: inc/graph_item.class.php:276
+msgid "Inventory number"
+msgstr "Número de inventario"
+
+#. key
+#: inc/config.class.php:66 inc/config.class.php:125
+msgid "Key"
+msgstr "Llave"
+
+#: inc/config.class.php:75 inc/graph.class.php:152 inc/graph.class.php:241
+msgid "Last update"
+msgstr "Última actualización"
+
+#: inc/diagram.class.php:107 inc/diagram.class.php:127
+msgid "Load diagram"
+msgstr "Cargar Diagrama"
+
+#. name of diagrams
+#: hook.php:339 inc/graph.class.php:97 inc/graph.class.php:187
+#: inc/graph.class.php:320 inc/graph.class.php:514
+#: inc/graph_item.class.php:272 inc/graph_item.class.php:491
+msgid "Name"
+msgstr "Nombre"
+
+#: inc/profile.class.php:148
+msgid "Put in trashbin"
+msgstr "Colocar en papelera"
+
+#: inc/profile.class.php:148
+msgid "Read"
+msgstr "Lectura"
+
+#: inc/graph_item.class.php:275
+msgid "Serial number"
+msgstr "Número de serie"
+
+#. short description of diagrams
+#: inc/graph.class.php:215 inc/graph.class.php:333
+msgid "Short description"
+msgstr "Descripción corta"
+
+#. data owner
+#: inc/graph.class.php:356
+msgid "Status"
+msgstr "Estado"
+
+#: inc/graph.class.php:564
+msgid "Transfer"
+msgstr "Transferir"
+
+#. type
+#. echo "<th>".PluginArchimapGraphCategory::getTypeName(1)."</th>";
+#: inc/config.class.php:57 inc/config.class.php:119 inc/graph.class.php:325
+#: inc/graph.class.php:518 inc/graph_item.class.php:271
+msgid "Type"
+msgstr "Tipo"
+
+#: inc/profile.class.php:148
+msgid "Update"
+msgstr "Actualizar"
+
+#. short description of diagrams
+#: inc/config.class.php:133
+msgid "Value"
+msgstr "Valor"
