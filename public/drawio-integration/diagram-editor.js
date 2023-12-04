@@ -325,7 +325,7 @@ DiagramEditor.prototype.editElement = function(elem)
 							showGlpi();
 						}
 					};
-					xhr2.open("GET", DiagramEditor.prototype.rootUrl + "/apirest.php/initSession/?user_token="+user.user_token, true);
+					xhr2.open("GET", DiagramEditor.prototype.rootUrl + "/apirest.php/initSession/?user_token="+user.user_token, true); 
 					xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 					xhr2.setRequestHeader("App-Token", user.app_token);
 					xhr2.send();

@@ -83,7 +83,7 @@ if (isset($_POST["add"])) {
       }
    Html::back();
 
-} else if (isset($_POST["deletegraphs"])) {
+} else if (isset($_POST["deletearchimap"])) {
 
    $input = array('id' => $_POST["id"]);
    $graph_item->check($_POST["id"], UPDATE);
