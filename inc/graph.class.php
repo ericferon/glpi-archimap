@@ -40,6 +40,8 @@ class PluginArchimapGraph extends CommonDBTM {
 					'Software',
 					'Group',
 					'Entity',
+                    'Project',
+                    'ProjectTask',
 					'PluginDatabasesDatabase',
                     'PluginDataflowsDataflow',
                     'PluginArchiswSwcomponent',
