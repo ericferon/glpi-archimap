@@ -34,11 +34,11 @@ if (strpos($_SERVER['PHP_SELF'],"dropdownTypeArchimap.php")) {
 Session::checkCentralAccess();
 
 // Make a select box
-if (isset($_POST["graphtype"])) {
+if (isset($_POST["graphtype"]) && is_numeric($_POST["graphtype"])) {
    $used = [];
 
    // Clean used array
-   if (isset($_POST['used']) && is_array($_POST['used']) && (count($_POST['used']) > 0)) {
+   if (isset($_POST['used']) && is_array($_POST['used']) && (count($_POST['used']) > 0) && array_filter($_POST['used'], 'is_numeric')) {
       $query = "SELECT `id`
                 FROM `glpi_plugin_archimap_graphs`
                 WHERE `id` IN (".implode(',',$_POST['used']).")
@@ -49,7 +49,10 @@ if (isset($_POST["graphtype"])) {
       }
    }
 
-   Dropdown::show('PluginArchimapGraph',
+    if (isset($_POST['myname']) && preg_match('/^[a-zA-Z0-9_]+$/',$_POST['myname'])
+   && isset($_POST['entity']) && (empty($_POST['entity']) || is_numeric($_POST['entity']))
+   && isset($_POST['rand']) && is_numeric($_POST['rand']))
+      Dropdown::show('PluginArchimapGraph',
                   ['name'      => $_POST['myname'],
 					'used'      => $used,
 					'width'     => '50%',

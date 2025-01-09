@@ -579,7 +579,7 @@ class PluginArchimapGraph extends CommonDBTM {
 
       switch ($ma->getAction()) {
          case 'plugin_archimap_add_item':
-            self::dropdownGraph([]);
+            self::dropdownGraph(['entity' => $_SESSION["glpiactive_entity"]]);
             echo "&nbsp;".
                  Html::submit(_x('button','Post'), ['name' => 'massiveaction']);
             return true;
