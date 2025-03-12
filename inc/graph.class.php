@@ -321,7 +321,7 @@ class PluginArchimapGraph extends CommonDBTM {
       //name of diagrams
       echo "<td>".__('Name')."</td>";
       echo "<td>";
-      echo Html::input('name',['value' => $this->fields['name'], 'id' => "name" /*, 'size' => 50*/]);
+      echo Html::input('name',['value' => $this->fields['name'], 'id' => "name" , 'maxlength' => 45]);
       echo "</td>";
       //type
       echo "<td>".__('Type').": </td>";
@@ -334,7 +334,7 @@ class PluginArchimapGraph extends CommonDBTM {
       //short description of diagrams
       echo "<td>".__('Short description', 'archimap')."</td>";
       echo "<td colspan='3'>";
-      echo Html::input('shortdescription',['value' => $this->fields['shortdescription'], 'id' => "shortdescription", 'option' => 'style="width:100%"']);
+      echo Html::input('shortdescription',['value' => $this->fields['shortdescription'], 'id' => "shortdescription" , 'maxlength' => 100, 'option' => 'style="width:100%"']);
       echo "</td>";
 	  echo "</tr>";
 	  
