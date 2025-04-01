@@ -43,7 +43,7 @@ if ($result=$DB->query($query)) {
 	}
 	if (isset($datas['value']))
 	{
-		$filename = Plugin::getPhpDir("archimap")."/drawio-integration/styles/" . $datas['value'];
+		$filename = Plugin::getPhpDir("archimap")."/public/drawio-integration/styles/" . $datas['value'];
 		$styles = file_get_contents($filename);
 		if ($styles)
 		{

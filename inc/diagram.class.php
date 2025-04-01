@@ -105,7 +105,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		}
 //		get list of file names in drawio-integration/libraries to upload custom libraries
 		$customlibs = [];
-		$customlibslist = glob(Plugin::getPhpDir("archimap").'/drawio-integration/libraries/*.xml');
+		$customlibslist = glob(Plugin::getPhpDir("archimap").'/public/drawio-integration/libraries/*.xml');
 		if ($customlibslist) {
 			foreach ($customlibslist as $filename) 
 			{	$p = pathinfo($filename);
