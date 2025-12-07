@@ -36,7 +36,7 @@
 
 // read input file name from DB (entry STYLEFILE/SOURCE)
 $query = "SELECT `value` FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLEFILE' and `key` = 'SOURCE'";
-if ($result=$DB->query($query)) {
+if ($result=$DB->doQuery($query)) {
 	while ($data=$DB->fetchAssoc($result)) {
 //var_dump($data);
 		$datas[] = $data;
@@ -54,14 +54,14 @@ if ($result=$DB->query($query)) {
 
 				$query = "INSERT INTO `glpi_plugin_archimap_configs` (`type`, `key`, `value`) VALUES ('STYLE', '$stylename', '$value')";
 
-				if ($result=$DB->query($query)) {
+				if ($result=$DB->doQuery($query)) {
 					Toolbox::logInfo("copystylestodb : $stylename successfully inserted");
 				}
 				else
 					Toolbox::logError("copystylestodb : SQL error for inserting $stylename : see files/_log/sql-errors.log");
 			}
 			$query = "DELETE FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLEFILE' and `key` = 'SOURCE'";
-			if ($result=$DB->query($query)) 
+			if ($result=$DB->doQuery($query)) 
 				Toolbox::logInfo("copystylestodb : $filename successfully copied ; STYLEFILE SOURCE entry suppressed in table glpi_plugin_archimap_configs");
 			else
 				Toolbox::logError("copystylestodb : STYLEFILE SOURCE entry failed to be suppressed in table glpi_plugin_archimap_configs");

@@ -275,6 +275,8 @@ Repository.prototype.executeRequest = function(req, success, error, ignoreNotFou
 		req.setRequestHeaders = function(request, params)
 		{
 			request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			request.setRequestHeader('X-Glpi-Csrf-Token', window.config.user.csrf_token);
 		};
 		
 		req.send(mxUtils.bind(this, function()

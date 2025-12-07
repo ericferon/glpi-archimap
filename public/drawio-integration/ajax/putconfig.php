@@ -42,7 +42,7 @@ foreach($keys as $key => $typevalue) {
     $query = "INSERT INTO glpi_plugin_archimap_configs (type, `key`, value ) VALUES ('$type', '$key', '$value');";
 //Toolbox::logInFile("gettables", "putconfig ".$query."\n");
 //var_dump($query);
-    $result=$DB->query($query);
+    $result=$DB->doQuery($query);
 	$datas[$key] = $DB->insertId();
     if ($type == 'STYLE') $nbstyles++;
 }

@@ -42,5 +42,5 @@ if (isset($_GET['itemtype'])) {
 $query = "delete from glpi_plugin_archimap_graphs_items where plugin_archimap_graphs_id = ".$plugin_archimap_graphs_id.
 		" and itemtype = '".$itemtype."'";
 //Toolbox::logInFile('linkgraph', "delete from glpi_plugin_archimap_graphs_items : plugin_archimap_graphs_id = ".$plugin_archimap_graphs_id."\n");
-$result=$DB->query($query);
+$result=$DB->doQuery($query);
 ?>

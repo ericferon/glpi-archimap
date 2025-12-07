@@ -105,7 +105,7 @@ if ($test) {
 	$datas[] = $query;
 	$query .= " LIMIT 5";
 }
-if ($result=$DB->query($query)) {
+if ($result=$DB->doQuery($query)) {
 	while ($data=$DB->fetchAssoc($result)) {
 //var_dump($data);
 		$datas[] = $data;

@@ -45,7 +45,7 @@ function plugin_archimap_install() {
 			$DB->runFile(Plugin::getPhpDir("archimap")."/sql/update-3.0.0.sql");
 		}
 		if ($DB->TableExists("glpi_plugin_archimap_configs")
-		&& ($DB->numrows($DB->query("SELECT * from glpi_plugin_archimap_configs where type = 'APP_TOKEN'")) == 0))
+		&& ($DB->numrows($DB->doQuery("SELECT * from glpi_plugin_archimap_configs where type = 'APP_TOKEN'")) == 0))
 			$DB->runFile(Plugin::getPhpDir("archimap")."/sql/update-3.1.0.sql");
         // change path to images as ...archimap/public/drawio-integration/...
         $DB->runFile(Plugin::getPhpDir("archimap")."/sql/update-3.1.1.sql");
@@ -68,10 +68,10 @@ function plugin_archimap_install() {
                              (`itemtype`, `items_id`, `content`, `date`, `date_mod`)
                       VALUES ('PluginArchimapGraph', '".$data['id']."',
                               '".addslashes($data['notepad'])."', NOW(), NOW())";
-               $DB->queryOrDie($iq, "0.85 migrate notepad data");
+               $DB->doQueryOrDie($iq, "0.85 migrate notepad data");
             }
             $query = "ALTER TABLE `glpi_plugin_archimap_graphs` DROP COLUMN `notepad`;";
-            $DB->query($query);
+            $DB->doQuery($query);
          }
       }
    }
@@ -83,21 +83,21 @@ function plugin_archimap_install() {
    if ($update) {
       $query_="SELECT *
             FROM `glpi_plugin_archimap_profiles` ";
-      $result_=$DB->query($query_);
+      $result_=$DB->doQuery($query_);
       if ($DB->numrows($result_)>0) {
 
          while ($data=$DB->fetch_array($result_)) {
             $query="UPDATE `glpi_plugin_archimap_profiles`
                   SET `profiles_id` = '".$data["id"]."'
                   WHERE `id` = '".$data["id"]."';";
-            $result=$DB->query($query);
+            $result=$DB->doQuery($query);
 
          }
       }
 
       $query="ALTER TABLE `glpi_plugin_archimap_profiles`
                DROP `name` ;";
-      $result=$DB->query($query);
+      $result=$DB->doQuery($query);
 
       Plugin::migrateItemType(
          array(2400=>'PluginArchimapGraph'),
@@ -132,7 +132,7 @@ function plugin_archimap_uninstall() {
 					"glpi_plugin_archimap_configs");
 
    foreach($tables as $table)
-      $DB->query("DROP TABLE IF EXISTS `$table`;");
+      $DB->doQuery("DROP TABLE IF EXISTS `$table`;");
 
 	$tables_glpi = array("glpi_displaypreferences",
                "glpi_documents_items",
@@ -143,7 +143,7 @@ function plugin_archimap_uninstall() {
                "glpi_dropdowntranslations");
 
    foreach($tables_glpi as $table_glpi)
-      $DB->query("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'PluginArchimap%' ;");
+      $DB->doQuery("DELETE FROM `$table_glpi` WHERE `itemtype` LIKE 'PluginArchimap%' ;");
 
    if (class_exists('PluginDatainjectionModel')) {
       PluginDatainjectionModel::clean(array('itemtype'=>'PluginArchimapGraph'));
@@ -220,7 +220,7 @@ function plugin_archimap_AssignToTicketDropdown($data) {
               . " LEFT JOIN `glpi_plugin_archimap_graphs`"
               . "    ON `plugin_archimap_graphs_id` = `glpi_plugin_archimap_graphs`.`id`";
 
-      $result = $DB->query($sql);
+      $result = $DB->doQuery($sql);
       $elements = [];
       while ($res = $DB->fetch_array($result)) {
          $itemtype = $res['itemtype'];
@@ -395,7 +395,7 @@ function plugin_archimap_giveItem($type,$ID,$data,$num) {
                      FROM `glpi_plugin_archimap_graphs_items`
                      WHERE `plugin_archimap_graphs_id` = '".$data['id']."'
                      ORDER BY `itemtype`";
-         $result_device = $DB->query($query_device);
+         $result_device = $DB->doQuery($query_device);
          $number_device = $DB->numrows($result_device);
          $y = 0;
          $out='';
@@ -425,7 +425,7 @@ function plugin_archimap_giveItem($type,$ID,$data,$num) {
                   }
                   $query.=" ORDER BY `glpi_entities`.`completename`, `".$table_item."`.`$column`";
 
-                  if ($result_linked = $DB->query($query))
+                  if ($result_linked = $DB->doQuery($query))
                      if ($DB->numrows($result_linked)) {
                         $item = new $itemtype();
                         while ($data = $DB->fetchAssoc($result_linked)) {

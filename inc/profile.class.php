@@ -194,9 +194,9 @@ class PluginArchimapProfile extends Profile {
       return true;
       }
 
-      foreach ($DB->request('glpi_plugin_archimap_profiles',
-                            "`profiles_id`='$profiles_id'") as $profile_data) {
-
+      foreach ($DB->request(['FROM' => 'glpi_plugin_archimap_profiles',
+                            'WHERE' => ['profiles_id' => $profiles_id]]) as $profile_data) {
+ 
          $matching = ['archimap'    => 'plugin_archimap',
                            'open_ticket' => 'plugin_archimap_open_ticket'];
          $current_rights = ProfileRight::getProfileRights($profiles_id, array_values($matching));
@@ -205,7 +205,7 @@ class PluginArchimapProfile extends Profile {
                $query = "UPDATE `glpi_profilerights`
                          SET `rights`='".self::translateARight($profile_data[$old])."'
                          WHERE `name`='$new' AND `profiles_id`='$profiles_id'";
-               $DB->query($query);
+               $DB->doQuery($query);
             }
          }
       }
@@ -228,20 +228,15 @@ class PluginArchimapProfile extends Profile {
       }
 
       //Migration old rights in new ones
-      foreach ($DB->request([
-          "SELECT" => ["id"],
-          "FROM" => "glpi_profiles",
-      ]) as $prof) {
+      foreach ($DB->request(['SELECT'=> 'id',
+                              'FROM' => 'glpi_profiles']
+               ) as $prof) {
          self::migrateOneProfile($prof['id']);
       }
-
-      foreach ($DB->request([
-          "FROM" => "glpi_profilerights",
-          "WHERE" => [
-              "profiles_id" => $_SESSION['glpiactiveprofile']['id'],
-              "name" => ["LIKE", "%plugin_archimap%"]
-          ]
-      ]) as $prof) {
+      foreach ($DB->request(['FROM' =>  'glpi_profilerights',
+                              'WHERE' =>  ['profiles_id' => $_SESSION['glpiactiveprofile']['id'], 
+                                          'name' => ['LIKE', '%plugin_archimap%']]]
+                              ) as $prof) {
          $_SESSION['glpiactiveprofile'][$prof['name']] = $prof['rights'];
       }
    }

@@ -387,8 +387,10 @@ Draw.loadPlugin(function(editorUi)
 												// create
 												xhr3.open("POST", window.ROOT_PATH + "/apirest.php/" + cell.customproperties.autocompleteobject + "/", true);
 											xhr3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-											xhr3.setRequestHeader("Session-Token", window.config.user.session_token);
-											xhr3.setRequestHeader("App-Token", window.config.user.app_token);
+											xhr3.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+											xhr3.setRequestHeader("X-Glpi-Csrf-Token", window.config.user.csrf_token);
+//											xhr3.setRequestHeader("Session-Token", window.config.user.session_token);
+//											xhr3.setRequestHeader("App-Token", window.config.user.app_token);
 											xhr3.send(JSON.stringify(items));
  										}
 									}
@@ -405,11 +407,15 @@ Draw.loadPlugin(function(editorUi)
 				}
 				xhr2.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
 				xhr2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+				xhr2.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+				xhr2.setRequestHeader("X-Glpi-Csrf-Token", window.config.user.csrf_token);
 				xhr2.send(JSON.stringify(foreigntables));
 			}
 		}; 
 		xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/showcolumns.php", true);
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		xhr.setRequestHeader("X-Glpi-Csrf-Token", window.config.user.csrf_token);
 		xhr.send(JSON.stringify(tablefields));
 	
 		this.container = div;
@@ -703,6 +709,7 @@ EditorUi.prototype.updateTabContainer = function()
 //	Refresh cells customproperties from the stencil
 	EditorUi.prototype.refreshCustomProperties = function (thisEditor)
 	{
+		var token = document.getElementsByName("_glpi_csrf_token")[0];
 		if (thisEditor && thisEditor.graph && thisEditor.graph.model && thisEditor.graph.model.cells)
 		{
 				var thisCells = thisEditor.graph.model.cells;
@@ -882,6 +889,8 @@ EditorUi.prototype.updateTabContainer = function()
 				}; 
 				xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/getcustomproperties.php", true);
 				xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+				xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+				xhr.setRequestHeader("X-Glpi-Csrf-Token", window.config.user.csrf_token);
 				xhr.send(JSON.stringify(glpiCells));
 		}
 	}
@@ -2426,6 +2435,10 @@ mxCellEditor.prototype.installListeners = function(elt)
 								url: window.DRAWIOINTEGRATION_PATH + "/ajax/getcustomproperties.php?callback=?",
 								type: "post",
 								contentType: 'application/json',
+								beforeSend : function (xhr) {
+												xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+												xhr.setRequestHeader("X-Glpi-Csrf-Token", window.config.user.csrf_token);
+											},
 								data: JSON.stringify(glpiCells),
 								dataType: 'text json',
 								success: function(datas){

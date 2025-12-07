@@ -58,7 +58,7 @@ foreach($cells as $id => $cell) {
         $query = "SELECT $table.id as glpi_id $jointcolumns from $table $jointtables \nwhere $table.id = $id $jointcriteria";
 //Toolbox::logInFile("getcustomproperties", $query."\n");
 //var_dump($query);
-        if ($result=$DB->query($query)) {
+        if ($result=$DB->doQuery($query)) {
             $data[$key]=$DB->fetchAssoc($result);
         } 
 	} 

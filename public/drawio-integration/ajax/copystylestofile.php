@@ -36,14 +36,14 @@
 
 // read output file name from DB (entry STYLEFILE/DESTINATION)
 $query = "SELECT `value` FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLEFILE' and `key` = 'DESTINATION'";
-if ($result=$DB->query($query)) {
+if ($result=$DB->doQuery($query)) {
 	$data=$DB->fetchAssoc($result);
 	if (isset($data['value']))
 	{
 		$filename = "../styles/" . $data['value'];
 		$stylesheet = "<mxStylesheet>";
 		$query = "SELECT * FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLE' ORDER BY `key`";
-		if ($result=$DB->query($query))
+		if ($result=$DB->doQuery($query))
 		{
 			$nbstyles = 0;
 			while ($data=$DB->fetchAssoc($result)) {

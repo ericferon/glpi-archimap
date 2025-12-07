@@ -44,7 +44,7 @@ foreach($tables as $key => $tablecolumn) {
 		$query = "SELECT DISTINCT $column FROM $table";
 //Toolbox::logInFile("gettables", $query."\n");
 //var_dump($query);
-		if ($result=$DB->query($query)) {
+		if ($result=$DB->doQuery($query)) {
 			while ($data=$DB->fetchAssoc($result)) {
 				$datas[$key][]=$columncount == 1 ? $data[$column]: $data;
 			}

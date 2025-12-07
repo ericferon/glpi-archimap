@@ -42,7 +42,7 @@ foreach($keys as $key => $typevalue) {
     $query = "UPDATE glpi_plugin_archimap_configs SET value = '$value' WHERE type = '$type' and `key` = '$key';";
 //Toolbox::logInFile("postconfig", "postconfig ".$query."\n");
 //var_dump($query);
-    $result=$DB->query($query);
+    $result=$DB->doQuery($query);
     $datas[$key] = $DB->affectedRows();
     if ($type == 'STYLE') $nbstyles++;
 }

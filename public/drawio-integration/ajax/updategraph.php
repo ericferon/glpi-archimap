@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../../../inc/includes.php');
+//include ('../../../../../inc/includes.php');
 // receive parameters into Http body
 $params = file_get_contents('php://input');
 if (isset($params)) {

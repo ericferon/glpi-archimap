@@ -152,6 +152,7 @@ DiagramEditor.prototype.editElement = function(elem)
 	var diaedit = this;
     var getSessionToken = function()
     {
+		var token = document.getElementsByName("_glpi_csrf_token")[0];
 /*        let tables = {};
         tables['app_token'] = {'column' : 'key, value', 
 					'type' : 'APP_TOKEN'};
@@ -192,8 +193,11 @@ DiagramEditor.prototype.editElement = function(elem)
 										success(datas, libconfig);
 									}
 								};
-								xhr3.open("POST", /*window.DRAWIOINTEGRATION_PATH +*/ "../../archimap/public/drawio-integration/ajax/getconfig.php", true);
+								xhr3.open("POST", /* window.DRAWIOINTEGRATION_PATH +*/ "../../archimap/public/drawio-integration/ajax/getconfig.php", true);
 								xhr3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+//								xhr3.setRequestHeader("Session-Token", user.session_token);
+								xhr3.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+								xhr3.setRequestHeader("X-Glpi-Csrf-Token", user.csrf_token);
 								xhr3.send(JSON.stringify(tables));
 							}
 							var success = function(repolibs, libconfig)
@@ -694,12 +698,12 @@ DiagramEditor.prototype.save = function(data, draft, elt)
 DiagramEditor.prototype.done = function(data, draft, elt)
 {
 	// hook for subclassers
-					var diagramid = document.getElementsByName("id")[0];
+					var diagramid = document.getElementsByName("diagramid")[0];
 					if (diagramid) {
 						// When pressing the "Save" button of the drawing pane, load the hidden field "graph" with the diagram 
 						// this field will be saved in GLPI DB with the other fields of the form)
 //						var inputgraph = document.getElementsByName("graph")[0];
-						var token = document.getElementsByName("_glpi_csrf_token")[0];
+//						console.log("inputgraph",inputgraph);
 						elt.value = encodeURIComponent(data);
 						if (elt.value.length < MAX_REQUEST_SIZE)
 						{
@@ -717,7 +721,9 @@ DiagramEditor.prototype.done = function(data, draft, elt)
 							}; 
 							xhr.open("POST", /*window.DRAWIOINTEGRATION_PATH +*/ "../../archimap/public/drawio-integration/ajax/updategraph.php", false);
 							xhr.setRequestHeader("Content-Type", "application/json");
-							xhr.setRequestHeader("Session-Token", token.value);
+//							xhr.setRequestHeader("Session-Token", user.session_token);
+							xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+							xhr.setRequestHeader("X-Glpi-Csrf-Token", user.csrf_token);
 							xhr.send(JSON.stringify({'update' : 'Save',
                                                     'id' : diagramid.value,
                                                     'graph' : elt.value

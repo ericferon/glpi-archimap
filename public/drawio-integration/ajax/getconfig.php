@@ -24,8 +24,8 @@
  --------------------------------------------------------------------------
  */
  
-define('GLPI_ROOT', '../../../../..');
-include (GLPI_ROOT . "/inc/includes.php");
+//define('GLPI_ROOT', '../../../../..');
+include ("../../../../../inc/includes.php");
 
 $forbidden_tables = ['glpi_users', 'glpi_authldaps', 'glpi_authmails', 'glpi_certificates'];
 $DB = new DB;
@@ -48,7 +48,7 @@ foreach($tables as $key => $tablecolumn) {
 		$query = "SELECT `".implode("`, `", $columns)."` FROM glpi_plugin_archimap_configs".($where?" WHERE ".$where:"")." ORDER BY `".implode("`, `", $columns)."`";
 //Toolbox::logInFile("debug", "getconfig.php:".$query."\n");
 //var_dump($query);
-		if ($result=$DB->query($query)) {
+		if ($result=$DB->doQuery($query)) {
 			if ($DB->numrows($result)>0)
 			{	while ($data=$DB->fetchAssoc($result)) {
 //Toolbox::logInFile("gettables", print_r($datas,TRUE)."\n");

@@ -23,6 +23,12 @@
  along with Archimap. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  */
+define('PLUGIN_ARCHIMAP_VERSION', '3.3.8');
+
+// Minimal GLPI version, inclusive
+define('PLUGIN_ARCHIMAP_MIN_GLPI', '10.0.0');
+// Maximum GLPI version, exclusive
+define('PLUGIN_ARCHIMAP_MAX_GLPI', '11.0.99');
 
 // Init the hooks of the plugins -Needed
 function plugin_init_archimap() {
@@ -102,14 +108,15 @@ function plugin_version_archimap() {
 
    return array (
       'name' => _n('Diagram', 'Diagrams', 2, 'archimap'),
-      'version' => '3.3.7',
+      'version' => PLUGIN_ARCHIMAP_VERSION,
       'author'  => "Eric Feron",
       'license' => 'GPLv2+',
       'homepage'=>'https://github.com/ericferon/glpi-archimap',
       'requirements' => [
          'glpi' => [
-            'min' => '10.0',
-            'dev' => false
+            'min' => PLUGIN_ARCHIMAP_MIN_GLPI,
+            'max' => PLUGIN_ARCHIMAP_MAX_GLPI,
+//            'dev' => false
          ]
       ]
    );
@@ -118,12 +125,6 @@ function plugin_version_archimap() {
 
 // Optional : check prerequisites before install : may print errors or add to message after redirect
 function plugin_archimap_check_prerequisites() {
-	if (version_compare(GLPI_VERSION, '10.0', 'lt') ||
-		 version_compare(GLPI_VERSION, '10.1', 'ge')) {
-		// new in glpi 9.5 version
-		echo Plugin::messageIncompatible('core', '10.0');
-      return false;
-   }
    return true;
 }
 

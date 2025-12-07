@@ -407,7 +407,7 @@ class PluginArchimapGraph extends CommonDBTM {
                                FROM `glpi_plugin_archimap_graphs`
                              $where)
                 ORDER BY `name`";
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
 
       $values = [0 => Dropdown::EMPTY_VALUE];
 
@@ -427,14 +427,14 @@ class PluginArchimapGraph extends CommonDBTM {
                         'used'   => $p['used']];
 
       $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
-                                            Plugin::getWebDir("archimap")."/ajax/dropdownTypeArchimap.php",
+                                            $CFG_GLPI['root_doc'] . "/plugins/archimap/ajax/dropdownTypeArchimap.php",
                                             $params, false);
       $out .= "<span id='show_".$p['name']."$rand'>";
       $out .= "</span>\n";
 
       $params['graphtype'] = 0;
       $out .= Ajax::updateItem("show_".$p['name'].$rand,
-                               Plugin::getWebDir("archimap")."/ajax/dropdownTypeArchimap.php",
+                               $CFG_GLPI['root_doc'] . "/plugins/archimap/ajax/dropdownTypeArchimap.php",
                                $params, false);
       if ($p['display']) {
          echo $out;
@@ -500,7 +500,7 @@ class PluginArchimapGraph extends CommonDBTM {
         . getEntitiesRestrictRequest(" AND ","glpi_plugin_archimap_graphs",'','',$this->maybeRecursive());
       $query.= " ORDER BY `glpi_plugin_archimap_graphs`.`name` ";
 
-      $result = $DB->query($query);
+      $result = $DB->doQuery($query);
       $number = $DB->numrows($result);
 
       if (Session::isMultiEntitiesMode()) {
@@ -752,7 +752,7 @@ class PluginArchimapGraph extends CommonDBTM {
 		libxml_use_internal_errors(true);
 		$newxml=simplexml_load_string(htmlspecialchars_decode(stripslashes(rawurldecode($newgraph)))); //parse the decoded and stripped xml representing a graph
 		foreach( libxml_get_errors() as $error ) {
-			Toolbox::logInFile('graph', 'error='.print_r($error));
+			Toolbox::logInFile('graph', 'error='.print_r($error, true));
 		}
 		$newelements = [];
 		foreach($newxml->diagram as $newdiagram) {
@@ -768,11 +768,15 @@ class PluginArchimapGraph extends CommonDBTM {
 			}
 		}
 		// analyze previous version (still present in DB)
-		if (!$oldgraph)
-			$oldgraph = $this->fields['graph'];
+		if (!$oldgraph) {
+            $query = "SELECT graph FROM glpi_plugin_archimap_graphs where id = $ID";
+            $result=$DB->doQuery($query);
+            $data = $DB->fetchAssoc($result);
+			$oldgraph = $data['graph'];
+        }
 		$oldxml=simplexml_load_string(htmlspecialchars_decode(stripslashes(rawurldecode($oldgraph)))); //parse the decoded and stripped xml representing a graph
 		foreach( libxml_get_errors() as $error ) {
-			Toolbox::logInFile('graph', 'error='.print_r($error));
+			Toolbox::logInFile('graph', 'error='.print_r($error, true));
 		}
 		$oldelements = [];
 		if ($oldxml)
@@ -801,7 +805,7 @@ class PluginArchimapGraph extends CommonDBTM {
 				if (strlen($itemlist) > 1) {
 					$itemlist = substr($itemlist, 0, -1); // remove last comma
 					$query .= $itemlist.")";
-					$result=$DB->query($query);
+					$result=$DB->doQuery($query);
 				}
 			}
 		}
@@ -818,7 +822,7 @@ class PluginArchimapGraph extends CommonDBTM {
 			if (strlen($itemlist) > 1) {
 				$itemlist = substr($itemlist, 0, -1); // remove last comma
 				$query .= $itemlist;
-				$result=$DB->query($query);
+				$result=$DB->doQuery($query);
 			}
 		}
 	}

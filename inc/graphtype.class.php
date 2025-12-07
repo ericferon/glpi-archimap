@@ -49,7 +49,7 @@ class PluginArchimapGraphtype extends CommonDropdown {
                    FROM `glpi_plugin_archimap_graphtypes`
                    WHERE `id` = '$ID'";
 
-         if ($result=$DB->query($query)) {
+         if ($result=$DB->doQuery($query)) {
             if ($DB->numrows($result)) {
                $data = $DB->fetchAssoc($result);
                $data = Toolbox::addslashes_deep($data);

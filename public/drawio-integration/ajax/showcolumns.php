@@ -43,7 +43,7 @@ foreach($tablefields as $id => $criteria) {
 		$query .= " WHERE ".$where;
 //Toolbox::logInFile("showcolumns", $query."\n");
 //echo $query;
-	if ($result=$DB->query($query)) {
+	if ($result=$DB->doQuery($query)) {
 		while ($data=$DB->fetchAssoc($result)) {
 			$datas[$id]=$data;
 		}

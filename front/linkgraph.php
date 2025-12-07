@@ -50,5 +50,5 @@ foreach ($items as $itemtype => $items_id) {
 	}
 }
 //Toolbox::logInFile("linkgraph", $query."\n");
-$result=$DB->query($query);
+$result=$DB->doQuery($query);
 ?>
