@@ -872,6 +872,8 @@ App.prototype.getPeerForMode = function(mode)
 			}
 			xhr.open("POST", window.DRAWIOINTEGRATION_PATH + "/ajax/gettables.php", true);
 			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+			xhr.setRequestHeader("X-Glpi-Csrf-Token", window.config.user.csrf_token);
 			xhr.send(JSON.stringify(tables));
 		};
 		var content = document.createElement('div');

@@ -161,14 +161,14 @@ DiagramEditor.prototype.editElement = function(elem)
 			if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0)) {
 				app_token = JSON && JSON.parse(xhr.responseText) || $.parseJSON(xhr.responseText);
 				if (app_token['app_token']['']) {
-*/				if (user.app_token) {
+				if (user.app_token) {
 //					user.app_token = app_token['app_token'][''].value;
 					var xhr2 = new XMLHttpRequest();
 					xhr2.onreadystatechange = function() {
 						if (xhr2.readyState == 4 && (xhr2.status == 200 || xhr2.status == 0)) {
 							session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
 							user.session_token = session_token.session_token;
-							// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
+*/							// create the "libraries" object in this.config (see https://desk.draw.io/support/solutions/articles/16000058316)
 							diaedit.config = {'libraries' : [ {
 														"title": { "main": "Custom"},
 														"entries": [ { "id": "glpi",
@@ -318,7 +318,7 @@ DiagramEditor.prototype.editElement = function(elem)
 							};
 							var customlibsrepo = getLibraries('LIBXML', null, diaedit.config.libraries[0].entries[0].libs, success, error);
     
-						}
+/*						}
 						else if (xhr2.readyState == 4) {
 							session_token = JSON && JSON.parse(xhr2.responseText) || $.parseJSON(xhr2.responseText);
 							alert("Error when initializing the link between Drawio and GLPI : <br/>HTTP initSession error "+xhr2.status+" - "+xhr2.statusText
@@ -339,7 +339,7 @@ DiagramEditor.prototype.editElement = function(elem)
 					hideDrawio();
 					showGlpi();
 				}
-/*			}
+			}
 			else if (xhr.readyState == 4) {
 				alert("Error when getting the APP_TOKEN : HTTP error "+xhr.status+" - "+xhr.statusText);
 				hideDrawio();

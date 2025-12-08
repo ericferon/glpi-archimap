@@ -24,8 +24,8 @@
  --------------------------------------------------------------------------
  */
  
-define('GLPI_ROOT', '../../../../..');
-include (GLPI_ROOT . "/inc/includes.php");
+//define('GLPI_ROOT', '../../../../..');
+include ("../../../../../inc/includes.php");
 
 $forbidden_tables = ['glpi_users', 'glpi_authldaps', 'glpi_authmails', 'glpi_certificates'];
 $DB = new DB;

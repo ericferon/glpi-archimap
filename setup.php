@@ -23,7 +23,7 @@
  along with Archimap. If not, see <http://www.gnu.org/licenses/>.
  --------------------------------------------------------------------------
  */
-define('PLUGIN_ARCHIMAP_VERSION', '3.3.8');
+define('PLUGIN_ARCHIMAP_VERSION', '3.3.9');
 
 // Minimal GLPI version, inclusive
 define('PLUGIN_ARCHIMAP_MIN_GLPI', '10.0.0');
