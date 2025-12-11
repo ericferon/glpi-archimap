@@ -32,7 +32,7 @@
  * ---------------------------------------------------------------------
  */
 
-//include (GLPI_ROOT . '/inc/includes.php');
+//include ('../../../inc/includes.php');
 
 // read input file name from DB (entry STYLEFILE/SOURCE)
 $query = "SELECT `value` FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLEFILE' and `key` = 'SOURCE'";

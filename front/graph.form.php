@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+if (version_compare(GLPI_VERSION,'10.0','le')) include (GLPI_ROOT . "/inc/includes.php");
 
 if (!isset($_GET["id"])) $_GET["id"] = "";
 if (!isset($_GET["withtemplate"])) $_GET["withtemplate"] = "";

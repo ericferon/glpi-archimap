@@ -26,7 +26,7 @@
 
 if (strpos($_SERVER['PHP_SELF'],"dropdownTypeArchimap.php")) {
    $AJAX_INCLUDE=1;
-   include ('../../../inc/includes.php');
+   if (version_compare(GLPI_VERSION,'10.0','le')) include (GLPI_ROOT . "/inc/includes.php");
    header("Content-Type: text/html; charset=UTF-8");
    Html::header_nocache();
 }

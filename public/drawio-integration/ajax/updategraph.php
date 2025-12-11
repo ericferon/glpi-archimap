@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
 
-//include ('../../../../../inc/includes.php');
+//if (version_compare(GLPI_VERSION,'10.0','le')) include (GLPI_ROOT . "/inc/includes.php");
 // receive parameters into Http body
 $params = file_get_contents('php://input');
 if (isset($params)) {

@@ -24,7 +24,7 @@
  --------------------------------------------------------------------------
  */
 
-include ('../../../inc/includes.php');
+if (version_compare(GLPI_VERSION,'10.0','le')) include (GLPI_ROOT . "/inc/includes.php");
 
 $dropdown = new PluginArchimapGraphstate();
 include (GLPI_ROOT . "/front/dropdown.common.php");
