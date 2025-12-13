@@ -37,7 +37,7 @@ function plugin_archimap_install() {
    }
    if (!$DB->TableExists("glpi_plugin_archimap_graphs")) {
 
-		$DB->runFile(Plugin::getPhpDir("archimap")."/sql/empty-3.1.2.sql");
+		$DB->runFile(Plugin::getPhpDir("archimap")."/sql/empty-3.1.3.sql");
 	}
 	else {
 		if ($DB->TableExists("glpi_plugin_archimap_graphs") && !$DB->TableExists("glpi_plugin_archimap_configs")) {
