@@ -32,8 +32,6 @@
  * ---------------------------------------------------------------------
  */
 
-//include ('../../../inc/includes.php');
-
 // read output file name from DB (entry STYLEFILE/DESTINATION)
 $query = "SELECT `value` FROM `glpi_plugin_archimap_configs` WHERE `type` = 'STYLEFILE' and `key` = 'DESTINATION'";
 if ($result=$DB->doQuery($query)) {
