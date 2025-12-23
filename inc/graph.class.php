@@ -426,14 +426,24 @@ class PluginArchimapGraph extends CommonDBTM {
                         'myname' => $p['name'],
                         'used'   => $p['used']];
 
-      $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
+      if (version_compare(GLPI_VERSION,'10.0','le')) 
+         $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
+                                            Plugin::getWebDir("archimap")."/ajax/dropdownTypeArchimap.php",
+                                            $params, false);
+      else
+         $out .= Ajax::updateItemOnSelectEvent($field_id,"show_".$p['name'].$rand,
                                             $CFG_GLPI['root_doc'] . "/plugins/archimap/ajax/dropdownTypeArchimap.php",
                                             $params, false);
       $out .= "<span id='show_".$p['name']."$rand'>";
       $out .= "</span>\n";
 
       $params['graphtype'] = 0;
-      $out .= Ajax::updateItem("show_".$p['name'].$rand,
+      if (version_compare(GLPI_VERSION,'10.0','le')) 
+         $out .= Ajax::updateItem("show_".$p['name'].$rand,
+                               Plugin::getWebDir("archimap")."/ajax/dropdownTypeArchimap.php",
+                               $params, false);
+      else
+         $out .= Ajax::updateItem("show_".$p['name'].$rand,
                                $CFG_GLPI['root_doc'] . "/plugins/archimap/ajax/dropdownTypeArchimap.php",
                                $params, false);
       if ($p['display']) {

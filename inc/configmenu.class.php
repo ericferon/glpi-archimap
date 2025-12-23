@@ -36,7 +36,10 @@ class PluginArchimapConfigMenu extends CommonGLPI {
 
       $menu                                           = [];
       $menu['title']                                  = self::getMenuName();
-      $menu['page']                                   = "/plugins/archimap/front/config.php";
+      if (version_compare(GLPI_VERSION,'10.0','le')) 
+         $menu['page']                                   = "/".Plugin::getWebDir('archimap', false)."/front/config.php";
+      else
+         $menu['page']                                   = "/plugins/archimap/front/config.php";
       $menu['links']['search']                        = PluginArchimapConfig::getSearchURL(false);
       if (PluginArchimapConfig::canCreate()) {
          $menu['links']['add']                        = PluginArchimapConfig::getFormURL(false);

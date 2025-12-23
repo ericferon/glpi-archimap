@@ -133,7 +133,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		require_once Plugin::getPhpDir("archimap")."/public/drawio-integration/ext/js-fileexplorer/server-side-helpers/file_explorer_fs_helper.php";
 
 		$options = array(
-		"base_url" => $CFG_GLPI['root_doc'] . "/plugins/archimap/public/drawio-integration/images/",
+		"base_url" => (version_compare(GLPI_VERSION,'10.0','le')) ? Plugin::getWebDir("archimap")."/public/drawio-integration/images/" : $CFG_GLPI['root_doc'] . "/plugins/archimap/public/drawio-integration/images/",
 		"protect_depth" => 1,  // Protects base directory + additional directory depth.
 		"recycle_to" => "Recycle Bin",
 		"temp_dir" => "/tmp",
@@ -141,7 +141,7 @@ class PluginArchimapDiagram extends CommonDBChild {
 		"allowed_exts" => ".jpg, .jpeg, .png, .gif, .svg, .txt",
 		"allow_empty_ext" => false,
 		"thumbs_dir" => Plugin::getPhpDir("archimap")."/public/drawio-integration/images",
-		"thumbs_url" => $CFG_GLPI['root_doc'] . "/plugins/archimap/public/drawio-integration/images/",
+		"thumbs_url" => (version_compare(GLPI_VERSION,'10.0','le')) ? Plugin::getWebDir("archimap")."/public/drawio-integration/images/" : $CFG_GLPI['root_doc'] . "/plugins/archimap/public/drawio-integration/images/",
 //		"thumb_create_url" => "https://localhost/fileexplorer?action=file_explorer_thumbnail&xsrftoken=qwerasdf",
 		"refresh" => true,
 		"rename" => false,
